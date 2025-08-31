@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pink Gavel Auctions | All Listings</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900 dark:text-white">
+    <header></header>
+    <!-- Add a container for search results -->
+    <div id="search-results" class="mt-4"></div>
+
+    <main class="container mx-auto px-4 py-8">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
+      >
+        <h1 class="text-3xl font-bold">All Auctions</h1>
+
+        <!-- Sort Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="text-sm text-gray-600 dark:text-gray-400 self-center mr-2"
+            >Sort by:</span
+          >
+          <button
+            class="sort-btn bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-pink-600"
+            data-sort="newest"
+          >
+            Newest
+          </button>
+          <button
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            data-sort="oldest"
+          >
+            Oldest
+          </button>
+          <button
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            data-sort="most-bids"
+          >
+            Most Bids
+          </button>
+          <button
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            data-sort="active-auctions"
+          >
+            Active Auctions
+          </button>
+        </div>
+
+        <!-- Add Listing Button (only if authenticated) -->
+        <button
+          id="addListingBtn"
+          class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+        >
+          + Add Listing
+        </button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="loading-spinner" class="flex justify-center items-center py-12">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"
+        ></div>
+      </div>
+
+      <!-- Message Container -->
+      <div id="message-container" class="hidden">
+        <p id="message-text"></p>
+      </div>
+
+      <!-- Listings Container -->
+      <div
+        id="listings-container"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+      >
+        <!-- Listings will be dynamically inserted here -->
+      </div>
+
+      <!-- Add Media Modal -->
+      <div
+        id="addMediaModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-96 overflow-y-auto"
+        >
+          <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+            Upload Media
+          </h2>
+          <form id="addMediaForm" class="space-y-4">
+            <div>
+              <label
+                class="block mb-2 font-semibold text-gray-900 dark:text-white"
+                >Media URLs</label
+              >
+              <div id="mediaUrlInputs" class="space-y-2">
+                <input
+                  type="url"
+                  name="mediaUrl"
+                  placeholder="Image URL 1"
+                  class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                />
+                <input
+                  type="url"
+                  name="mediaUrl"
+                  placeholder="Image URL 2"
+                  class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                />
+              </div>
+              <button
+                type="button"
+                id="addMoreUrlBtn"
+                class="text-sm text-pink-500 hover:text-pink-600 underline mt-2"
+              >
+                + Add more media
+              </button>
+            </div>
+            <div class="flex justify-between">
+              <button
+                type="button"
+                id="backToListingBtn"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Add Media
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Create New Listing Modal -->
+      <div
+        id="addListingModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-96 overflow-y-auto"
+        >
+          <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+            Create New Listing
+          </h2>
+          <form id="addListingForm" class="space-y-4">
+            <div>
+              <label for="listingTitle" class="block mb-1 font-semibold"
+                >Title</label
+              >
+              <input
+                type="text"
+                id="listingTitle"
+                name="title"
+                class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                required
+              />
+            </div>
+            <div>
+              <label for="listingDesc" class="block mb-1 font-semibold"
+                >Description</label
+              >
+              <textarea
+                id="listingDesc"
+                name="description"
+                rows="3"
+                class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                required
+              ></textarea>
+            </div>
+            <div>
+              <label for="listingEndDate" class="block mb-1 font-semibold"
+                >End Date</label
+              >
+              <input
+                type="datetime-local"
+                id="listingEndDate"
+                name="endsAt"
+                class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                required
+                min=""
+              />
+            </div>
+            <div>
+              <label class="block mb-1 font-semibold">Media</label>
+              <div
+                id="selectedMediaPreview"
+                class="mb-2 text-sm text-gray-600 dark:text-gray-400"
+              >
+                <span id="mediaCount">No media selected</span>
+              </div>
+              <button
+                type="button"
+                id="openMediaModalBtn"
+                class="text-pink-500 hover:text-pink-600 underline font-medium"
+              >
+                Upload Media
+              </button>
+            </div>
+            <div>
+              <label
+                for="listingTags"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Tags (comma-separated)
+              </label>
+              <input
+                type="text"
+                id="listingTags"
+                name="tags"
+                placeholder="e.g., electronics, vintage, collectible"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white"
+              />
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Add up to 10 tags separated by commas
+              </p>
+            </div>
+            <div class="flex justify-end space-x-2">
+              <button
+                type="button"
+                id="cancelAddListingBtn"
+                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Create
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="src/components/header.js"></script>
+    <script type="module" src="src/pages/listings.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

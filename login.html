@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Pink Gavel Auctions</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900 dark:text-white">
+    <header></header>
+    <main class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div
+        class="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md"
+      >
+        <div>
+          <h2
+            class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white"
+          >
+            Sign in to your account
+          </h2>
+        </div>
+        <form id="login-form" class="mt-8 space-y-6">
+          <div class="rounded-md shadow-xs -space-y-px">
+            <div>
+              <label for="email" class="sr-only">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 rounded-t-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+              />
+            </div>
+            <div>
+              <label for="password" class="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 rounded-b-md focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+              />
+            </div>
+          </div>
+
+          <div id="login-error"></div>
+
+          <div>
+            <!-- Purple-Pink Gradient Login Button (using available classes) -->
+            <button
+              type="submit"
+              id="login-submit-btn"
+              class="w-full text-center py-3 px-4 rounded-full bg-gradient-to-br from-purple-400 to-green-500 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Login
+            </button>
+          </div>
+        </form>
+        <div class="flex flex-col items-center mt-4">
+          <span class="text-sm text-gray-600 dark:text-gray-300 mb-2"
+            >Don't have an account?</span
+          >
+          <div id="register-button-container"></div>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="src/components/header.js"></script>
+    <script type="module" src="src/pages/login.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

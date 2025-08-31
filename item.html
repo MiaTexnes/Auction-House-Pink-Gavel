@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auction Item | Pink Gavel Auctions</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900 dark:text-white">
+
+    <header></header>
+
+    <main id="main-content" class="container mx-auto px-4 py-8">
+      <!-- Loading Spinner -->
+      <div id="loading-spinner" class="flex justify-center items-center py-12">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"
+        ></div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="error-container" class="hidden text-center py-12">
+        <p id="error-text" class="text-red-600 dark:text-red-400 text-lg"></p>
+        <button
+          onclick="history.back()"
+          class="inline-block mt-4 bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg transition-colors"
+        >
+          Back
+        </button>
+      </div>
+
+      <!-- Item Content -->
+      <div id="item-content" class="hidden">
+        <!-- Back Button -->
+        <div class="mb-6">
+          <button
+            onclick="history.back()"
+            class="inline-flex items-center text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 transition-colors cursor-pointer"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              ></path>
+            </svg>
+            Back
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Left Column: Image and Gallery -->
+          <div class="space-y-4">
+            <div id="main-image-container" class="relative">
+              <img
+                id="main-image"
+                src=""
+                alt=""
+                class="w-full h-96 object-cover rounded-lg shadow-lg"
+              />
+              <div
+                id="auction-status"
+                class="absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold"
+              ></div>
+            </div>
+
+            <!-- Image Gallery (if multiple images) -->
+            <div id="image-gallery" class="hidden grid grid-cols-4 gap-2">
+              <!-- Gallery thumbnails will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Right Column: Item Details -->
+          <div class="space-y-6">
+            <!-- Title and Category -->
+            <div>
+              <h1 id="item-title" class="text-3xl font-bold mb-2"></h1>
+              <p
+                id="item-description"
+                class="text-gray-600 dark:text-gray-300 text-lg"
+              ></p>
+            </div>
+
+            <!-- Seller Information -->
+            <div
+              id="seller-info"
+              class="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
+              <img
+                id="seller-avatar"
+                src=""
+                alt=""
+                class="w-12 h-12 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
+              />
+              <div>
+                <p class="font-semibold text-lg">Seller</p>
+                <p
+                  id="seller-name"
+                  class="text-gray-600 dark:text-gray-300"
+                ></p>
+              </div>
+            </div>
+
+            <!-- Current Bid and Time Remaining -->
+            <div class="grid grid-cols-2 gap-4">
+              <div
+                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center"
+              >
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  Current Bid
+                </p>
+                <p
+                  id="current-bid"
+                  class="text-2xl font-bold text-pink-600"
+                ></p>
+                <p
+                  id="bid-count"
+                  class="text-sm text-gray-500 dark:text-gray-400"
+                ></p>
+              </div>
+              <div
+                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center"
+              >
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  Time Remaining
+                </p>
+                <p id="time-remaining" class="text-xl font-bold"></p>
+                <p
+                  id="end-date"
+                  class="text-sm text-gray-500 dark:text-gray-400"
+                ></p>
+              </div>
+            </div>
+
+            <!-- Bidding Section -->
+            <div id="bidding-section" class="hidden">
+              <form id="bid-form" class="space-y-4">
+                <div>
+                  <label for="bid-amount" class="block text-sm font-medium mb-2"
+                    >Place Your Bid</label
+                  >
+                  <input
+                    type="number"
+                    id="bid-amount"
+                    name="bidAmount"
+                    min="1"
+                    step="1"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white"
+                    placeholder="Enter bid amount"
+                    required
+                  />
+                  <p
+                    id="min-bid-text"
+                    class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+                  ></p>
+                </div>
+                <button
+                  type="submit"
+                  class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                >
+                  Place Bid
+                </button>
+              </form>
+            </div>
+
+            <!-- Owner Actions -->
+            <div id="owner-actions" class="hidden space-y-3">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                This is your listing
+              </p>
+              <button
+                id="edit-listing-btn"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              >
+                Edit Listing
+              </button>
+              <button
+                id="delete-listing-btn"
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              >
+                Delete Listing
+              </button>
+            </div>
+
+            <!-- Authentication Required -->
+            <div id="auth-required" class="hidden text-center space-y-4">
+              <p class="text-gray-600 dark:text-gray-300">
+                You must be logged in to place bids
+              </p>
+              <a
+                href="/login.html"
+                class="inline-block bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              >
+                Login to Bid
+              </a>
+            </div>
+
+            <!-- Tags Section -->
+            <div class="mb-4">
+              <h3
+                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Tags:
+              </h3>
+              <div id="item-tags"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bidding History -->
+        <div class="mt-12">
+          <h2 class="text-2xl font-bold mb-6">Bidding History</h2>
+          <div id="bidding-history" class="space-y-3">
+            <!-- Bid history will be inserted here -->
+          </div>
+          <div
+            id="no-bids"
+            class="hidden text-center py-8 text-gray-500 dark:text-gray-400"
+          >
+            No bids placed yet. Be the first to bid!
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      id="delete-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative"
+      >
+        <h3 class="text-xl font-bold mb-4">Delete Listing</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">
+          Are you sure you want to delete this listing? This action cannot be
+          undone.
+        </p>
+        <div class="flex justify-end space-x-3">
+          <button
+            id="cancel-delete-btn"
+            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-delete-btn"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Listing Modal -->
+    <div
+      id="edit-modal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto"
+      >
+        <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+          Edit Listing
+        </h3>
+        <form id="edit-listing-form" class="space-y-4">
+          <div>
+            <label
+              for="edit-title"
+              class="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+              >Title</label
+            >
+            <input
+              type="text"
+              id="edit-title"
+              name="title"
+              class="w-full px-3 py-2 border rounded-sm focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="edit-description"
+              class="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+              >Description</label
+            >
+            <textarea
+              id="edit-description"
+              name="description"
+              class="w-full px-3 py-2 border rounded-sm focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+              rows="3"
+              required
+            ></textarea>
+          </div>
+          <div>
+            <label
+              for="edit-media"
+              class="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+              >Image URLs (one per line)</label
+            >
+            <textarea
+              id="edit-media"
+              name="media"
+              class="w-full px-3 py-2 border rounded-sm focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+              rows="3"
+              placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+            ></textarea>
+          </div>
+          <div class="mb-4">
+            <label
+              for="edit-tags"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Tags (comma-separated)
+            </label>
+            <input
+              type="text"
+              id="edit-tags"
+              name="tags"
+              placeholder="e.g., electronics, vintage, collectible"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white"
+            />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Add up to 10 tags separated by commas
+            </p>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancel-edit-btn"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+  <script type="module" src="src/pages/item.js"></script>
+  <script type="module" src="src/main.js"></script>
+</html>

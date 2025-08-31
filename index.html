@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pink Gavel Auctions | Home</title>
+
+  </head>
+  <body class="bg-white dark:bg-gray-900 dark:text-white">
+    <header></header>
+
+    <main id="main-content" class="mx-auto">
+      <!-- Hero Section -->
+      <div
+        class="bg-gradient-to-br from-purple-400 to-pink-400 text-center p-6 md:p-12 mb-8"
+      >
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-black">
+          Welcome to Pink Gavel Auctions
+        </h2>
+        <p class="mb-6 text-black max-w-2xl mx-auto">
+          Here you can find the latest and greatest listings for all your
+          auction needs. Whether you're a buyer or seller, we have something for
+          everyone! Register now to start bidding or listing your items.
+        </p>
+        <div id="home-auth-buttons" class="flex flex-col items-center gap-4">
+          <!-- Auth buttons will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Newest Listings Section -->
+      <section class="px-4 mb-8">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold">Newest Listings</h2>
+          <a
+            href="/listings.html"
+            class="text-pink-500 hover:text-pink-600 font-medium transition-colors"
+          >
+            View All →
+          </a>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="home-loading" class="flex justify-center items-center py-12">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"
+          ></div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="home-error" class="hidden text-center py-8">
+          <p class="text-red-600 dark:text-red-400">
+            Failed to load listings. Please try again later.
+          </p>
+        </div>
+
+        <!-- Carousel Container -->
+        <div id="listings-carousel" class="hidden">
+          <div class="carousel-container">
+            <!-- Carousel will be rendered here by JavaScript -->
+          </div>
+        </div>
+
+        <!-- No Listings Message -->
+        <div id="no-listings" class="hidden text-center py-8">
+          <p class="text-gray-600 dark:text-gray-300">
+            No listings available at the moment.
+          </p>
+        </div>
+      </section>
+      <footer></footer>
+    </main>
+
+    <!-- Scripts -->
+
+    <script type="module" src="src/pages/index.js"></script>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
