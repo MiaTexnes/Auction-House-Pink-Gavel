@@ -236,7 +236,7 @@ class UIManager {
     tags.forEach((tag) => {
       const tagElement = document.createElement("span");
       tagElement.className =
-        "inline-block bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-2 py-1 rounded-full text-xs font-medium mr-2 mb-1";
+        "inline-block bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-4 py-2 rounded-full text-lg mr-3 mb-2 shadow-md";
       tagElement.textContent = `#${tag}`;
       tagsEl.appendChild(tagElement);
     });
@@ -372,49 +372,64 @@ class UIManager {
 
   renderBiddingHistory(bids) {
     if (!this.elements.bidding.history) return;
-
     this.elements.bidding.history.innerHTML = "";
-
     if (bids.length === 0) {
       this.elements.bidding.noBids?.classList.remove("hidden");
       return;
     }
-
     this.elements.bidding.noBids?.classList.add("hidden");
-
     const sortedBids = [...bids].sort((a, b) => b.amount - a.amount);
-
+    // Determine if auction is ended
+    const listing = window.itemPageController?.state?.getListing?.();
+    const isEnded = listing
+      ? Utils.formatTimeRemaining(listing.endsAt).isEnded
+      : false;
     sortedBids.forEach((bid, index) => {
-      const bidElement = document.createElement("div");
-      bidElement.className =
-        "flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg";
-
       const isHighestBid = index === 0;
       const avatarUrl = bid.bidder?.avatar?.url || DEFAULT_BIDDER_AVATAR;
       const bidderName = bid.bidder?.name || "Unknown Bidder";
-
-      bidElement.innerHTML = `
-        <div class="flex items-center space-x-3">
+      let statusText = "";
+      let bidElement;
+      if (isHighestBid && isEnded) {
+        // Winner block: bigger and centered
+        bidElement = document.createElement("div");
+        bidElement.className =
+          "flex flex-col items-center justify-center p-6 bg-green-50 dark:bg-green-900 rounded-lg mb-4";
+        statusText =
+          '<span class="block text-2xl text-green-700 font-bold text-center mb-2">Winner</span>';
+        bidElement.innerHTML = `
+          ${statusText}
           <img src="${avatarUrl}"
                alt="${bidderName}"
-               class="w-10 h-10 rounded-full object-cover border-2 ${
-                 isHighestBid
-                   ? "border-pink-500"
-                   : "border-gray-300 dark:border-gray-600"
-               }">
-          <div>
-            <p class="font-semibold ${isHighestBid ? "text-pink-600" : ""}">${bidderName}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(
-              bid.created,
-            ).toLocaleString()}</p>
+               class="w-16 h-16 rounded-full object-cover border-4 border-green-600 mx-auto mb-2">
+          <p class="font-semibold text-green-800 text-xl text-center mb-1">${bidderName}</p>
+          <p class="text-lg font-bold text-green-700 text-center mb-2">${bid.amount} credits</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center">${new Date(bid.created).toLocaleString()}</p>
+        `;
+      } else {
+        bidElement = document.createElement("div");
+        bidElement.className =
+          "flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg";
+        if (isHighestBid) {
+          statusText =
+            '<span class="text-xs text-pink-500 font-semibold">Highest Bid</span>';
+        }
+        bidElement.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <img src="${avatarUrl}"
+                 alt="${bidderName}"
+                 class="w-10 h-10 rounded-full object-cover border-2 ${isHighestBid ? "border-pink-500" : "border-gray-300 dark:border-gray-600"}">
+            <div>
+              <p class="font-semibold ${isHighestBid ? "text-pink-600" : ""}">${bidderName}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(bid.created).toLocaleString()}</p>
+            </div>
           </div>
-        </div>
-        <div class="text-right">
-          <p class="font-bold text-lg ${isHighestBid ? "text-pink-600" : ""}">${bid.amount} credits</p>
-          ${isHighestBid ? '<span class="text-xs text-pink-500 font-semibold">Highest Bid</span>' : ""}
-        </div>
-      `;
-
+          <div class="text-right">
+            <p class="font-bold text-lg ${isHighestBid ? "text-pink-600" : ""}">${bid.amount} credits</p>
+            ${statusText}
+          </div>
+        `;
+      }
       this.elements.bidding.history.appendChild(bidElement);
     });
   }
@@ -798,6 +813,6 @@ class ItemPageController {
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
-  const app = new ItemPageController();
-  app.init();
+  window.itemPageController = new ItemPageController();
+  window.itemPageController.init();
 });
