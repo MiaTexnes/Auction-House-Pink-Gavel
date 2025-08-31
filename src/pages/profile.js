@@ -92,17 +92,17 @@ class UIManager {
   generateStatsSection(profile) {
     return `
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-blue-100 dark:bg-blue-800 border border-gray-300 p-4 rounded-lg text-center">
+        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
           <h4 class="text-lg font-semibold">Total Listings</h4>
-          <p class="text-2xl font-bold text-blue-600">${profile.listings?.length || 0}</p>
+          <p class="text-2xl font-bold text-black dark:text-white">${profile.listings?.length || 0}</p>
         </div>
-        <div class="bg-purple-100 dark:bg-purple-800 border border-gray-300 p-4 rounded-lg text-center">
+        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
           <h4 class="text-lg font-semibold">Wins</h4>
-          <p class="text-2xl font-bold text-purple-600">${profile.wins?.length || 0}</p>
+          <p class="text-2xl font-bold text-black dark:text-white">${profile.wins?.length || 0}</p>
         </div>
-        <div class="bg-purple-100 dark:bg-purple-800 border border-gray-300 p-4 rounded-lg text-center">
+        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
           <h4 class="text-lg font-semibold">Credits</h4>
-          <p class="text-2xl font-bold text-purple-600">${profile.credits || 0}</p>
+          <p class="text-2xl font-bold text-black dark:text-white">${profile.credits || 0}</p>
         </div>
       </div>
     `;
