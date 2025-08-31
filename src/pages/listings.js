@@ -263,7 +263,7 @@ class ListingCardBuilder {
     const card = document.createElement("a");
     card.href = `/item.html?id=${listing.id}`;
     card.className = this.cardClasses;
-    card.style.cssText = `height: 480px; min-height: 480px; max-height: 450px;`;
+    card.style.cssText = `height: 480px; min-height: 480px; max-height: 490px;`;
     return card;
   }
 
