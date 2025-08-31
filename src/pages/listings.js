@@ -1,3 +1,4 @@
+//listings.js
 import { isAuthenticated, getAuthHeader } from "../library/auth.js";
 import { createListing } from "../library/newListing.js";
 import { searchAndSortComponent } from "../components/searchAndSort.js";
@@ -61,8 +62,8 @@ const Utils = {
     const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
 
     return {
-      text: `Ends: ${days}d ${hours}h ${minutes}m`,
-      class: "text-green-500 dark:text-green-400",
+      text: `Ends: ${days}d ${hours}h `,
+      class: "text-green-800 dark:text-green-400 font-semibold",
     };
   },
 
@@ -262,7 +263,7 @@ class ListingCardBuilder {
     const card = document.createElement("a");
     card.href = `/item.html?id=${listing.id}`;
     card.className = this.cardClasses;
-    card.style.cssText = `height: ${CONSTANTS.DIMENSIONS.CARD_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.CARD_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.CARD_HEIGHT};`;
+    card.style.cssText = `height: 480px; min-height: 480px; max-height: 450px;`;
     return card;
   }
 
@@ -318,16 +319,21 @@ class ListingCardBuilder {
   }
 
   generateSellerInfoHTML(createdDate, sellerInfo) {
-    return `<div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-3 flex-shrink-0" style="height: 24px; min-height: 24px; max-height: 24px;">
-      <span class="text-gray-600 dark:text-gray-400">Created: ${createdDate.toLocaleDateString()} By ${sellerInfo.name}</span>
-      <img src="${sellerInfo.avatar}" alt="${sellerInfo.name}" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
+    return `<div class="flex flex-col items-start gap-1 text-gray-500 dark:text-gray-400 mb-2 flex-shrink-0">
+      <span class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-1">Created: ${createdDate.toLocaleDateString()}</span>
+      <div class="flex items-center gap-2 mb-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
+          <img src="${sellerInfo.avatar}" alt="${sellerInfo.name}" class="w-full h-full object-cover rounded-full" style="display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+        </span>
+        <span class="text-sm text-gray-600 dark:text-gray-400">${sellerInfo.name}</span>
+      </div>
     </div>`;
   }
 
   generateTimeAndBidsHTML(timeInfo, bidCount) {
-    return `<div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-3 flex-shrink-0" style="height: 24px; min-height: 24px; max-height: 24px;">
+    return `<div class="flex items-center justify-between text-md text-gray-600 font-semibold dark:text-gray-400 mb-3 flex-shrink-0" style="height: 24px; min-height: 24px; max-height: 24px;">
       <span class="font-medium ${timeInfo.class} transition-colors duration-200 truncate" style="max-width: 60%;">${timeInfo.text}</span>
-      <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-900 hover:scale-105 flex-shrink-0">Bids: ${bidCount}</span>
+      <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-md font-medium  flex-shrink-0">Bids: ${bidCount}</span>
     </div>`;
   }
 
@@ -411,7 +417,7 @@ class UIManager {
     const fragment = document.createDocumentFragment();
 
     listings.forEach((listing) => {
-      fragment.appendChild(this.cardBuilder.build(listing));
+      fragment.appendChild(this.cardBuilder.build(normalizeListing(listing)));
     });
 
     listingsContainer.appendChild(fragment);
@@ -939,6 +945,42 @@ class ListingsPageController {
   createListingCard(listing) {
     return this.cardBuilder.build(listing);
   }
+
+  renderInitialListings() {
+    const container = document.getElementById("seller-listings-container");
+    if (!container) return;
+
+    const listings = this.state.getInitialListings();
+    listings.forEach((listing) => {
+      // Ensure seller info is present
+      if (!listing.seller || !listing.seller.name) {
+        listing.seller = {
+          name: this.profile.name,
+          avatar: this.profile.avatar,
+        };
+      }
+      // Ensure _count.bids exists for bid display
+      if (!listing._count) listing._count = {};
+      listing._count.bids = Array.isArray(listing.bids)
+        ? listing.bids.length
+        : 0;
+
+      container.appendChild(createListingCard(listing));
+    });
+  }
+
+  renderInitialWins() {
+    const container = document.getElementById("seller-wins-container");
+    if (!container) return;
+
+    const wins = this.state.getInitialWins();
+    wins.forEach((win) => {
+      // Ensure _count.bids exists for bid display
+      if (!win._count) win._count = {};
+      win._count.bids = Array.isArray(win.bids) ? win.bids.length : 0;
+      container.appendChild(createListingCard(win));
+    });
+  }
 }
 
 // Factory function for creating listing cards (maintains API compatibility)
@@ -954,3 +996,21 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Failed to initialize listings page:", error);
   });
 });
+
+function normalizeListing(listing) {
+  if (!listing._count) listing._count = {};
+  if (typeof listing._count.bids === "number" && listing._count.bids >= 0) {
+    // Already normalized
+  } else if (Array.isArray(listing.bids)) {
+    listing._count.bids = listing.bids.length;
+  } else if (
+    listing.bids &&
+    typeof listing.bids === "object" &&
+    typeof listing.bids.count === "number"
+  ) {
+    listing._count.bids = listing.bids.count;
+  } else {
+    listing._count.bids = 0;
+  }
+  return listing;
+}

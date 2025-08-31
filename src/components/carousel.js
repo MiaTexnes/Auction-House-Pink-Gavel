@@ -33,7 +33,8 @@ export function createCarouselCard(listing) {
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-80 min-w-[320px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[420px] flex flex-col cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 dark:border-gray-700";
+    "flex-none w-80 min-w-[320px] max-w-[320px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[420px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
+  // Remove scale and translate on hover to prevent overflow
 
   card.innerHTML = `
     ${
@@ -84,7 +85,7 @@ export function renderCarousel(listings, carouselContainer) {
 
   // Update carousel container classes for proper scrolling
   carouselContainer.className =
-    "flex gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide";
+    "flex gap-6 overflow-x-auto pb- scroll-smooth scrollbar-hide max-w-full";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);
@@ -102,6 +103,13 @@ export function setupCarouselScrollButtons(
   const scrollRightBtn = document.getElementById(scrollRightId);
 
   if (scrollLeftBtn && scrollRightBtn) {
+    // Set text labels for accessibility and clarity (visible and aria)
+    // WCAG-compliant visible text labels
+    scrollLeftBtn.textContent = "Scroll Left";
+    scrollLeftBtn.setAttribute("aria-label", "Scroll carousel left");
+    scrollRightBtn.textContent = "Scroll Right";
+    scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
+
     scrollLeftBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {

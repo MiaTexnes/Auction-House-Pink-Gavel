@@ -242,11 +242,19 @@ class CarouselComponent {
       ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>`
       : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>`;
 
+    // Accessible name for button
+    const accessibleLabel = isLeft
+      ? "Scroll carousel left"
+      : "Scroll carousel right";
+    const visibleText = isLeft ? "Scroll Left" : "Scroll Right";
+
     const button = DOMUtils.createElement(
       "button",
       "p-3 bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10",
-      `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg>`,
+      `<span class="sr-only">${accessibleLabel}</span><span aria-hidden="true"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg></span>`,
     );
+    button.setAttribute("aria-label", accessibleLabel);
+    button.title = visibleText;
 
     button.addEventListener("click", () => {
       if (isLeft) {

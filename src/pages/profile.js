@@ -5,19 +5,29 @@ import {
 } from "../library/auth.js";
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
-import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import { API_BASE_URL } from "../services/baseApi.js";
 
-// Constants
 const DEFAULT_AVATAR = "https://placehold.co/150x150?text=Avatar";
 const LISTING_DISPLAY_LIMIT = 4;
 const MESSAGE_DISPLAY_DURATION = 4000;
+
+function normalizeListing(listing, profile) {
+  if (!listing.seller?.name) {
+    listing.seller = { name: profile.name, avatar: profile.avatar };
+  }
+  listing._count = listing._count || {};
+  listing._count.bids =
+    Number.isInteger(listing._count.bids) && listing._count.bids >= 0
+      ? listing._count.bids
+      : 0;
+  return listing;
+}
 
 // DOM Elements Manager
 class DOMElements {
   constructor() {
     this.profileContainer = document.getElementById("profile-content");
   }
-
   getProfileContainer() {
     return this.profileContainer;
   }
@@ -32,15 +42,9 @@ class UIManager {
   showMessage(type, message) {
     const container = this.elements.getProfileContainer();
     if (!container) return;
-
     const messageElement = document.createElement("div");
-    messageElement.className = `my-4 p-3 rounded-sm text-center ${
-      type === "success"
-        ? "bg-green-100 text-green-800"
-        : "bg-red-100 text-red-800"
-    }`;
+    messageElement.className = `my-4 p-3 rounded-sm text-center ${type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`;
     messageElement.textContent = message;
-
     container.prepend(messageElement);
     setTimeout(() => messageElement.remove(), MESSAGE_DISPLAY_DURATION);
   }
@@ -48,7 +52,6 @@ class UIManager {
   renderProfileView(profile) {
     const container = this.elements.getProfileContainer();
     if (!container) return;
-
     container.innerHTML = this.generateProfileHTML(profile);
     this.setupProfileEventListeners(profile);
     this.renderUserListings(profile);
@@ -56,23 +59,21 @@ class UIManager {
   }
 
   generateProfileHTML(profile) {
-    return `
-      ${this.generateProfileHeader(profile)}
-      ${this.generateUserBio(profile)}
-      ${this.generateStatsSection(profile)}
-      ${this.generateActionButtons()}
-      ${this.generateWinsSection(profile)}
-      ${this.generateListingsSection(profile)}
-      ${this.generateNewListingModal()}
-    `;
+    return [
+      this.generateProfileHeader(profile),
+      this.generateUserBio(profile),
+      this.generateStatsSection(profile),
+      this.generateActionButtons(),
+      this.generateWinsSection(profile),
+      this.generateListingsSection(profile),
+      this.generateNewListingModal(),
+    ].join("");
   }
 
   generateProfileHeader(profile) {
     return `
       <div class="flex flex-col items-center mb-6">
-        <img src="${profile.avatar?.url || DEFAULT_AVATAR}"
-             alt="Avatar"
-             class="w-32 h-32 rounded-full mb-4 object-cover border-4 border-pink-500">
+        <img src="${profile.avatar?.url || DEFAULT_AVATAR}" alt="Avatar" class="w-32 h-32 rounded-full mb-4 object-cover border-4 border-pink-500">
         <h2 class="text-3xl font-bold mb-2">${profile.name}</h2>
         <p class="text-gray-600 dark:text-gray-300">${profile.email}</p>
       </div>
@@ -117,7 +118,7 @@ class UIManager {
   }
 
   generateWinsSection(profile) {
-    if (!profile.wins || profile.wins.length === 0) {
+    if (!profile.wins?.length) {
       return `
         <div class="mb-6">
           <h3 class="text-xl font-semibold mb-4">Wins</h3>
@@ -125,33 +126,25 @@ class UIManager {
         </div>
       `;
     }
-
     return `
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Wins</h3>
-        <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <!-- Wins will be inserted here by JavaScript -->
-        </div>
+        <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         ${this.generateViewMoreButtons("wins", profile.wins.length)}
       </div>
     `;
   }
 
   generateListingsSection(profile) {
-    if (!profile.listings || profile.listings.length === 0) {
+    if (!profile.listings?.length) {
       return `
-        <div class="mb-6 text-center text-gray-500 dark:text-gray-400">
-          No listings created yet.
-        </div>
+        <div class="mb-6 text-center text-gray-500 dark:text-gray-400">No listings created yet.</div>
       `;
     }
-
     return `
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Your Listings</h3>
-        <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <!-- Listings will be inserted here by JavaScript -->
-        </div>
+        <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         ${this.generateViewMoreButtons("listings", profile.listings.length)}
       </div>
     `;
@@ -159,7 +152,6 @@ class UIManager {
 
   generateViewMoreButtons(type, itemCount) {
     if (itemCount <= LISTING_DISPLAY_LIMIT) return "";
-
     const prefix = type === "wins" ? "Wins" : "";
     return `
       <div class="flex justify-center space-x-4 mt-4">
@@ -203,11 +195,9 @@ class UIManager {
   }
 
   renderUserListings(profile) {
-    if (!profile.listings || profile.listings.length === 0) return;
-
+    if (!profile.listings?.length) return;
     const container = document.getElementById("user-listings-container");
     if (!container) return;
-
     const listingsManager = new ListingsManager(
       container,
       profile.listings,
@@ -218,11 +208,9 @@ class UIManager {
   }
 
   renderUserWins(profile) {
-    if (!profile.wins || profile.wins.length === 0) return;
-
+    if (!profile.wins?.length) return;
     const container = document.getElementById("user-wins-container");
     if (!container) return;
-
     const winsManager = new WinsManager(container, profile.wins, profile);
     winsManager.render();
     winsManager.setupEventListeners();
@@ -237,15 +225,13 @@ class UIManager {
     const editProfileBtn = document.getElementById("editProfileBtn");
     if (editProfileBtn) {
       editProfileBtn.addEventListener("click", () => {
-        const modalManager = new EditProfileModalManager(this, profile);
-        modalManager.show();
+        new EditProfileModalManager(this, profile).show();
       });
     }
   }
 
   setupNewListingModalListeners(profile) {
-    const modalManager = new NewListingModalManager(this, profile);
-    modalManager.setupEventListeners();
+    new NewListingModalManager(this, profile).setupEventListeners();
   }
 
   setMinimumDateTime() {
@@ -276,16 +262,27 @@ class ListingsManager {
     this.renderListings(initialListings);
   }
 
-  renderListings(listings) {
-    listings.forEach((listing) => {
-      if (!listing.seller) {
-        listing.seller = {
-          name: this.profile.name,
-          avatar: this.profile.avatar,
-        };
-      }
-      this.container.appendChild(createListingCard(listing));
-    });
+  async renderListings(listings) {
+    for (const listing of listings) {
+      let listingWithBids = listing;
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/auction/listings/${listing.id}?_bids=true`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+            },
+          },
+        );
+        if (response.ok) {
+          const data = await response.json();
+          listingWithBids = { ...listing, ...data.data };
+        }
+      } catch (e) {}
+      const normalizedListing = normalizeListing(listingWithBids, this.profile);
+      this.container.appendChild(createListingCard(normalizedListing));
+    }
   }
 
   setupEventListeners() {
@@ -320,7 +317,6 @@ class ListingsManager {
   toggleButtons(showMore) {
     const viewMoreBtn = document.getElementById("viewMoreBtn");
     const viewLessBtn = document.getElementById("viewLessBtn");
-
     if (viewMoreBtn && viewLessBtn) {
       if (showMore) {
         viewMoreBtn.classList.remove("hidden");
@@ -354,11 +350,9 @@ class WinsManager extends ListingsManager {
         );
         this.renderListings(nextWins);
         this.currentIndex += LISTING_DISPLAY_LIMIT;
-
         if (this.currentIndex >= this.listings.length) {
           viewMoreBtn.classList.add("hidden");
         }
-
         const viewLessBtn = document.getElementById("viewLessWinsBtn");
         if (viewLessBtn) {
           viewLessBtn.classList.remove("hidden");
@@ -374,7 +368,6 @@ class WinsManager extends ListingsManager {
         this.container.innerHTML = "";
         this.renderInitialListings();
         this.currentIndex = LISTING_DISPLAY_LIMIT;
-
         const viewMoreBtn = document.getElementById("viewMoreWinsBtn");
         if (viewMoreBtn) {
           viewMoreBtn.classList.remove("hidden");
@@ -409,11 +402,9 @@ class NewListingModalManager {
   setupCloseModalListeners() {
     const closeModalBtn = document.getElementById("closeNewListingModal");
     const cancelBtn = document.getElementById("cancelNewListingBtn");
-
     if (closeModalBtn) {
       closeModalBtn.addEventListener("click", () => this.closeModal());
     }
-
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => this.closeModal());
     }
@@ -439,11 +430,9 @@ class NewListingModalManager {
   closeModal() {
     const modal = document.getElementById("newListingModal");
     const form = document.getElementById("newListingForm");
-
     if (modal) {
       modal.classList.add("hidden");
     }
-
     if (form) {
       form.reset();
     }
@@ -451,18 +440,16 @@ class NewListingModalManager {
 
   async handleFormSubmission() {
     const formData = this.getFormData();
-
     try {
       await APIService.createListing(formData);
       this.uiManager.showMessage("success", "Listing created successfully!");
       this.closeModal();
-
       const refreshedProfile = await APIService.fetchProfile(this.profile.name);
       this.uiManager.renderProfileView(refreshedProfile);
-    } catch (error) {
+    } catch (err) {
       this.uiManager.showMessage(
         "error",
-        error.message || "Failed to create listing.",
+        err.message || "Failed to create listing.",
       );
     }
   }
@@ -472,7 +459,6 @@ class NewListingModalManager {
     const description = document.getElementById("listingDesc").value.trim();
     const endsAt = document.getElementById("listingEndDate").value;
     const mediaUrl = document.getElementById("listingImage").value.trim();
-
     return {
       title,
       description,
@@ -537,7 +523,6 @@ class EditProfileModalManager {
   setupAvatarPreview() {
     const avatarInput = document.getElementById("avatar");
     const avatarPreview = document.getElementById("avatar-preview");
-
     if (avatarInput && avatarPreview) {
       avatarInput.addEventListener("input", () => {
         avatarPreview.src = avatarInput.value || DEFAULT_AVATAR;
@@ -548,11 +533,9 @@ class EditProfileModalManager {
   setupCloseListeners() {
     const closeBtn = document.getElementById("closeEditProfileModal");
     const cancelBtn = document.getElementById("cancelEditProfileBtn");
-
     if (closeBtn) {
       closeBtn.addEventListener("click", () => this.close());
     }
-
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => this.close());
     }
@@ -570,14 +553,11 @@ class EditProfileModalManager {
 
   async handleFormSubmission() {
     const formData = this.getFormData();
-
     try {
       await APIService.updateProfile({ ...formData, name: this.profile.name });
-
       const refreshedProfile = await APIService.fetchProfile(this.profile.name);
       this.uiManager.showMessage("success", "Profile updated successfully!");
       this.uiManager.renderProfileView(refreshedProfile);
-
       this.updateLocalStorage(refreshedProfile);
       this.close();
     } catch (error) {
@@ -616,7 +596,6 @@ class APIService {
   static getHeaders() {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No token found");
-
     return {
       "Content-Type": "application/json",
       "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
@@ -626,10 +605,9 @@ class APIService {
 
   static async fetchProfile(name) {
     const response = await fetch(
-      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_seller=true&_bids=true`, // Use API_BASE_URL instead of API_BASE
+      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_seller=true&_bids=true&_count=true`,
       { headers: this.getHeaders() },
     );
-
     if (!response.ok) {
       if (response.status === 401) {
         localStorage.removeItem("token");
@@ -637,13 +615,11 @@ class APIService {
         window.location.href = "/login.html";
         return;
       }
-
       const errorData = await response.json();
       throw new Error(
         errorData.errors?.[0]?.message || "Failed to load profile",
       );
     }
-
     const responseData = await response.json();
     return responseData.data;
   }
@@ -652,40 +628,33 @@ class APIService {
     const body = {};
     if (avatar) body.avatar = { url: avatar, alt: "User avatar" };
     if (bio) body.bio = bio;
-
     const response = await fetch(`${API_BASE_URL}/auction/profiles/${name}`, {
-      // Use API_BASE_URL instead of API_BASE
       method: "PUT",
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
-
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
         errorData.errors?.[0]?.message || "Failed to update profile",
       );
     }
-
     const responseData = await response.json();
     return responseData.data;
   }
 
   static async createListing({ title, description, endsAt, media }) {
     const response = await fetch(`${API_BASE_URL}/auction/listings`, {
-      // Use API_BASE_URL instead of API_BASE
       method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify({ title, description, endsAt, media }),
     });
-
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
         errorData.errors?.[0]?.message || "Failed to create listing",
       );
     }
-
     const responseData = await response.json();
     return responseData.data;
   }
@@ -701,13 +670,11 @@ class ProfileController {
   async init() {
     const container = this.elements.getProfileContainer();
     if (!container) return;
-
     if (!isAuthenticated()) {
       container.innerHTML =
         '<div class="text-center text-red-600">You must be logged in to view your profile. <a href="/login.html" class="underline text-blue-500 hover:text-blue-700">Login here</a>.</div>';
       return;
     }
-
     const user = getCurrentUser();
     if (!user || !user.name) {
       container.innerHTML =
@@ -715,7 +682,6 @@ class ProfileController {
       logoutUser();
       return;
     }
-
     try {
       const profile = await APIService.fetchProfile(user.name);
       this.ui.renderProfileView(profile);
@@ -728,8 +694,6 @@ class ProfileController {
   }
 }
 
-// Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
-  const profileController = new ProfileController();
-  profileController.init();
+  new ProfileController().init();
 });
