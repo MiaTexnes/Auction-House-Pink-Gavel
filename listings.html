@@ -11,10 +11,12 @@
     <div id="search-results" class="mt-4"></div>
 
     <main class="container mx-auto px-4 py-8">
+      <p class="all-auctions-header"></p>
       <div
         class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
       >
-        <h1 class="text-3xl font-bold">All Auctions</h1>
+      <p class="all-auctions-header"></p>
+        <h1 class=" text-3xl font-bold">All Auctions</h1>
 
         <!-- Sort Buttons -->
         <div class="flex flex-wrap gap-2">
@@ -51,7 +53,7 @@
         <!-- Add Listing Button (only if authenticated) -->
         <button
           id="addListingBtn"
-          class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          class="bg-green-300 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
         >
           + Add Listing
         </button>
@@ -233,8 +235,6 @@
         </div>
       </div>
     </main>
-
-    <script type="module" src="src/components/header.js"></script>
     <script type="module" src="src/pages/listings.js"></script>
     <script type="module" src="src/main.js"></script>
   </body>

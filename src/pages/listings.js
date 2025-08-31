@@ -879,6 +879,18 @@ class ListingsPageController {
 
     this.ui.updateAuthUI();
     this.setDefaultSortButton();
+    // Show login/create user message above 'All auctions' if not authenticated
+    if (!isAuthenticated()) {
+      const allAuctionsHeader = document.querySelector(".all-auctions-header");
+      if (allAuctionsHeader) {
+        const infoMsg = document.createElement("div");
+        infoMsg.textContent =
+          "Log in or create user to bid and see other users";
+        infoMsg.className =
+          "w-full mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-900 rounded text-center font-semibold";
+        allAuctionsHeader.parentNode.insertBefore(infoMsg, allAuctionsHeader);
+      }
+    }
     await this.loadListings();
     this.eventHandler.setupAllEventListeners();
     this.handleURLSearch();

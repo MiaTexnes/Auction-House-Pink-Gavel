@@ -56,7 +56,7 @@ function renderHeader() {
   const currentPath = window.location.pathname;
 
   return `
-    <nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-500 dark:border-gray-700">
+    <nav class="overflow-x-auto flex-nowrap bg-white dark:bg-gray-800 shadow-lg border-b border-gray-500 dark:border-gray-700">
       <div class="mx-2 px-4">
         <div class="flex justify-between items-center py-4">
           <!-- Left Side: Logo and Navigation -->
@@ -71,9 +71,9 @@ function renderHeader() {
 
             <!-- Navigation Links -->
             <div class="hidden md:flex items-center space-x-6">
-              <a href="/index.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
+              <!-- <a href="/index.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
                 currentPath === "/index.html" ? "font-bold text-pink-600" : ""
-              }">Home</a>
+              }">Home</a> -->
               <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
                 currentPath === "/listings.html"
                   ? "font-bold text-pink-600"
@@ -103,7 +103,7 @@ function renderHeader() {
                 id="header-search"
                 name="search"
                 placeholder="Search auctions..."
-                class="px-4 py-2 pr-10 w-64 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500"
+                class="px-4 py-2 pr-10 w-40 md:w-64 border border-gray-400 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500"
                 aria-label="Search Auctions"
                 autocomplete="off"
               >
@@ -131,7 +131,7 @@ function renderHeader() {
             <!-- Dark mode toggle always visible -->
             <button
               onclick="window.toggleDarkMode()"
-              class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-black dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              class="p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-black dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
               aria-label="Toggle dark mode"
             >
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
