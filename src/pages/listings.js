@@ -15,6 +15,7 @@ const CONSTANTS = {
   },
   MAX_TAGS: 10,
   DEFAULT_MEDIA_INPUTS: 2,
+  LISTINGS_PER_PAGE: 12,
 };
 
 // Utility Functions
@@ -165,6 +166,8 @@ class StateManager {
       selectedMediaUrls: [],
       isLoading: false,
       currentSearch: null,
+      displayedListingsCount: 0,
+      showingAll: false,
     };
   }
 
@@ -228,6 +231,35 @@ class StateManager {
 
   getCurrentSearch() {
     return this.state.currentSearch;
+  }
+
+  // Pagination state
+  setDisplayedListingsCount(count) {
+    this.state.displayedListingsCount = count;
+    return this;
+  }
+
+  getDisplayedListingsCount() {
+    return this.state.displayedListingsCount;
+  }
+
+  setShowingAll(showingAll) {
+    this.state.showingAll = showingAll;
+    return this;
+  }
+
+  isShowingAll() {
+    return this.state.showingAll;
+  }
+
+  incrementDisplayedCount(increment) {
+    this.state.displayedListingsCount += increment;
+    return this;
+  }
+
+  resetDisplayedCount() {
+    this.state.displayedListingsCount = 0;
+    return this;
   }
 }
 
@@ -410,6 +442,7 @@ class UIManager {
 
     if (listings.length === 0) {
       this.showMessage("No listings found.", "info");
+      this.hideLoadMoreButton();
       return;
     }
 
@@ -421,6 +454,138 @@ class UIManager {
     });
 
     listingsContainer.appendChild(fragment);
+  }
+
+  displayInitialListings(allListings, state) {
+    const listingsContainer = this.elements.get("listingsContainer");
+    if (!listingsContainer) return;
+
+    this.hideLoading();
+    const messageContainer = this.elements.get("messageContainer");
+    if (messageContainer) {
+      messageContainer.classList.add("hidden");
+    }
+
+    if (allListings.length === 0) {
+      this.showMessage("No listings found.", "info");
+      this.hideLoadMoreButton();
+      return;
+    }
+
+    // Show initial batch
+    const initialListings = allListings.slice(0, CONSTANTS.LISTINGS_PER_PAGE);
+    state.setDisplayedListingsCount(initialListings.length);
+
+    listingsContainer.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
+    initialListings.forEach((listing) => {
+      fragment.appendChild(this.cardBuilder.build(normalizeListing(listing)));
+    });
+
+    listingsContainer.appendChild(fragment);
+
+    // Show/hide load more button
+    this.updateLoadMoreButton(allListings.length, state);
+  }
+
+  appendMoreListings(allListings, state) {
+    const listingsContainer = this.elements.get("listingsContainer");
+    if (!listingsContainer) return;
+
+    const currentCount = state.getDisplayedListingsCount();
+    const nextBatch = allListings.slice(
+      currentCount,
+      currentCount + CONSTANTS.LISTINGS_PER_PAGE,
+    );
+
+    if (nextBatch.length === 0) return;
+
+    const fragment = document.createDocumentFragment();
+    nextBatch.forEach((listing) => {
+      fragment.appendChild(this.cardBuilder.build(normalizeListing(listing)));
+    });
+
+    listingsContainer.appendChild(fragment);
+    state.incrementDisplayedCount(nextBatch.length);
+
+    // Update load more button visibility
+    this.updateLoadMoreButton(allListings.length, state);
+  }
+
+  updateLoadMoreButton(totalListings, state) {
+    const loadMoreContainer = this.getOrCreateLoadMoreContainer();
+    const currentCount = state.getDisplayedListingsCount();
+
+    if (currentCount >= totalListings) {
+      // All listings are displayed - show view less if we have more than initial page
+      if (currentCount > CONSTANTS.LISTINGS_PER_PAGE) {
+        loadMoreContainer.innerHTML = `
+          <div class="flex justify-center space-x-4 mt-8 mb-4">
+            <button id="viewLessBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
+              View Less
+            </button>
+          </div>
+        `;
+      } else {
+        loadMoreContainer.innerHTML = "";
+      }
+      state.setShowingAll(true);
+    } else {
+      // More listings available
+      const remainingCount = totalListings - currentCount;
+      const nextBatchSize = Math.min(
+        remainingCount,
+        CONSTANTS.LISTINGS_PER_PAGE,
+      );
+
+      const buttons = [];
+
+      // Show View Less button if we have more than initial page displayed
+      if (currentCount > CONSTANTS.LISTINGS_PER_PAGE) {
+        buttons.push(`
+          <button id="viewLessBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
+            View Less
+          </button>
+        `);
+      }
+
+      // Show Load More button
+      buttons.push(`
+        <button id="loadMoreBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
+          Load More (${nextBatchSize} of ${remainingCount} remaining)
+        </button>
+      `);
+
+      loadMoreContainer.innerHTML = `
+        <div class="flex justify-center space-x-4 mt-8 mb-4">
+          ${buttons.join("")}
+        </div>
+      `;
+      state.setShowingAll(false);
+    }
+  }
+
+  hideLoadMoreButton() {
+    const loadMoreContainer = this.getOrCreateLoadMoreContainer();
+    loadMoreContainer.innerHTML = "";
+  }
+
+  getOrCreateLoadMoreContainer() {
+    let container = document.getElementById("load-more-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "load-more-container";
+
+      const listingsContainer = this.elements.get("listingsContainer");
+      if (listingsContainer && listingsContainer.parentNode) {
+        listingsContainer.parentNode.insertBefore(
+          container,
+          listingsContainer.nextSibling,
+        );
+      }
+    }
+    return container;
   }
 
   updateAuthUI() {
@@ -702,6 +867,7 @@ class EventHandler {
     this.setupModalEvents();
     this.setupFormEvents();
     this.setupAuthEvents();
+    this.setupLoadMoreEvents();
   }
 
   setupSearchEvents() {
@@ -712,7 +878,9 @@ class EventHandler {
     window.clearSearchResults = () => {
       Utils.clearSearchResults();
       this.ui.removeSearchIndicator();
-      this.ui.displayListings(this.state.getListings());
+      this.state.setCurrentSearch(null);
+      this.state.resetDisplayedCount();
+      this.ui.displayInitialListings(this.state.getListings(), this.state);
     };
   }
 
@@ -771,6 +939,48 @@ class EventHandler {
     });
   }
 
+  setupLoadMoreEvents() {
+    // Use event delegation for dynamically created load more and view less buttons
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.id === "loadMoreBtn") {
+        this.handleLoadMore();
+      } else if (e.target && e.target.id === "viewLessBtn") {
+        this.handleViewLess();
+      }
+    });
+  }
+
+  handleLoadMore() {
+    const currentSearch = this.state.getCurrentSearch();
+
+    if (currentSearch && currentSearch.trim() !== "") {
+      // Load more from filtered results
+      const filteredListings = this.state.getFilteredListings();
+      this.ui.appendMoreListings(filteredListings, this.state);
+    } else {
+      // Load more from all listings
+      const allListings = this.state.getListings();
+      this.ui.appendMoreListings(allListings, this.state);
+    }
+  }
+
+  handleViewLess() {
+    const currentSearch = this.state.getCurrentSearch();
+
+    if (currentSearch && currentSearch.trim() !== "") {
+      // View less from filtered results
+      const filteredListings = this.state.getFilteredListings();
+      this.state.resetDisplayedCount();
+      this.ui.displayInitialListings(filteredListings, this.state);
+      this.ui.updateSearchIndicator(currentSearch, filteredListings.length);
+    } else {
+      // View less from all listings
+      const allListings = this.state.getListings();
+      this.state.resetDisplayedCount();
+      this.ui.displayInitialListings(allListings, this.state);
+    }
+  }
+
   handleSearchResults(event) {
     const { query, results, error, sortBy } = event.detail;
 
@@ -782,15 +992,19 @@ class EventHandler {
     if (results.length === 0) {
       const message = this.getEmptyResultsMessage(query, sortBy);
       this.ui.showMessage(message, "info");
+      this.ui.hideLoadMoreButton();
       return;
     }
 
+    this.state.setCurrentSearch(query);
+    this.state.setFilteredListings(results);
+    this.state.resetDisplayedCount();
+
     if (query.trim() === "") {
       this.ui.removeSearchIndicator();
-      this.ui.displayListings(results);
+      this.ui.displayInitialListings(results, this.state);
     } else {
-      this.state.setFilteredListings(results);
-      this.ui.displayListings(results);
+      this.ui.displayInitialListings(results, this.state);
       this.ui.updateSearchIndicator(query, results.length);
     }
   }
@@ -840,7 +1054,8 @@ class EventHandler {
     try {
       const listings = await this.apiService.fetchListings();
       this.state.setListings(listings);
-      this.ui.displayListings(listings);
+      this.state.resetDisplayedCount();
+      this.ui.displayInitialListings(listings, this.state);
     } catch (error) {
       this.ui.showError(`Error: ${error.message}`);
     } finally {
@@ -903,13 +1118,14 @@ class ListingsPageController {
     try {
       const listings = await this.apiService.fetchListings();
       this.state.setListings(listings);
+      this.state.resetDisplayedCount();
 
       if (listings.length === 0) {
         this.ui.showMessage("No listings found.", "info");
         return;
       }
 
-      this.ui.displayListings(listings);
+      this.ui.displayInitialListings(listings, this.state);
     } catch (error) {
       this.ui.showMessage(`Error: ${error.message}`, "error");
     } finally {
