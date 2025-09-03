@@ -64,7 +64,7 @@ function renderHeader() {
             <!-- Logo -->
             <div class="flex items-center space-x-3">
               <a href="/index.html" class="flex items-center space-x-2">
-                <img src="/assets/images/logo.png" alt="Pink Gavel Auctions" class="h-14 w-14">
+                <img src="/images/logo.png" alt="Pink Gavel Auctions" class="h-14 w-14">
                 <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">Pink Gavel Auctions</span>
               </a>
             </div>
@@ -202,10 +202,15 @@ function renderHeader() {
             ${
               authenticated
                 ? `
+              <a href="/profiles.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
+                currentPath === "/profiles.html"
+                  ? "font-bold text-pink-600"
+                  : ""
+              }">Users</a>
               <a href="/profile.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
                 currentPath === "/profile.html" ? "font-bold text-pink-600" : ""
               }">Profile</a>
-              <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+              <button id="mobile-logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
                 Logout
               </button>
             `
@@ -288,6 +293,15 @@ function setupEventListeners() {
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      logoutUser();
+    });
+  }
+
+  // Mobile logout functionality
+  const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+  if (mobileLogoutBtn) {
+    mobileLogoutBtn.addEventListener("click", (e) => {
       e.preventDefault();
       logoutUser();
     });

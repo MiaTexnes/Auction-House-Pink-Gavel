@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
 // Constants
 const DEFAULT_LISTINGS_LIMIT = 20;
 const CAROUSEL_UPDATE_DELAY = 100;
-const DEFAULT_IMAGE = "assets/images/logo.png";
+const DEFAULT_IMAGE = "images/logo.png";
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
 // DOM Elements

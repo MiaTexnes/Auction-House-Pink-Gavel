@@ -14,6 +14,7 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "assets",
     minify: true,
+    copyPublicDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
@@ -28,6 +29,15 @@ export default defineConfig({
       },
     },
   },
+  assetsInclude: [
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.gif",
+    "**/*.svg",
+    "**/*.ico",
+  ],
+  publicDir: "assets",
   css: {
     postcss: "./postcss.config.js",
   },

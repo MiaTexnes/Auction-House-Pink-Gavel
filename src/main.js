@@ -12,6 +12,88 @@ initDarkMode();
 // Make toggleDarkMode globally available for event listeners
 window.toggleDarkMode = toggleDarkMode;
 
+// Function to add favicons to the head
+function addFavicons() {
+  const head = document.head;
+
+  // Remove existing favicons first
+  const existingFavicons = head.querySelectorAll(
+    'link[rel*="icon"], link[rel="apple-touch-icon"], meta[name="theme-color"]',
+  );
+  existingFavicons.forEach((link) => link.remove());
+
+  // Add favicon links
+  const faviconLinks = [
+    { rel: "icon", type: "image/x-icon", href: "/favicon/favicon.ico" },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "16x16",
+      href: "/favicon/favicon-16x16.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "32x32",
+      href: "/favicon/favicon-32x32.png",
+    },
+    {
+      rel: "apple-touch-icon",
+      sizes: "180x180",
+      href: "/favicon/apple-touch-icon.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "192x192",
+      href: "/favicon/android-chrome-192x192.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "512x512",
+      href: "/favicon/android-chrome-512x512.png",
+    },
+  ];
+
+  faviconLinks.forEach((linkData) => {
+    const link = document.createElement("link");
+    Object.entries(linkData).forEach(([key, value]) => {
+      link.setAttribute(key, value);
+    });
+    head.appendChild(link);
+  });
+
+  // Add theme color meta tag
+  const themeColorMeta = document.createElement("meta");
+  themeColorMeta.name = "theme-color";
+  themeColorMeta.content = "#ec4899"; // Pink color matching your brand
+  head.appendChild(themeColorMeta);
+}
+
+// Function to update background based on dark mode
+function updateBackgroundColor() {
+  const isDarkMode = document.documentElement.classList.contains("dark");
+  const body = document.body;
+
+  if (isDarkMode) {
+    body.style.backgroundColor = "#1f2937"; // Dark gray background
+    body.classList.add("dark:bg-gray-800");
+    body.classList.remove("bg-white");
+  } else {
+    body.style.backgroundColor = "#ffffff"; // White background
+    body.classList.add("bg-white");
+    body.classList.remove("dark:bg-gray-800");
+  }
+}
+
+// Override the toggleDarkMode to include background update
+const originalToggleDarkMode = toggleDarkMode;
+window.toggleDarkMode = function () {
+  originalToggleDarkMode();
+  updateBackgroundColor();
+};
+
 // --- Inactivity auto-logout logic ---
 const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in ms
 let inactivityTimer = null;
@@ -130,10 +212,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Function to initialize the page
 function initializePage() {
+  // Add favicons to the head
+  addFavicons();
+
   // Initialize header using the named export function
   initializeHeader();
 
   initializeFooter();
+
+  // Set initial background color based on current mode
+  updateBackgroundColor();
 
   const homeAuthButtons = document.getElementById("home-auth-buttons");
   if (homeAuthButtons) {
