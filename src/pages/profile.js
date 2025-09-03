@@ -10,8 +10,8 @@ import {
   createViewMoreButton,
   createViewLessButton,
 } from "../components/buttons.js";
+import { generateProfileHeader } from "../utils/profileUtils.js";
 
-const DEFAULT_AVATAR = "https://placehold.co/150x150?text=Avatar";
 const LISTING_DISPLAY_LIMIT = 4;
 const MESSAGE_DISPLAY_DURATION = 4000;
 
@@ -75,13 +75,7 @@ class UIManager {
   }
 
   generateProfileHeader(profile) {
-    return `
-      <div class="flex flex-col items-center mb-6">
-        <img src="${profile.avatar?.url || DEFAULT_AVATAR}" alt="Avatar" class="w-32 h-32 rounded-full mb-4 object-cover border-4 border-pink-500">
-        <h2 class="text-3xl font-bold mb-2">${profile.name}</h2>
-        <p class="text-gray-600 dark:text-gray-300">${profile.email}</p>
-      </div>
-    `;
+    return generateProfileHeader(profile);
   }
 
   generateUserBio(profile) {
@@ -160,7 +154,7 @@ class UIManager {
 
   generateNewListingModal() {
     return `
-      <div id="newListingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div id="newListingModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
           <button id="closeNewListingModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white">&times;</button>
           <h2 class="text-2xl font-bold mb-4">Create New Listing</h2>

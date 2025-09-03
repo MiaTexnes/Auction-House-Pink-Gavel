@@ -1,5 +1,6 @@
 import { config } from "../services/config.js"; // Import config for API key
 import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import { processTags } from "../utils/tagUtils.js"; // Import shared tag utility
 
 // Helper function to validate URL format
 function isValidUrl(string) {
@@ -9,19 +10,6 @@ function isValidUrl(string) {
   } catch (err) {
     return false;
   }
-}
-
-// Helper function to process tags from comma-separated string
-function processTags(tagsString) {
-  if (!tagsString || typeof tagsString !== "string") {
-    return [];
-  }
-
-  return tagsString
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.length > 0)
-    .slice(0, 10); // Limit to 10 tags to prevent abuse
 }
 
 // Function to create a new listing via the API

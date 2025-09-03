@@ -359,10 +359,6 @@ class APIService {
     try {
       const headers = this.getHeaders();
 
-      // Try different API endpoint variations to debug the issue
-      console.log("API URL:", `${API_BASE_URL}/auction/profiles`);
-
-      // First try with a high limit to get all profiles
       const response = await fetch(
         `${API_BASE_URL}/auction/profiles?_listings=true&limit=100`,
         { headers },
@@ -381,24 +377,6 @@ class APIService {
       // Handle both array response and data wrapper
       const profiles = Array.isArray(result) ? result : result.data || [];
 
-      console.log("Fetched profiles:", profiles.length); // Debug log
-      console.log(
-        "Raw API response structure:",
-        typeof result,
-        Array.isArray(result),
-      ); // Debug the response structure
-      console.log(
-        "Sample profile names:",
-        profiles.slice(0, 10).map((p) => p.name),
-      ); // Debug profile names
-      console.log(
-        "All profile names (first 20):",
-        profiles
-          .slice(0, 20)
-          .map((p) => p.name)
-          .sort(),
-      ); // Debug all names sorted
-
       // Ensure profiles have the required structure
       return profiles.map((profile) => ({
         ...profile,
@@ -406,7 +384,6 @@ class APIService {
         _count: profile._count || { listings: 0, wins: 0 },
       }));
     } catch (error) {
-      console.error("Error fetching profiles:", error); // Debug log
       throw error;
     }
   }

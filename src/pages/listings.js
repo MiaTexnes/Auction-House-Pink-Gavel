@@ -5,6 +5,7 @@ import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
+import { processTags } from "../utils/tagUtils.js";
 
 // Constants
 const CONSTANTS = {
@@ -15,24 +16,11 @@ const CONSTANTS = {
     CONTENT_HEIGHT: "228px",
   },
   MAX_TAGS: 10,
-  DEFAULT_MEDIA_INPUTS: 2,
   LISTINGS_PER_PAGE: 12,
 };
 
 // Utility Functions
 const Utils = {
-  processTags(tagsString) {
-    if (!tagsString || typeof tagsString !== "string") {
-      return [];
-    }
-
-    return tagsString
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0)
-      .slice(0, CONSTANTS.MAX_TAGS);
-  },
-
   clearSearchResults() {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
@@ -130,13 +118,6 @@ class DOMElementManager {
       closeAddListingModal: "closeAddListingModal",
       cancelAddListingBtn: "cancelAddListingBtn",
       addListingBtn: "addListingBtn",
-      addMediaModal: "addMediaModal",
-      addMediaForm: "addMediaForm",
-      mediaUrlInputs: "mediaUrlInputs",
-      openMediaModalBtn: "openMediaModalBtn",
-      addMoreUrlBtn: "addMoreUrlBtn",
-      backToListingBtn: "backToListingBtn",
-      mediaCount: "mediaCount",
     };
 
     this.setElements(modalElements);
@@ -200,13 +181,6 @@ class StateManager {
   }
 
   // Media URLs
-  addMediaUrl(url) {
-    if (url && !this.state.selectedMediaUrls.includes(url)) {
-      this.state.selectedMediaUrls.push(url);
-    }
-    return this;
-  }
-
   setMediaUrls(urls) {
     this.state.selectedMediaUrls = [...urls];
     return this;
@@ -438,32 +412,6 @@ class UIManager {
     this.showMessage(message, "error");
   }
 
-  displayListings(listings) {
-    const listingsContainer = this.elements.get("listingsContainer");
-    if (!listingsContainer) return;
-
-    this.hideLoading();
-    const messageContainer = this.elements.get("messageContainer");
-    if (messageContainer) {
-      messageContainer.classList.add("hidden");
-    }
-
-    if (listings.length === 0) {
-      this.showMessage("No listings found.", "info");
-      this.hideLoadMoreButton();
-      return;
-    }
-
-    listingsContainer.innerHTML = "";
-    const fragment = document.createDocumentFragment();
-
-    listings.forEach((listing) => {
-      fragment.appendChild(this.cardBuilder.build(normalizeListing(listing)));
-    });
-
-    listingsContainer.appendChild(fragment);
-  }
-
   displayInitialListings(allListings, state) {
     const listingsContainer = this.elements.get("listingsContainer");
     if (!listingsContainer) return;
@@ -667,19 +615,6 @@ class UIManager {
       indicator.remove();
     }
   }
-
-  updateMediaPreview(mediaCount) {
-    const mediaCountElement = this.elements.get("mediaCount");
-    if (!mediaCountElement) return;
-
-    if (mediaCount === 0) {
-      mediaCountElement.textContent = "No media selected";
-      mediaCountElement.className = "text-gray-600 dark:text-gray-400";
-    } else {
-      mediaCountElement.textContent = `${mediaCount} media item${mediaCount > 1 ? "s" : ""} selected`;
-      mediaCountElement.className = "text-green-600 dark:text-green-400";
-    }
-  }
 }
 
 // API Service - Enhanced error handling
@@ -757,133 +692,12 @@ class ModalManager {
     if (form) {
       form.reset();
       this.state.clearMediaUrls();
-      this.ui.updateMediaPreview(0);
     }
   }
 
   setupFormDefaults() {
     Utils.setMinimumDateTime(this.elements.get("listingEndDate"));
-    this.setupMediaModalButton();
     this.state.clearMediaUrls();
-    this.ui.updateMediaPreview(0);
-  }
-
-  openMediaModal() {
-    const mediaModal = this.elements.get("addMediaModal");
-    const listingModal = this.elements.get("addListingModal");
-
-    if (!mediaModal || !listingModal) return;
-
-    listingModal.classList.add("hidden");
-    mediaModal.classList.remove("hidden");
-    this.setupMediaInputs();
-    this.populateExistingMedia();
-  }
-
-  closeMediaModal() {
-    const mediaModal = this.elements.get("addMediaModal");
-    const listingModal = this.elements.get("addListingModal");
-
-    if (!mediaModal || !listingModal) return;
-
-    mediaModal.classList.add("hidden");
-    listingModal.classList.remove("hidden");
-    this.resetMediaInputs();
-  }
-
-  setupMediaModalButton() {
-    const openButton = this.elements.get("openMediaModalBtn");
-    if (!openButton) return;
-
-    const newBtn = openButton.cloneNode(true);
-    openButton.parentNode.replaceChild(newBtn, openButton);
-    newBtn.addEventListener("click", () => this.openMediaModal());
-  }
-
-  setupMediaInputs() {
-    const addMoreBtn = this.elements.get("addMoreUrlBtn");
-    const backBtn = this.elements.get("backToListingBtn");
-    const mediaForm = this.elements.get("addMediaForm");
-
-    if (addMoreBtn) {
-      addMoreBtn.onclick = (e) => {
-        e.preventDefault();
-        this.addMediaInput();
-      };
-    }
-
-    if (backBtn) {
-      backBtn.onclick = (e) => {
-        e.preventDefault();
-        this.closeMediaModal();
-      };
-    }
-
-    if (mediaForm) {
-      mediaForm.onsubmit = (e) => {
-        e.preventDefault();
-        this.collectAndSaveMediaUrls();
-        this.closeMediaModal();
-      };
-    }
-  }
-
-  addMediaInput() {
-    const mediaContainer = this.elements.get("mediaUrlInputs");
-    if (!mediaContainer) return;
-
-    const currentInputs = mediaContainer.querySelectorAll("input").length;
-    const newInput = this.createMediaInput("", currentInputs + 1);
-    mediaContainer.appendChild(newInput);
-  }
-
-  createMediaInput(value, index) {
-    const input = document.createElement("input");
-    input.type = "url";
-    input.name = "mediaUrl";
-    input.placeholder = `Image URL ${index}`;
-    input.value = value;
-    input.className =
-      "w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white";
-    return input;
-  }
-
-  populateExistingMedia() {
-    const mediaContainer = this.elements.get("mediaUrlInputs");
-    if (!mediaContainer) return;
-
-    mediaContainer.innerHTML = "";
-    const mediaUrls = this.state.getMediaUrls();
-
-    if (mediaUrls.length > 0) {
-      mediaUrls.forEach((url, index) => {
-        mediaContainer.appendChild(this.createMediaInput(url, index + 1));
-      });
-    } else {
-      for (let i = 1; i <= CONSTANTS.DEFAULT_MEDIA_INPUTS; i++) {
-        mediaContainer.appendChild(this.createMediaInput("", i));
-      }
-    }
-  }
-
-  resetMediaInputs() {
-    const mediaContainer = this.elements.get("mediaUrlInputs");
-    if (!mediaContainer) return;
-
-    mediaContainer.innerHTML = "";
-    for (let i = 1; i <= CONSTANTS.DEFAULT_MEDIA_INPUTS; i++) {
-      mediaContainer.appendChild(this.createMediaInput("", i));
-    }
-  }
-
-  collectAndSaveMediaUrls() {
-    const mediaInputs = document.querySelectorAll("input[name='mediaUrl']");
-    const urls = Array.from(mediaInputs)
-      .map((input) => input.value.trim())
-      .filter((url) => url.length > 0);
-
-    this.state.setMediaUrls(urls);
-    this.ui.updateMediaPreview(urls.length);
   }
 }
 
@@ -1207,42 +1021,6 @@ class ListingsPageController {
   // Public method for creating listing cards (for export)
   createListingCard(listing) {
     return this.cardBuilder.build(listing);
-  }
-
-  renderInitialListings() {
-    const container = document.getElementById("seller-listings-container");
-    if (!container) return;
-
-    const listings = this.state.getInitialListings();
-    listings.forEach((listing) => {
-      // Ensure seller info is present
-      if (!listing.seller || !listing.seller.name) {
-        listing.seller = {
-          name: this.profile.name,
-          avatar: this.profile.avatar,
-        };
-      }
-      // Ensure _count.bids exists for bid display
-      if (!listing._count) listing._count = {};
-      listing._count.bids = Array.isArray(listing.bids)
-        ? listing.bids.length
-        : 0;
-
-      container.appendChild(createListingCard(listing));
-    });
-  }
-
-  renderInitialWins() {
-    const container = document.getElementById("seller-wins-container");
-    if (!container) return;
-
-    const wins = this.state.getInitialWins();
-    wins.forEach((win) => {
-      // Ensure _count.bids exists for bid display
-      if (!win._count) win._count = {};
-      win._count.bids = Array.isArray(win.bids) ? win.bids.length : 0;
-      container.appendChild(createListingCard(win));
-    });
   }
 }
 
