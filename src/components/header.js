@@ -140,8 +140,8 @@ function renderHeader() {
 
           <!-- Mobile Menu Button -->
           <div class="flex items-center space-x-4 md:hidden">
-            <button 
-              id="mobile-menu-btn" 
+            <button
+              id="mobile-menu-btn"
               class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Open mobile navigation menu"
               aria-expanded="false"

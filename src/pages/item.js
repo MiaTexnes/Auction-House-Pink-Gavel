@@ -276,6 +276,7 @@ class UIManager {
       const thumbnail = document.createElement("img");
       thumbnail.src = item.url;
       thumbnail.alt = item.alt || `Image ${index + 1}`;
+      thumbnail.loading = "lazy";
       thumbnail.className =
         "w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity";
 

@@ -334,7 +334,7 @@ class ListingCardBuilder {
   generateImageHTML(imageUrl, title) {
     if (imageUrl) {
       return `<div class="w-full flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center" style="height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT};">
-        <img src="${imageUrl}" alt="${title}" class="w-full h-full object-contain listing-image transition-transform duration-300 hover:scale-105" style="max-width: 100%; max-height: 100%;">
+        <img src="${imageUrl}" alt="${title}" loading="lazy" class="w-full h-full object-contain listing-image transition-transform duration-300 hover:scale-105" style="max-width: 100%; max-height: 100%;">
       </div>`;
     }
 
@@ -356,7 +356,7 @@ class ListingCardBuilder {
       <span class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-1">Created: ${createdDate.toLocaleDateString()}</span>
       <div class="flex items-center gap-2 mb-3">
         <span class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
-          <img src="${sellerInfo.avatar}" alt="${sellerInfo.name}" class="w-full h-full object-cover rounded-full" style="display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+          <img src="${sellerInfo.avatar}" alt="${sellerInfo.name}" loading="lazy" class="w-full h-full object-cover rounded-full" style="display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
         </span>
         <span class="text-sm text-gray-600 dark:text-gray-400">${sellerInfo.name}</span>
       </div>

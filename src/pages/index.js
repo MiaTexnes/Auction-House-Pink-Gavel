@@ -350,6 +350,7 @@ class CarouselComponent {
 
     thumb.src = ImageHandler.getImageUrl(listing);
     thumb.alt = `Thumbnail for ${listing.title || "listing"}`;
+    thumb.loading = "lazy";
 
     const middleIndex = Math.floor(this.cardsPerView / 2);
     const centerCardIndex = this.currentIndex + middleIndex;

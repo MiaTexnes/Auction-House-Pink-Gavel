@@ -40,7 +40,7 @@ export function createCarouselCard(listing) {
     ${
       imageUrl
         ? `<div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            <img src="${imageUrl}" alt="${listing.title}" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
+            <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
            </div>`
         : `<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
             No image on this listing
@@ -48,16 +48,22 @@ export function createCarouselCard(listing) {
     }
     <div class="p-4 flex-1 flex flex-col min-h-0 relative">
       <div class="absolute inset-0 bg-gradient-to-t from-transparent to-transparent opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none bg-pink-500 rounded-b-lg"></div>
-      <h2 class="text-xl font-semibold mb-2 line-clamp-2 min-h-[3.5rem] text-gray-900 dark:text-white transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400 relative z-10">${listing.title}</h2>
-      <p class="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-3 flex-1 min-h-[4.5rem] transition-colors duration-200 relative z-10">${
+      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-200">${
+        listing.title
+      }</h3>
+      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${
         listing.description || "No description provided."
       }</p>
-      <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-3 flex-shrink-0 relative z-10">
-        <span class="font-medium ${timeLeftMs < 0 ? "text-red-500 dark:text-red-400" : timeLeftMs < 24 * 60 * 60 * 1000 ? "text-orange-500 dark:text-orange-400" : "text-green-500 dark:text-green-400"} transition-colors duration-200">${timeLeftString}</span>
-        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 hover:bg-pink-100 dark:hover:bg-pink-900 hover:scale-105">Bids: ${listing._count?.bids || 0}</span>
+      <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
+        <span class="font-medium text-green-600 dark:text-green-400">${
+          timeInfo.text
+        }</span>
+        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+          Bids: ${listing._count?.bids || 0}
+        </span>
       </div>
-      <div class="flex items-center space-x-2 flex-shrink-0 transition-all duration-200 hover:translate-x-1 relative z-10">
-        <img src="${sellerAvatar}" alt="${sellerName}" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0">
         <span class="text-gray-800 dark:text-gray-200 font-medium truncate transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400">${sellerName}</span>
       </div>
     </div>
