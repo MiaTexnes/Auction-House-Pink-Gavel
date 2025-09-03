@@ -36,6 +36,9 @@ export const faviconConfig = {
   // Theme color for browsers
   themeColor: "#ec4899",
 
+  // Background color for favicons and app icons
+  backgroundColor: "#ffffff",
+
   // Manifest data (for generating the manifest file if needed)
   manifestData: {
     name: "Pink Gavel Auctions",

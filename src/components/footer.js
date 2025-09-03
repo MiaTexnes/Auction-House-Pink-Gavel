@@ -99,9 +99,9 @@ export function initializeFooter() {
             </div>
           </div>
         </div>
-                <!-- Social Media & Newsletter -->
+                <!-- Social Media -->
         <div class="border-t border-pink-200 dark:border-gray-700 pt-8 mb-8">
-          <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex flex-col md:flex-row items-center  justify-center gap-6">
             <!-- Social Media -->
             <div class="flex items-center space-x-4">
               <span class="text-gray-700 dark:text-gray-300 font-medium text-sm">Follow us:</span>
@@ -124,22 +124,10 @@ export function initializeFooter() {
               </div>
             </div>
 
-            <!-- Newsletter -->
-            <div class="flex items-center space-x-3">
-              <span class="text-gray-700 dark:text-gray-300 font-medium text-sm">Stay updated:</span>
-              <div class="flex bg-white dark:bg-gray-800 rounded-full shadow-lg overflow-hidden border border-pink-200 dark:border-gray-600">
-                <input type="email" placeholder="Enter email" class="px-4 py-2 bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none w-32 md:w-48">
-                <button class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 text-sm font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-300">
-                  Subscribe
-                </button>
-              </div>
+
             </div>
           </div>
         </div>
-
-
-
-
 
 
         <!-- Bottom Copyright -->

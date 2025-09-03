@@ -127,7 +127,7 @@ class UIManager {
     return `
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Wins</h3>
-        <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
           <!-- Buttons will be created dynamically -->
         </div>
@@ -144,7 +144,7 @@ class UIManager {
     return `
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Your Listings</h3>
-        <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
           <!-- Buttons will be created dynamically -->
         </div>

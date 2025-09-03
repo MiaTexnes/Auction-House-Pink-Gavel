@@ -6,6 +6,7 @@ import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
 import { processTags } from "../utils/tagUtils.js";
+import { TimeUtils } from "../utils/timeUtils.js";
 
 // Constants
 const CONSTANTS = {
@@ -31,30 +32,6 @@ const Utils = {
     const url = new URL(window.location);
     url.searchParams.delete("search");
     window.history.replaceState({}, "", url);
-  },
-
-  formatTimeRemaining(endsAt) {
-    const endDate = new Date(endsAt);
-    const now = new Date();
-    const timeLeftMs = endDate.getTime() - now.getTime();
-
-    if (timeLeftMs < 0) {
-      return {
-        text: "Ended",
-        class: "underline text-red-700 dark:text-red-400 font-semibold",
-      };
-    }
-
-    const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    );
-    const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    return {
-      text: `Ends: ${days}d ${hours}h `,
-      class: "text-green-800 dark:text-green-400 font-semibold",
-    };
   },
 
   setMinimumDateTime(element) {
@@ -253,7 +230,7 @@ class ListingCardBuilder {
   }
 
   build(listing) {
-    const timeInfo = Utils.formatTimeRemaining(listing.endsAt);
+    const timeInfo = TimeUtils.formatTimeRemainingForListings(listing.endsAt);
     const createdDate = new Date(listing.created);
     const imageUrl = this.extractImageUrl(listing.media);
     const sellerInfo = this.extractSellerInfo(listing.seller);

@@ -147,8 +147,13 @@ function renderHeader() {
               aria-expanded="false"
               aria-controls="mobile-menu"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <!-- Hamburger icon (shown when menu is closed) -->
+              <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+              <!-- X icon (shown when menu is open) -->
+              <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
@@ -246,6 +251,30 @@ function setupEventListeners() {
 
       // Update aria-expanded attribute
       mobileMenuBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+
+      // Toggle between hamburger and X icons
+      const hamburgerIcon = document.getElementById("hamburger-icon");
+      const closeIcon = document.getElementById("close-icon");
+
+      if (hamburgerIcon && closeIcon) {
+        if (isHidden) {
+          // Menu is being opened - show X icon
+          hamburgerIcon.classList.add("hidden");
+          closeIcon.classList.remove("hidden");
+          mobileMenuBtn.setAttribute(
+            "aria-label",
+            "Close mobile navigation menu",
+          );
+        } else {
+          // Menu is being closed - show hamburger icon
+          hamburgerIcon.classList.remove("hidden");
+          closeIcon.classList.add("hidden");
+          mobileMenuBtn.setAttribute(
+            "aria-label",
+            "Open mobile navigation menu",
+          );
+        }
+      }
 
       // Update credits display when the mobile menu is opened
       if (!mobileMenu.classList.contains("hidden")) {

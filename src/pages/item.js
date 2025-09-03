@@ -9,6 +9,7 @@ import {
   canUserBid,
   getMinimumBid,
 } from "../services/biddingService.js";
+import { TimeUtils } from "../utils/timeUtils.js";
 import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
@@ -102,31 +103,6 @@ const Utils = {
       .filter((tag) => tag.length > 0)
       .slice(0, MAX_TAGS);
   },
-
-  formatTimeRemaining(endDate) {
-    const now = new Date();
-    const end = new Date(endDate);
-    const timeLeft = end.getTime() - now.getTime();
-
-    if (timeLeft <= 0) {
-      return { text: "Auction Ended", isEnded: true };
-    }
-
-    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    );
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-    if (days > 0) {
-      return { text: `${days}d ${hours}h ${minutes}m`, isEnded: false };
-    } else if (hours > 0) {
-      return { text: `${hours}h ${minutes}m ${seconds}s`, isEnded: false };
-    } else {
-      return { text: `${minutes}m ${seconds}s`, isEnded: false };
-    }
-  },
 };
 
 // State Manager
@@ -185,7 +161,7 @@ class UIManager {
   }
 
   updateAuctionStatus(listing) {
-    const timeInfo = Utils.formatTimeRemaining(listing.endsAt);
+    const timeInfo = TimeUtils.formatTimeRemainingForItem(listing.endsAt);
 
     if (this.elements.item.time.remaining) {
       this.elements.item.time.remaining.textContent = timeInfo.text;
@@ -383,7 +359,7 @@ class UIManager {
     // Determine if auction is ended
     const listing = window.itemPageController?.state?.getListing?.();
     const isEnded = listing
-      ? Utils.formatTimeRemaining(listing.endsAt).isEnded
+      ? TimeUtils.formatTimeRemainingForItem(listing.endsAt).isEnded
       : false;
     sortedBids.forEach((bid, index) => {
       const isHighestBid = index === 0;

@@ -1,4 +1,5 @@
 import { toggleDarkMode as originalToggleDarkMode } from "../components/darkLight.js";
+import { updateFaviconBackground } from "./faviconService.js";
 
 function updateBackgroundColor() {
   const isDarkMode = document.documentElement.classList.contains("dark");
@@ -13,6 +14,9 @@ function updateBackgroundColor() {
     body.classList.add("bg-white");
     body.classList.remove("dark:bg-gray-800");
   }
+
+  // Ensure favicon background remains white regardless of theme
+  updateFaviconBackground();
 }
 
 function enhancedToggleDarkMode() {
