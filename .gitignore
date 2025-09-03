@@ -69,3 +69,8 @@ Thumbs.db
 .DS_Store
 Desktop.ini
 
+# Debug files (should not be deployed)
+debug-*.html
+test-*.html
+temp-*.html
+
