@@ -3,7 +3,8 @@ import { isAuthenticated, getAuthHeader } from "../library/auth.js";
 import { createListing } from "../library/newListing.js";
 import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
-import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import { API_BASE_URL } from "../services/baseApi.js";
+import { createPaginationButtons } from "../components/buttons.js";
 
 // Constants
 const CONSTANTS = {
@@ -520,13 +521,17 @@ class UIManager {
     if (currentCount >= totalListings) {
       // All listings are displayed - show view less if we have more than initial page
       if (currentCount > CONSTANTS.LISTINGS_PER_PAGE) {
-        loadMoreContainer.innerHTML = `
-          <div class="flex justify-center space-x-4 mt-8 mb-4">
-            <button id="viewLessBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
-              View Less
-            </button>
-          </div>
-        `;
+        const viewLessButton = createPaginationButtons({
+          showViewLess: true,
+          viewLessText: "View Less",
+          onViewLess: () => this.handleViewLess(state),
+          viewLessId: "viewLessBtn",
+        });
+
+        loadMoreContainer.innerHTML = "";
+        if (viewLessButton) {
+          loadMoreContainer.appendChild(viewLessButton);
+        }
       } else {
         loadMoreContainer.innerHTML = "";
       }
@@ -539,30 +544,53 @@ class UIManager {
         CONSTANTS.LISTINGS_PER_PAGE,
       );
 
-      const buttons = [];
+      const showViewLess = currentCount > CONSTANTS.LISTINGS_PER_PAGE;
 
-      // Show View Less button if we have more than initial page displayed
-      if (currentCount > CONSTANTS.LISTINGS_PER_PAGE) {
-        buttons.push(`
-          <button id="viewLessBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
-            View Less
-          </button>
-        `);
+      const buttonContainer = createPaginationButtons({
+        showLoadMore: true,
+        showViewLess: showViewLess,
+        loadMoreText: `Load More (${nextBatchSize} of ${remainingCount} remaining)`,
+        viewLessText: "View Less",
+        onLoadMore: () => this.handleLoadMore(state),
+        onViewLess: () => this.handleViewLess(state),
+        loadMoreId: "loadMoreBtn",
+        viewLessId: "viewLessBtn",
+      });
+
+      loadMoreContainer.innerHTML = "";
+      if (buttonContainer) {
+        loadMoreContainer.appendChild(buttonContainer);
       }
-
-      // Show Load More button
-      buttons.push(`
-        <button id="loadMoreBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105">
-          Load More (${nextBatchSize} of ${remainingCount} remaining)
-        </button>
-      `);
-
-      loadMoreContainer.innerHTML = `
-        <div class="flex justify-center space-x-4 mt-8 mb-4">
-          ${buttons.join("")}
-        </div>
-      `;
       state.setShowingAll(false);
+    }
+  }
+
+  handleLoadMore(state) {
+    // This method would be called from the event handler
+    const currentSearch = state.getCurrentSearch();
+
+    if (currentSearch && currentSearch.trim() !== "") {
+      const filteredListings = state.getFilteredListings();
+      this.appendMoreListings(filteredListings, state);
+    } else {
+      const allListings = state.getListings();
+      this.appendMoreListings(allListings, state);
+    }
+  }
+
+  handleViewLess(state) {
+    // This method would be called from the event handler
+    const currentSearch = state.getCurrentSearch();
+
+    if (currentSearch && currentSearch.trim() !== "") {
+      const filteredListings = state.getFilteredListings();
+      state.resetDisplayedCount();
+      this.displayInitialListings(filteredListings, state);
+      this.updateSearchIndicator(currentSearch, filteredListings.length);
+    } else {
+      const allListings = state.getListings();
+      state.resetDisplayedCount();
+      this.displayInitialListings(allListings, state);
     }
   }
 
@@ -1100,7 +1128,7 @@ class ListingsPageController {
       if (allAuctionsHeader) {
         const infoMsg = document.createElement("div");
         infoMsg.textContent =
-          "Log in or create user to bid and see other users";
+          "Log in or create user to bid and see user profiles";
         infoMsg.className =
           "w-full mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-900 rounded text-center font-semibold";
         allAuctionsHeader.parentNode.insertBefore(infoMsg, allAuctionsHeader);

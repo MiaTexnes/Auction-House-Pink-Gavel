@@ -3,6 +3,10 @@ import { isAuthenticated } from "../library/auth.js";
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
+import {
+  createViewMoreButton,
+  createViewLessButton,
+} from "../components/buttons.js";
 
 const DEFAULT_AVATAR = "https://placehold.co/150x150?text=Avatar";
 const ITEMS_PER_PAGE = 4;
@@ -140,8 +144,9 @@ class UIManager {
     }
     document.title = `${profile.name} - Seller Profile | Pink Gavel Auctions`;
     container.innerHTML = this.generateProfileHTML(profile);
-    this.setupEventListeners();
     this.renderInitialItems();
+    this.setupListingsButtons();
+    this.setupWinsButtons();
   }
   generateProfileHTML(profile) {
     return `
@@ -196,7 +201,9 @@ class UIManager {
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Listings</h3>
         <div id="seller-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        ${this.generateViewMoreButtons("listings", profile.listings?.length || 0)}
+        <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+          <!-- Buttons will be created dynamically -->
+        </div>
       </div>
     `;
   }
@@ -205,19 +212,56 @@ class UIManager {
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Wins</h3>
         <div id="seller-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        ${this.generateViewMoreButtons("wins", profile.wins?.length || 0)}
+        <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
+          <!-- Buttons will be created dynamically -->
+        </div>
       </div>
     `;
   }
-  generateViewMoreButtons(type, itemCount) {
-    if (itemCount <= ITEMS_PER_PAGE) return "";
-    const prefix = type === "wins" ? "Wins" : "Listings";
-    return `
-      <div class="flex justify-center space-x-4 mt-4">
-        <button id="viewMore${prefix}Btn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-md">View More</button>
-        <button id="viewLess${prefix}Btn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-md hidden">View Less</button>
-      </div>
-    `;
+  setupListingsButtons() {
+    if ((this.state.profile?.listings?.length || 0) <= ITEMS_PER_PAGE) return;
+
+    const buttonsContainer = document.getElementById(
+      "listings-buttons-container",
+    );
+    if (!buttonsContainer) return;
+
+    const viewMoreBtn = createViewMoreButton(
+      "View More",
+      () => this.handleViewMoreListings(),
+      "viewMoreListingsBtn",
+    );
+    const viewLessBtn = createViewLessButton(
+      "View Less",
+      () => this.handleViewLessListings(),
+      "viewLessListingsBtn",
+      "hidden",
+    );
+
+    buttonsContainer.appendChild(viewMoreBtn);
+    buttonsContainer.appendChild(viewLessBtn);
+  }
+
+  setupWinsButtons() {
+    if ((this.state.profile?.wins?.length || 0) <= ITEMS_PER_PAGE) return;
+
+    const buttonsContainer = document.getElementById("wins-buttons-container");
+    if (!buttonsContainer) return;
+
+    const viewMoreBtn = createViewMoreButton(
+      "View More",
+      () => this.handleViewMoreWins(),
+      "viewMoreWinsBtn",
+    );
+    const viewLessBtn = createViewLessButton(
+      "View Less",
+      () => this.handleViewLessWins(),
+      "viewLessWinsBtn",
+      "hidden",
+    );
+
+    buttonsContainer.appendChild(viewMoreBtn);
+    buttonsContainer.appendChild(viewLessBtn);
   }
   renderInitialItems() {
     this.renderInitialListings();
@@ -249,73 +293,92 @@ class UIManager {
       });
     });
   }
-  setupEventListeners() {
-    this.setupListingsEventListeners();
-    this.setupWinsEventListeners();
-  }
-  setupListingsEventListeners() {
-    const viewMoreBtn = document.getElementById("viewMoreListingsBtn");
-    const viewLessBtn = document.getElementById("viewLessListingsBtn");
+  handleViewMoreListings() {
     const container = document.getElementById("seller-listings-container");
-    if (viewMoreBtn && container) {
-      viewMoreBtn.addEventListener("click", () => {
-        this.handleViewMoreListings(container, viewMoreBtn, viewLessBtn);
-      });
-    }
-    if (viewLessBtn && container) {
-      viewLessBtn.addEventListener("click", () => {
-        this.handleViewLessListings(container, viewMoreBtn, viewLessBtn);
-      });
-    }
-  }
-  setupWinsEventListeners() {
-    const viewMoreBtn = document.getElementById("viewMoreWinsBtn");
-    const viewLessBtn = document.getElementById("viewLessWinsBtn");
-    const container = document.getElementById("seller-wins-container");
-    if (viewMoreBtn && container) {
-      viewMoreBtn.addEventListener("click", () => {
-        this.handleViewMoreWins(container, viewMoreBtn, viewLessBtn);
-      });
-    }
-    if (viewLessBtn && container) {
-      viewLessBtn.addEventListener("click", () => {
-        this.handleViewLessWins(container, viewMoreBtn, viewLessBtn);
-      });
-    }
-  }
-  handleViewMoreListings(container, viewMoreBtn, viewLessBtn) {
+    if (!container) return;
+
     this.state.getNextListings().forEach((listing) => {
       container.appendChild(
         createListingCard(normalizeListing(listing, this.state.profile)),
       );
     });
     this.state.incrementListingsIndex();
-    if (!this.state.hasMoreListings()) viewMoreBtn.classList.add("hidden");
-    if (viewLessBtn) viewLessBtn.classList.remove("hidden");
+
+    this.toggleListingsButtons(false);
   }
-  handleViewLessListings(container, viewMoreBtn, viewLessBtn) {
+
+  handleViewLessListings() {
+    const container = document.getElementById("seller-listings-container");
+    if (!container) return;
+
     container.innerHTML = "";
     this.renderInitialListings();
     this.state.resetListingsIndex();
-    if (viewMoreBtn) viewMoreBtn.classList.remove("hidden");
-    viewLessBtn.classList.add("hidden");
+
+    this.toggleListingsButtons(true);
   }
-  handleViewMoreWins(container, viewMoreBtn, viewLessBtn) {
+
+  handleViewMoreWins() {
+    const container = document.getElementById("seller-wins-container");
+    if (!container) return;
+
     this.state.getNextWins().forEach((win) => {
       container.appendChild(
         createListingCard(normalizeListing(win, this.state.profile)),
       );
     });
     this.state.incrementWinsIndex();
-    if (!this.state.hasMoreWins()) viewMoreBtn.classList.add("hidden");
-    if (viewLessBtn) viewLessBtn.classList.remove("hidden");
+
+    this.toggleWinsButtons(false);
   }
-  handleViewLessWins(container, viewMoreBtn, viewLessBtn) {
+
+  handleViewLessWins() {
+    const container = document.getElementById("seller-wins-container");
+    if (!container) return;
+
     container.innerHTML = "";
     this.renderInitialWins();
     this.state.resetWinsIndex();
-    if (viewMoreBtn) viewMoreBtn.classList.remove("hidden");
-    viewLessBtn.classList.add("hidden");
+
+    this.toggleWinsButtons(true);
+  }
+
+  toggleListingsButtons(showMore) {
+    const buttonsContainer = document.getElementById(
+      "listings-buttons-container",
+    );
+    if (!buttonsContainer) return;
+
+    const viewMoreBtn = buttonsContainer.querySelector("#viewMoreListingsBtn");
+    const viewLessBtn = buttonsContainer.querySelector("#viewLessListingsBtn");
+
+    if (viewMoreBtn && viewLessBtn) {
+      if (showMore) {
+        viewMoreBtn.classList.remove("hidden");
+        viewLessBtn.classList.add("hidden");
+      } else {
+        viewMoreBtn.classList.add("hidden");
+        viewLessBtn.classList.remove("hidden");
+      }
+    }
+  }
+
+  toggleWinsButtons(showMore) {
+    const buttonsContainer = document.getElementById("wins-buttons-container");
+    if (!buttonsContainer) return;
+
+    const viewMoreBtn = buttonsContainer.querySelector("#viewMoreWinsBtn");
+    const viewLessBtn = buttonsContainer.querySelector("#viewLessWinsBtn");
+
+    if (viewMoreBtn && viewLessBtn) {
+      if (showMore) {
+        viewMoreBtn.classList.remove("hidden");
+        viewLessBtn.classList.add("hidden");
+      } else {
+        viewMoreBtn.classList.add("hidden");
+        viewLessBtn.classList.remove("hidden");
+      }
+    }
   }
 }
 

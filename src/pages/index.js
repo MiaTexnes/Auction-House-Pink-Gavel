@@ -86,7 +86,6 @@ const AuthButtonRenderer = {
   renderAuthenticatedButtons() {
     elements.homeAuthButtons.innerHTML = `
       <div class="text-center">
-        <p class="text-black mb-4">Welcome back! Ready to bid on some amazing items?</p>
         <a href="/listings.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
           Browse Auctions
         </a>
@@ -96,12 +95,9 @@ const AuthButtonRenderer = {
 
   renderUnauthenticatedButtons() {
     elements.homeAuthButtons.innerHTML = `
-      <div class="flex flex-col sm:flex-row gap-4">
-        <a href="/auth/register.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-          Register
-        </a>
-        <a href="/auth/login.html" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors border border-purple-600">
-          Login
+      <div class="text-center">
+        <a href="/listings.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+          Browse Auctions
         </a>
       </div>
     `;

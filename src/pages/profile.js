@@ -6,6 +6,10 @@ import {
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
+import {
+  createViewMoreButton,
+  createViewLessButton,
+} from "../components/buttons.js";
 
 const DEFAULT_AVATAR = "https://placehold.co/150x150?text=Avatar";
 const LISTING_DISPLAY_LIMIT = 4;
@@ -130,7 +134,9 @@ class UIManager {
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Wins</h3>
         <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        ${this.generateViewMoreButtons("wins", profile.wins.length)}
+        <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
+          <!-- Buttons will be created dynamically -->
+        </div>
       </div>
     `;
   }
@@ -145,18 +151,9 @@ class UIManager {
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-4">Your Listings</h3>
         <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        ${this.generateViewMoreButtons("listings", profile.listings.length)}
-      </div>
-    `;
-  }
-
-  generateViewMoreButtons(type, itemCount) {
-    if (itemCount <= LISTING_DISPLAY_LIMIT) return "";
-    const prefix = type === "wins" ? "Wins" : "";
-    return `
-      <div class="flex justify-center space-x-4 mt-4">
-        <button id="viewMore${prefix}Btn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-md">View More</button>
-        <button id="viewLess${prefix}Btn" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-md hidden">View Less</button>
+        <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+          <!-- Buttons will be created dynamically -->
+        </div>
       </div>
     `;
   }
@@ -251,10 +248,12 @@ class ListingsManager {
     this.listings = listings;
     this.profile = profile;
     this.currentIndex = LISTING_DISPLAY_LIMIT;
+    this.buttonsContainer = null;
   }
 
   render() {
     this.renderInitialListings();
+    this.createButtons();
   }
 
   renderInitialListings() {
@@ -285,38 +284,50 @@ class ListingsManager {
     }
   }
 
-  setupEventListeners() {
-    this.setupViewMoreListener();
-    this.setupViewLessListener();
+  createButtons() {
+    if (this.listings.length <= LISTING_DISPLAY_LIMIT) return;
+
+    this.buttonsContainer = document.getElementById(
+      "listings-buttons-container",
+    );
+    if (!this.buttonsContainer) return;
+
+    const viewMoreBtn = createViewMoreButton(
+      "View More",
+      () => this.handleViewMore(),
+      "viewMoreBtn",
+    );
+    const viewLessBtn = createViewLessButton(
+      "View Less",
+      () => this.handleViewLess(),
+      "viewLessBtn",
+      "hidden",
+    );
+
+    this.buttonsContainer.appendChild(viewMoreBtn);
+    this.buttonsContainer.appendChild(viewLessBtn);
   }
 
-  setupViewMoreListener() {
-    const viewMoreBtn = document.getElementById("viewMoreBtn");
-    if (viewMoreBtn) {
-      viewMoreBtn.addEventListener("click", () => {
-        const nextListings = this.listings.slice(this.currentIndex);
-        this.renderListings(nextListings);
-        this.currentIndex = this.listings.length;
-        this.toggleButtons(false);
-      });
-    }
+  handleViewMore() {
+    const nextListings = this.listings.slice(this.currentIndex);
+    this.renderListings(nextListings);
+    this.currentIndex = this.listings.length;
+    this.toggleButtons(false);
   }
 
-  setupViewLessListener() {
-    const viewLessBtn = document.getElementById("viewLessBtn");
-    if (viewLessBtn) {
-      viewLessBtn.addEventListener("click", () => {
-        this.container.innerHTML = "";
-        this.renderInitialListings();
-        this.currentIndex = LISTING_DISPLAY_LIMIT;
-        this.toggleButtons(true);
-      });
-    }
+  handleViewLess() {
+    this.container.innerHTML = "";
+    this.renderInitialListings();
+    this.currentIndex = LISTING_DISPLAY_LIMIT;
+    this.toggleButtons(true);
   }
 
   toggleButtons(showMore) {
-    const viewMoreBtn = document.getElementById("viewMoreBtn");
-    const viewLessBtn = document.getElementById("viewLessBtn");
+    if (!this.buttonsContainer) return;
+
+    const viewMoreBtn = this.buttonsContainer.querySelector("#viewMoreBtn");
+    const viewLessBtn = this.buttonsContainer.querySelector("#viewLessBtn");
+
     if (viewMoreBtn && viewLessBtn) {
       if (showMore) {
         viewMoreBtn.classList.remove("hidden");
@@ -327,6 +338,10 @@ class ListingsManager {
       }
     }
   }
+
+  setupEventListeners() {
+    // Event listeners are now handled in the createButtons method
+  }
 }
 
 // Wins Manager
@@ -335,46 +350,63 @@ class WinsManager extends ListingsManager {
     super(container, wins, profile);
   }
 
+  createButtons() {
+    if (this.listings.length <= LISTING_DISPLAY_LIMIT) return;
+
+    this.buttonsContainer = document.getElementById("wins-buttons-container");
+    if (!this.buttonsContainer) return;
+
+    const viewMoreBtn = createViewMoreButton(
+      "View More",
+      () => this.handleViewMoreWins(),
+      "viewMoreWinsBtn",
+    );
+    const viewLessBtn = createViewLessButton(
+      "View Less",
+      () => this.handleViewLessWins(),
+      "viewLessWinsBtn",
+      "hidden",
+    );
+
+    this.buttonsContainer.appendChild(viewMoreBtn);
+    this.buttonsContainer.appendChild(viewLessBtn);
+  }
+
+  handleViewMoreWins() {
+    const nextWins = this.listings.slice(
+      this.currentIndex,
+      this.currentIndex + LISTING_DISPLAY_LIMIT,
+    );
+    this.renderListings(nextWins);
+    this.currentIndex += LISTING_DISPLAY_LIMIT;
+
+    if (this.currentIndex >= this.listings.length) {
+      const viewMoreBtn =
+        this.buttonsContainer?.querySelector("#viewMoreWinsBtn");
+      if (viewMoreBtn) viewMoreBtn.classList.add("hidden");
+    }
+
+    const viewLessBtn =
+      this.buttonsContainer?.querySelector("#viewLessWinsBtn");
+    if (viewLessBtn) viewLessBtn.classList.remove("hidden");
+  }
+
+  handleViewLessWins() {
+    this.container.innerHTML = "";
+    this.renderInitialListings();
+    this.currentIndex = LISTING_DISPLAY_LIMIT;
+
+    const viewMoreBtn =
+      this.buttonsContainer?.querySelector("#viewMoreWinsBtn");
+    const viewLessBtn =
+      this.buttonsContainer?.querySelector("#viewLessWinsBtn");
+
+    if (viewMoreBtn) viewMoreBtn.classList.remove("hidden");
+    if (viewLessBtn) viewLessBtn.classList.add("hidden");
+  }
+
   setupEventListeners() {
-    this.setupViewMoreWinsListener();
-    this.setupViewLessWinsListener();
-  }
-
-  setupViewMoreWinsListener() {
-    const viewMoreBtn = document.getElementById("viewMoreWinsBtn");
-    if (viewMoreBtn) {
-      viewMoreBtn.addEventListener("click", () => {
-        const nextWins = this.listings.slice(
-          this.currentIndex,
-          this.currentIndex + LISTING_DISPLAY_LIMIT,
-        );
-        this.renderListings(nextWins);
-        this.currentIndex += LISTING_DISPLAY_LIMIT;
-        if (this.currentIndex >= this.listings.length) {
-          viewMoreBtn.classList.add("hidden");
-        }
-        const viewLessBtn = document.getElementById("viewLessWinsBtn");
-        if (viewLessBtn) {
-          viewLessBtn.classList.remove("hidden");
-        }
-      });
-    }
-  }
-
-  setupViewLessWinsListener() {
-    const viewLessBtn = document.getElementById("viewLessWinsBtn");
-    if (viewLessBtn) {
-      viewLessBtn.addEventListener("click", () => {
-        this.container.innerHTML = "";
-        this.renderInitialListings();
-        this.currentIndex = LISTING_DISPLAY_LIMIT;
-        const viewMoreBtn = document.getElementById("viewMoreWinsBtn");
-        if (viewMoreBtn) {
-          viewMoreBtn.classList.remove("hidden");
-        }
-        viewLessBtn.classList.add("hidden");
-      });
-    }
+    // Event listeners are now handled in the createButtons method
   }
 }
 

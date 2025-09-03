@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Debug Profiles API</title>
+  </head>
+  <body>
+    <h1>Debug Profiles API</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="results"></div>
+
+    <script>
+      async function testAPI() {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "Loading...";
+
+        try {
+          // Get token from localStorage (assuming that's where it's stored)
+          const token = localStorage.getItem("accessToken");
+          if (!token) {
+            resultsDiv.innerHTML =
+              '<p style="color: red;">No access token found. Please log in first.</p>';
+            return;
+          }
+
+          const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "X-Noroff-API-Key": "781ee7f3-d027-488c-b315-2ef77865caff",
+          };
+
+          console.log("Headers:", headers);
+
+          // Test different API endpoints
+          const urls = [
+            "https://v2.api.noroff.dev/auction/profiles",
+            "https://v2.api.noroff.dev/auction/profiles?_listings=true",
+            "https://v2.api.noroff.dev/auction/profiles?limit=100",
+            "https://v2.api.noroff.dev/auction/profiles?sort=name",
+          ];
+
+          let html = "";
+
+          for (const url of urls) {
+            try {
+              console.log("Testing URL:", url);
+              const response = await fetch(url, { headers });
+              const data = await response.json();
+
+              console.log("Response for", url, ":", data);
+
+              const profiles = Array.isArray(data) ? data : data.data || [];
+
+              html += `<h3>URL: ${url}</h3>`;
+              html += `<p>Status: ${response.status}</p>`;
+              html += `<p>Profile count: ${profiles.length}</p>`;
+
+              if (profiles.length > 0) {
+                html += "<p>First 5 profile names:</p><ul>";
+                profiles.slice(0, 5).forEach((profile) => {
+                  html += `<li>${profile.name} (${profile.email})</li>`;
+                });
+                html += "</ul>";
+
+                html += "<p>Last 5 profile names:</p><ul>";
+                profiles.slice(-5).forEach((profile) => {
+                  html += `<li>${profile.name} (${profile.email})</li>`;
+                });
+                html += "</ul>";
+              }
+
+              html += "<hr>";
+            } catch (err) {
+              html += `<h3>URL: ${url}</h3>`;
+              html += `<p style="color: red;">Error: ${err.message}</p><hr>`;
+            }
+          }
+
+          resultsDiv.innerHTML = html;
+        } catch (error) {
+          console.error("Error:", error);
+          resultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,6 +1,11 @@
 import { isAuthenticated, getAuthHeader } from "../library/auth.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import {
+  createViewMoreButton,
+  createViewLessButton,
+  createButtonContainer,
+} from "../components/buttons.js";
 
 // Constants
 const DEFAULT_AVATAR = "https://placehold.co/100x100?text=Avatar";
@@ -74,22 +79,30 @@ class StateManager {
   }
 
   getCurrentBatch() {
+    // Fix: Show profiles from 0 to currentIndex + PROFILES_PER_PAGE for cumulative display
+    // This will show 12, then 24, then 36, etc.
     return this.sortedProfiles.slice(0, this.currentIndex + PROFILES_PER_PAGE);
   }
 
   canShowMore() {
+    // Fix: Check if there are more profiles beyond the current display
     return this.currentIndex + PROFILES_PER_PAGE < this.sortedProfiles.length;
   }
 
   canShowLess() {
+    // Fix: Can show less if we're displaying more than the initial batch
     return this.currentIndex > 0;
   }
 
   showMore() {
-    this.currentIndex += PROFILES_PER_PAGE;
+    // Fix: Increase the index by PROFILES_PER_PAGE to show next batch
+    if (this.canShowMore()) {
+      this.currentIndex += PROFILES_PER_PAGE;
+    }
   }
 
   showLess() {
+    // Fix: Decrease the index by PROFILES_PER_PAGE to show previous batch
     this.currentIndex = Math.max(0, this.currentIndex - PROFILES_PER_PAGE);
   }
 
@@ -331,7 +344,7 @@ class APIService {
 
     const headers = {
       "Content-Type": "application/json",
-      "X-Noroff-API-Key": config.X_NOROFF_API_KEY, // Fixed: Use config.X_NOROFF_API_KEY to match listings.js
+      "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
     };
 
     if (isAuthenticated()) {
@@ -346,8 +359,12 @@ class APIService {
     try {
       const headers = this.getHeaders();
 
+      // Try different API endpoint variations to debug the issue
+      console.log("API URL:", `${API_BASE_URL}/auction/profiles`);
+
+      // First try with a high limit to get all profiles
       const response = await fetch(
-        `${API_BASE_URL}/auction/profiles?_sort=created&_order=desc&_limit=100&_listings=true&_wins=true`, // Use API_BASE_URL instead of API_BASE
+        `${API_BASE_URL}/auction/profiles?_listings=true&limit=100`,
         { headers },
       );
 
@@ -364,6 +381,24 @@ class APIService {
       // Handle both array response and data wrapper
       const profiles = Array.isArray(result) ? result : result.data || [];
 
+      console.log("Fetched profiles:", profiles.length); // Debug log
+      console.log(
+        "Raw API response structure:",
+        typeof result,
+        Array.isArray(result),
+      ); // Debug the response structure
+      console.log(
+        "Sample profile names:",
+        profiles.slice(0, 10).map((p) => p.name),
+      ); // Debug profile names
+      console.log(
+        "All profile names (first 20):",
+        profiles
+          .slice(0, 20)
+          .map((p) => p.name)
+          .sort(),
+      ); // Debug all names sorted
+
       // Ensure profiles have the required structure
       return profiles.map((profile) => ({
         ...profile,
@@ -371,6 +406,7 @@ class APIService {
         _count: profile._count || { listings: 0, wins: 0 },
       }));
     } catch (error) {
+      console.error("Error fetching profiles:", error); // Debug log
       throw error;
     }
   }
@@ -408,12 +444,43 @@ class ProfilesController {
       this.state.setProfiles(profiles);
       this.ui.renderSortingControls();
       this.ui.renderProfiles();
+
+      // Setup event listeners for HTML sorting buttons
+      this.setupHTMLSortingButtons();
     } catch (error) {
       if (error.message === "Authentication required") {
         this.ui.showAuthRequired();
       } else {
         this.ui.showError(error.message || "An unexpected error occurred.");
       }
+    }
+  }
+
+  setupHTMLSortingButtons() {
+    const sortAlphabeticalBtn = document.getElementById("sortAlphabetical");
+    const sortMostCreditsBtn = document.getElementById("sortMostCredits");
+    const sortLeastCreditsBtn = document.getElementById("sortLeastCredits");
+
+    if (sortAlphabeticalBtn) {
+      sortAlphabeticalBtn.addEventListener("click", () => {
+        this.state.sortedProfiles.sort((a, b) => a.name.localeCompare(b.name));
+        this.state.resetIndex();
+        this.ui.renderProfiles();
+      });
+    }
+
+    if (sortMostCreditsBtn) {
+      sortMostCreditsBtn.addEventListener("click", () => {
+        this.state.sortProfiles(SORT_CRITERIA.MOST_CREDITS);
+        this.ui.renderProfiles();
+      });
+    }
+
+    if (sortLeastCreditsBtn) {
+      sortLeastCreditsBtn.addEventListener("click", () => {
+        this.state.sortProfiles(SORT_CRITERIA.LEAST_CREDITS);
+        this.ui.renderProfiles();
+      });
     }
   }
 }

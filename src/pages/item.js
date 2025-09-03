@@ -388,6 +388,16 @@ class UIManager {
       const isHighestBid = index === 0;
       const avatarUrl = bid.bidder?.avatar?.url || DEFAULT_BIDDER_AVATAR;
       const bidderName = bid.bidder?.name || "Unknown Bidder";
+
+      // Create clickable username link if authenticated and bidder name exists
+      const createBidderNameHTML = (name) => {
+        if (isAuthenticated() && name && name !== "Unknown Bidder") {
+          const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(name)}`;
+          return `<a href="${profileUrl}" class="text-pink-500 hover:underline">${name}</a>`;
+        }
+        return name;
+      };
+
       let statusText = "";
       let bidElement;
       if (isHighestBid && isEnded) {
@@ -402,7 +412,7 @@ class UIManager {
           <img src="${avatarUrl}"
                alt="${bidderName}"
                class="w-16 h-16 rounded-full object-cover border-4 border-green-600 mx-auto mb-2">
-          <p class="font-semibold text-green-800 text-xl text-center mb-1">${bidderName}</p>
+          <p class="font-semibold text-green-800 text-xl text-center mb-1">${createBidderNameHTML(bidderName)}</p>
           <p class="text-lg font-bold text-green-700 text-center mb-2">${bid.amount} credits</p>
           <p class="text-sm text-gray-500 dark:text-gray-400 text-center">${new Date(bid.created).toLocaleString()}</p>
         `;
@@ -420,7 +430,7 @@ class UIManager {
                  alt="${bidderName}"
                  class="w-10 h-10 rounded-full object-cover border-2 ${isHighestBid ? "border-pink-500" : "border-gray-300 dark:border-gray-600"}">
             <div>
-              <p class="font-semibold ${isHighestBid ? "text-pink-600" : ""}">${bidderName}</p>
+              <p class="font-semibold ${isHighestBid ? "text-pink-600" : ""}">${createBidderNameHTML(bidderName)}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(bid.created).toLocaleString()}</p>
             </div>
           </div>

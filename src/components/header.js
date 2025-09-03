@@ -56,7 +56,7 @@ function renderHeader() {
   const currentPath = window.location.pathname;
 
   return `
-    <nav class="overflow-x-auto flex-nowrap bg-white dark:bg-gray-800 shadow-lg border-b border-gray-500 dark:border-gray-700">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-500 dark:border-gray-700">
       <div class="mx-2 px-4">
         <div class="flex justify-between items-center py-4">
           <!-- Left Side: Logo and Navigation -->
@@ -71,9 +71,6 @@ function renderHeader() {
 
             <!-- Navigation Links -->
             <div class="hidden md:flex items-center space-x-6">
-              <!-- <a href="/index.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
-                currentPath === "/index.html" ? "font-bold text-pink-600" : ""
-              }">Home</a> -->
               <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
                 currentPath === "/listings.html"
                   ? "font-bold text-pink-600"
@@ -96,18 +93,18 @@ function renderHeader() {
           <!-- Right Side Actions (Desktop View) -->
           <div class="hidden md:flex items-center space-x-4">
             <!-- Search Field -->
-            <form class="ml-5 relative" role="search" aria-label="Auction Search">
-              <label for="header-search" class="sr-only">Search Auctions</label>
+            <div class="ml-5 relative">
+              <label for="header-search" class="sr-only">Search Site</label>
               <input
                 type="text"
                 id="header-search"
                 name="search"
-                placeholder="Search auctions..."
+                placeholder="Search..."
                 class="px-4 py-2 pr-10 w-40 md:w-64 border border-gray-400 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500"
-                aria-label="Search Auctions"
+                aria-label="Search Site"
                 autocomplete="off"
               >
-            </form>
+            </div>
             ${
               authenticated
                 ? `
@@ -156,13 +153,13 @@ function renderHeader() {
           <div class="flex flex-col space-y-3">
             <!-- Mobile Search -->
             <div class="relative mb-3">
-              <label for="mobile-search" class="sr-only">Search Auctions</label>
+              <label for="mobile-search" class="sr-only">Search Site</label>
               <input
                 type="text"
                 id="mobile-search"
-                placeholder="Search auctions..."
+                placeholder="Search...."
                 class="px-4 py-2 pr-10 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500"
-                aria-label="Search Auctions"
+                aria-label="Search Site"
               >
             </div>
 
