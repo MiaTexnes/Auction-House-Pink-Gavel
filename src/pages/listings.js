@@ -70,16 +70,23 @@ const Utils = {
   },
 
   setMinimumDateTime(element) {
-    if (!element) return;
+    if (!element) {
+      console.warn("setMinimumDateTime: Element not found");
+      return;
+    }
 
-    const now = new Date();
-    const localDateTime = new Date(
-      now.getTime() - now.getTimezoneOffset() * 60000,
-    )
-      .toISOString()
-      .slice(0, 16);
+    try {
+      const now = new Date();
+      const localDateTime = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000,
+      )
+        .toISOString()
+        .slice(0, 16);
 
-    element.min = localDateTime;
+      element.min = localDateTime;
+    } catch (error) {
+      console.error("Error setting minimum datetime:", error);
+    }
   },
 };
 
