@@ -1,26 +1,47 @@
+import { faviconConfig } from "../config/faviconConfig.js";
+
+/**
+ * Dynamically adds favicon links and web app manifest to the document head
+ */
 function addFavicons() {
   const head = document.head;
 
-  const faviconSizes = [16, 32, 48, 64, 128, 256];
-  faviconSizes.forEach((size) => {
+  // Add each favicon link
+  faviconConfig.favicons.forEach((favicon) => {
     const link = document.createElement("link");
-    link.rel = "icon";
-    link.type = "image/png";
-    link.sizes = `${size}x${size}`;
-    link.href = `/favicon/favicon-${size}x${size}.png`;
+    link.rel = favicon.rel;
+
+    if (favicon.type) {
+      link.type = favicon.type;
+    }
+
+    if (favicon.sizes) {
+      link.sizes = favicon.sizes;
+    }
+
+    link.href = favicon.href;
     head.appendChild(link);
   });
 
-  const appleTouchIcon = document.createElement("link");
-  appleTouchIcon.rel = "apple-touch-icon";
-  appleTouchIcon.sizes = "180x180";
-  appleTouchIcon.href = "/favicon/apple-touch-icon.png";
-  head.appendChild(appleTouchIcon);
-
+  // Add web app manifest
   const manifestLink = document.createElement("link");
   manifestLink.rel = "manifest";
-  manifestLink.href = "/favicon/site.webmanifest";
+  manifestLink.href = faviconConfig.manifest.href;
   head.appendChild(manifestLink);
+
+  // Add theme color meta tag
+  const themeColorMeta = document.createElement("meta");
+  themeColorMeta.name = "theme-color";
+  themeColorMeta.content = faviconConfig.themeColor;
+  head.appendChild(themeColorMeta);
 }
 
-export { addFavicons };
+/**
+ * Generates a web app manifest file content (for reference or dynamic generation)
+ * @returns {string} JSON string of the manifest
+ */
+function generateManifestContent() {
+  return JSON.stringify(faviconConfig.manifestData, null, 2);
+}
+
+export { addFavicons, generateManifestContent };
