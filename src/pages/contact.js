@@ -1,26 +1,36 @@
-// Contact page functionality
+/**
+ * Contact Page Controller
+ * Handles contact form submission, validation, and user interactions
+ * Provides enhanced form field feedback and success notifications
+ */
 
-// Contact form handling
+/**
+ * Initializes basic contact form with simple submission handling
+ * Shows success message and resets form on submission
+ */
 function initializeContactForm() {
   const contactForm = document.getElementById("contact-form");
   if (contactForm) {
     contactForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      // Show success message
+      // Display success notification to user
       const successMessage = document.getElementById("success-message");
       if (successMessage) {
         successMessage.classList.remove("hidden");
         successMessage.classList.add("flex", "items-center", "justify-center");
       }
 
-      // Reset form
+      // Clear form fields for next use
       this.reset();
     });
   }
 }
 
-// Close success message functionality
+/**
+ * Sets up success modal close functionality
+ * Allows users to dismiss success notifications
+ */
 function initializeSuccessModal() {
   const closeSuccessBtn = document.getElementById("close-success");
   const successMessage = document.getElementById("success-message");
@@ -42,7 +52,10 @@ function initializeSuccessModal() {
   }
 }
 
-// Form validation
+/**
+ * Validates all required form fields before submission
+ * @returns {boolean} True if form is valid, false otherwise
+ */
 function validateContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return false;
@@ -69,16 +82,18 @@ function validateContactForm() {
   return true;
 }
 
-// Enhanced form submission with validation
+/**
+ * Enhanced form submission with comprehensive validation
+ * Includes field validation before showing success state
+ */
 function initializeEnhancedContactForm() {
   const contactForm = document.getElementById("contact-form");
   if (contactForm) {
     contactForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
-      // Validate form before submitting
+      // Only proceed if all fields are valid
       if (validateContactForm()) {
-        // Show success message
         const successMessage = document.getElementById("success-message");
         if (successMessage) {
           successMessage.classList.remove("hidden");
@@ -88,46 +103,37 @@ function initializeEnhancedContactForm() {
             "justify-center",
           );
         }
-
-        // Reset form
         this.reset();
       }
     });
   }
 }
 
-// Initialize all contact page functionality
-function initializeContactPage() {
-  // Initialize form with validation
-  initializeEnhancedContactForm();
-
-  // Initialize success modal
-  initializeSuccessModal();
-
-  // Add form field enhancements
-  addFormFieldEnhancements();
-}
-
-// Add enhanced form field interactions
+/**
+ * Adds interactive enhancements to form fields
+ * Provides visual feedback on focus/blur and validation states
+ */
 function addFormFieldEnhancements() {
   const formFields = document.querySelectorAll(
     "#contact-form input, #contact-form textarea, #contact-form select",
   );
 
   formFields.forEach((field) => {
-    // Add focus and blur effects
+    // Visual feedback when user focuses on field
     field.addEventListener("focus", function () {
       this.parentElement.classList.add("focused");
     });
 
+    // Validation feedback when user leaves field
     field.addEventListener("blur", function () {
       this.parentElement.classList.remove("focused");
 
-      // Add validation feedback
+      // Show error state for empty required fields
       if (this.hasAttribute("required") && !this.value.trim()) {
         this.classList.add("border-red-500");
         this.classList.remove("border-gray-300", "dark:border-gray-600");
       } else {
+        // Reset to normal state for valid fields
         this.classList.remove("border-red-500");
         this.classList.add("border-gray-300", "dark:border-gray-600");
       }
@@ -135,12 +141,21 @@ function addFormFieldEnhancements() {
   });
 }
 
-// Auto-initialize when DOM is loaded
+/**
+ * Main initialization function for contact page
+ * Coordinates all contact page functionality
+ */
+function initializeContactPage() {
+  initializeEnhancedContactForm();
+  initializeSuccessModal();
+  addFormFieldEnhancements();
+}
+
+// Auto-initialize when page loads
 document.addEventListener("DOMContentLoaded", function () {
   initializeContactPage();
 });
 
-// Export functions for potential use by other modules
 export {
   initializeContactPage,
   initializeContactForm,

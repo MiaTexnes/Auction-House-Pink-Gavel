@@ -80,7 +80,7 @@ function renderHeader() {
               ${
                 authenticated
                   ? `
-                
+
               `
                   : ""
               }

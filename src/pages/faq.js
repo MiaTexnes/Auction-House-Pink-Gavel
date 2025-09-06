@@ -1,4 +1,8 @@
-// FAQ Page Controller
+/**
+ * FAQ Page Controller
+ * Manages FAQ search functionality and interactive question/answer display
+ * Handles filtering, animations, and user interactions
+ */
 class FAQController {
   constructor() {
     this.categoryButtons = document.querySelectorAll(".category-btn");
@@ -11,6 +15,10 @@ class FAQController {
     this.init();
   }
 
+  /**
+   * Initializes FAQ search functionality
+   * Sets up event listener for real-time search filtering
+   */
   init() {
     this.setupEventListeners();
     this.setupFAQToggles();
@@ -98,8 +106,8 @@ class FAQController {
       }
     });
 
-    // Show/hide no results message
-    if (visibleCount === 0) {
+    // Show/hide no results message and FAQ container
+    if (visibleItems === 0 && searchTerm !== "") {
       this.noResults.classList.remove("hidden");
       this.faqContainer.classList.add("hidden");
     } else {
@@ -109,8 +117,16 @@ class FAQController {
   }
 }
 
-// Utility class for smooth animations
+/**
+ * Animation Utilities
+ * Provides smooth animations for FAQ interactions
+ */
 class AnimationUtils {
+  /**
+   * Smooth fade-in animation for elements
+   * @param {HTMLElement} element - Element to animate
+   * @param {number} duration - Animation duration in milliseconds
+   */
   static fadeIn(element, duration = 300) {
     element.style.opacity = "0";
     element.style.display = "block";
@@ -131,6 +147,11 @@ class AnimationUtils {
     requestAnimationFrame(animate);
   }
 
+  /**
+   * Smooth slide-down animation with easing
+   * @param {HTMLElement} element - Element to animate
+   * @param {number} duration - Animation duration in milliseconds
+   */
   static slideDown(element, duration = 300) {
     const startHeight = 0;
     const endHeight = element.scrollHeight;
@@ -165,15 +186,24 @@ class AnimationUtils {
   }
 }
 
-// Enhanced FAQ interactions
+/**
+ * Enhanced FAQ Interactions
+ * Adds keyboard navigation, scroll-to-top, and sharing functionality
+ */
 class FAQEnhancements {
+  /**
+   * Adds keyboard shortcuts for better accessibility
+   * "/" key focuses search, "Escape" clears search
+   */
   static addKeyboardNavigation() {
     document.addEventListener("keydown", (e) => {
+      // Focus search with "/" key
       if (e.key === "/") {
         e.preventDefault();
         document.getElementById("faq-search").focus();
       }
 
+      // Clear search with "Escape" key
       if (e.key === "Escape") {
         document.getElementById("faq-search").blur();
         document.getElementById("faq-search").value = "";
@@ -184,6 +214,10 @@ class FAQEnhancements {
     });
   }
 
+  /**
+   * Adds scroll-to-top button that appears on scroll
+   * Provides smooth scrolling back to top of page
+   */
   static addScrollToTop() {
     const scrollButton = document.createElement("button");
     scrollButton.innerHTML = `
@@ -197,6 +231,7 @@ class FAQEnhancements {
 
     document.body.appendChild(scrollButton);
 
+    // Show/hide button based on scroll position
     window.addEventListener("scroll", () => {
       if (window.scrollY > 500) {
         scrollButton.classList.remove("opacity-0", "invisible");
@@ -205,11 +240,16 @@ class FAQEnhancements {
       }
     });
 
+    // Smooth scroll to top on click
     scrollButton.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 
+  /**
+   * Adds sharing functionality for FAQ items
+   * Allows users to share specific FAQ links via right-click
+   */
   static addShareFunctionality() {
     document.querySelectorAll(".faq-question").forEach((question) => {
       question.addEventListener("contextmenu", (e) => {
@@ -219,14 +259,16 @@ class FAQEnhancements {
         const questionText = question.querySelector("span").textContent;
         const url = `${window.location.href}#${encodeURIComponent(questionText)}`;
 
+        // Use native sharing API if available
         if (navigator.share) {
           navigator.share({
             title: questionText,
             url: url,
           });
         } else if (navigator.clipboard) {
+          // Fallback to clipboard copy
           navigator.clipboard.writeText(url).then(() => {
-            // Show temporary tooltip
+            // Show temporary success tooltip
             const tooltip = document.createElement("div");
             tooltip.textContent = "Link copied!";
             tooltip.className =
@@ -246,11 +288,12 @@ class FAQEnhancements {
   }
 }
 
-// Initialize everything when DOM loads
+// Initialize FAQ functionality when page loads
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize main FAQ controller
   const faqController = new FAQController();
 
-  // Add enhancements
+  // Add enhanced features
   FAQEnhancements.addKeyboardNavigation();
   FAQEnhancements.addScrollToTop();
   FAQEnhancements.addShareFunctionality();
@@ -259,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("faq-search");
   searchInput.setAttribute("placeholder", "Search FAQs... (Press / to focus)");
 
-  // Add loading state simulation for dynamic feel
+  // Staggered animation for FAQ items on page load
   const faqItems = document.querySelectorAll(".faq-item");
   faqItems.forEach((item, index) => {
     item.style.opacity = "0";
@@ -273,5 +316,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// Export for potential testing
 export { FAQController, AnimationUtils, FAQEnhancements };

@@ -1,16 +1,25 @@
+/**
+ * Homepage Controller
+ * Manages the main landing page with authentication buttons and featured listings carousel
+ * Handles responsive design and dynamic content loading
+ */
+
 import { isAuthenticated } from "../library/auth.js";
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
-import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import { API_BASE_URL } from "../services/baseApi.js";
 import logoImage from "/assets/images/logo.png";
 
-// Constants
+// Configuration constants
 const DEFAULT_LISTINGS_LIMIT = 20;
 const CAROUSEL_UPDATE_DELAY = 100;
 const DEFAULT_IMAGE = logoImage;
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
-// DOM Elements
+/**
+ * DOM element references for homepage components
+ * Cached at module level for performance
+ */
 const elements = {
   homeAuthButtons: document.getElementById("home-auth-buttons"),
   homeLoading: document.getElementById("home-loading"),
@@ -20,7 +29,10 @@ const elements = {
   mainContent: document.getElementById("main-content"),
 };
 
-// Utility Functions
+/**
+ * DOM manipulation utilities
+ * Provides consistent show/hide functionality across components
+ */
 const DOMUtils = {
   show(element) {
     if (element) element.classList.remove("hidden");
@@ -38,7 +50,10 @@ const DOMUtils = {
   },
 };
 
-// Responsive Utilities
+/**
+ * Responsive design utilities
+ * Calculates optimal number of cards to display based on screen size
+ */
 const ResponsiveUtils = {
   getCardsPerView() {
     const width = window.innerWidth;
@@ -50,7 +65,10 @@ const ResponsiveUtils = {
   },
 };
 
-// API Services
+/**
+ * API service for fetching homepage data
+ * Handles communication with backend for featured listings
+ */
 const APIService = {
   async fetchLatestListings(limit = DEFAULT_LISTINGS_LIMIT) {
     const response = await fetch(
@@ -72,7 +90,10 @@ const APIService = {
   },
 };
 
-// Auth Button Renderer
+/**
+ * Authentication button renderer
+ * Shows appropriate buttons based on user login status
+ */
 const AuthButtonRenderer = {
   render() {
     if (!elements.homeAuthButtons) return;
@@ -84,6 +105,10 @@ const AuthButtonRenderer = {
     }
   },
 
+  /**
+   * Renders buttons for logged-in users
+   * Shows browse auctions with user-specific styling
+   */
   renderAuthenticatedButtons() {
     elements.homeAuthButtons.innerHTML = `
       <div class="text-center">
@@ -94,6 +119,10 @@ const AuthButtonRenderer = {
     `;
   },
 
+  /**
+   * Renders buttons for non-authenticated users
+   * Shows general browse option
+   */
   renderUnauthenticatedButtons() {
     elements.homeAuthButtons.innerHTML = `
       <div class="text-center">
@@ -105,8 +134,16 @@ const AuthButtonRenderer = {
   },
 };
 
-// Image Handler
+/**
+ * Image handling utilities for listing cards
+ * Manages image URLs, fallbacks, and optimization
+ */
 const ImageHandler = {
+  /**
+   * Extracts primary image URL from listing media
+   * @param {Object} listing - Listing object with media array
+   * @returns {string} Image URL or default image
+   */
   getImageUrl(listing) {
     if (
       !listing.media ||
@@ -117,10 +154,13 @@ const ImageHandler = {
     }
 
     const media = listing.media[0];
+
+    // Handle string URLs
     if (typeof media === "string" && media.trim() !== "") {
       return media;
     }
 
+    // Handle object with URL property
     if (typeof media === "object" && media.url && media.url.trim() !== "") {
       return media.url;
     }
@@ -128,12 +168,19 @@ const ImageHandler = {
     return DEFAULT_IMAGE;
   },
 
+  /**
+   * Optimizes card images for carousel display
+   * Adjusts image sizing and aspect ratios
+   * @param {HTMLElement} card - Card element containing images
+   */
   optimizeCardImages(card) {
     const images = card.querySelectorAll("img");
     images.forEach((img) => {
+      // Switch from cover to contain for better fit
       img.classList.remove("object-cover");
       img.classList.add("object-contain");
 
+      // Set maximum height if not already constrained
       if (!img.style.height && !img.classList.contains("w-full")) {
         img.style.height = "auto";
         img.style.maxHeight = MAX_THUMBNAIL_HEIGHT;
@@ -143,6 +190,10 @@ const ImageHandler = {
     this.removeAspectRatioConstraints(card);
   },
 
+  /**
+   * Removes fixed aspect ratio constraints for flexible sizing
+   * @param {HTMLElement} card - Card element to modify
+   */
   removeAspectRatioConstraints(card) {
     const imageContainers = card.querySelectorAll(
       '.aspect-square, .aspect-video, [class*="aspect-"]',
@@ -163,7 +214,10 @@ const ImageHandler = {
   },
 };
 
-// Carousel Component
+/**
+ * Carousel Component for Featured Listings
+ * Manages responsive carousel with navigation and thumbnails
+ */
 class CarouselComponent {
   constructor(listings) {
     this.listings = listings;
@@ -172,6 +226,7 @@ class CarouselComponent {
     this.total = listings.length;
     this.resizeTimeout = null;
 
+    // DOM element references
     this.elements = {
       container: null,
       leftBtn: null,
@@ -181,6 +236,10 @@ class CarouselComponent {
     };
   }
 
+  /**
+   * Renders the complete carousel structure
+   * Creates DOM elements and sets up event listeners
+   */
   render() {
     const container = document.querySelector(".carousel-container");
     if (!container) return;
@@ -191,20 +250,30 @@ class CarouselComponent {
     this.updateCarousel();
   }
 
+  /**
+   * Creates the main carousel HTML structure
+   * @param {HTMLElement} container - Parent container element
+   */
   createCarouselStructure(container) {
+    // Main carousel wrapper
     const carouselWrapper = DOMUtils.createElement(
       "div",
       "flex flex-col items-center w-full max-w-full overflow-hidden",
     );
+
+    // Carousel container with responsive padding
     const carouselContainer = DOMUtils.createElement(
       "div",
       "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
     );
+
+    // Main area with navigation and cards
     const mainArea = DOMUtils.createElement(
       "div",
       "flex  items-center justify-between gap-4 w-full",
     );
 
+    // Create navigation buttons and card area
     this.elements.leftBtn = this.createNavigationButton("left");
     this.elements.rightBtn = this.createNavigationButton("right");
     this.elements.cardArea = DOMUtils.createElement(
@@ -219,6 +288,7 @@ class CarouselComponent {
     );
     carouselContainer.appendChild(mainArea);
 
+    // Thumbnail scroll bar
     const scrollBarContainer = DOMUtils.createElement(
       "div",
       "w-full max-w-4xl mx-auto mt-6 px-4",
@@ -233,6 +303,11 @@ class CarouselComponent {
     container.appendChild(carouselWrapper);
   }
 
+  /**
+   * Creates navigation button (left or right)
+   * @param {string} direction - "left" or "right"
+   * @returns {HTMLElement} Button element
+   */
   createNavigationButton(direction) {
     const isLeft = direction === "left";
     const icon = isLeft
@@ -268,7 +343,12 @@ class CarouselComponent {
     return button;
   }
 
+  /**
+   * Sets up event listeners for carousel functionality
+   * Handles window resize and authentication changes
+   */
   setupEventListeners() {
+    // Handle responsive resize
     window.addEventListener("resize", () => {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(
@@ -285,6 +365,10 @@ class CarouselComponent {
     this.updateThumbnails();
   }
 
+  /**
+   * Updates the main card display area
+   * Shows current batch of listing cards
+   */
   updateCardArea() {
     this.elements.cardArea.style.gridTemplateColumns = `repeat(${this.cardsPerView}, 1fr)`;
     this.elements.cardArea.innerHTML = "";
@@ -297,17 +381,18 @@ class CarouselComponent {
       const idx = this.currentIndex + i;
       const card = createListingCard(this.listings[idx]);
 
+      // Reset card sizing for carousel
       card.style.width = "auto";
       card.style.minWidth = "auto";
       card.style.maxWidth = "none";
 
-      // Create a wrapper div to contain hover effects
+      // Create wrapper to contain hover effects
       const cardWrapper = document.createElement("div");
       cardWrapper.className = "relative overflow-hidden";
       cardWrapper.style.cssText =
         "transform-style: preserve-3d; contain: layout style paint;";
 
-      // Remove hover scale and translate from the original card
+      // Remove original hover animations for carousel context
       card.className = card.className
         .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
         .replace("hover:scale-[1.02]", "")
@@ -320,6 +405,10 @@ class CarouselComponent {
     }
   }
 
+  /**
+   * Updates navigation button states
+   * Disables buttons when at start/end of carousel
+   */
   updateNavigationButtons() {
     this.updateButtonState(this.elements.leftBtn, this.currentIndex === 0);
     this.updateButtonState(
@@ -328,10 +417,16 @@ class CarouselComponent {
     );
   }
 
+  /**
+   * Updates individual button appearance and state
+   * @param {HTMLElement} button - Button to update
+   * @param {boolean} isDisabled - Whether button should be disabled
+   */
   updateButtonState(button, isDisabled) {
     button.disabled = isDisabled;
 
     if (isDisabled) {
+      // Disabled state styling
       button.className = button.className
         .replace(
           "bg-pink-500 hover:bg-pink-600",
@@ -339,6 +434,7 @@ class CarouselComponent {
         )
         .replace("hover:scale-105", "");
     } else {
+      // Active state styling
       button.className = button.className.replace(
         "bg-gray-400 cursor-not-allowed",
         "bg-pink-500 hover:bg-pink-600",
@@ -350,6 +446,10 @@ class CarouselComponent {
     }
   }
 
+  /**
+   * Updates thumbnail scroll bar
+   * Shows indicators for current position in carousel
+   */
   updateThumbnails() {
     this.elements.scrollBar.innerHTML = "";
 
@@ -359,6 +459,11 @@ class CarouselComponent {
     }
   }
 
+  /**
+   * Creates individual thumbnail indicator
+   * @param {number} index - Page index for thumbnail
+   * @returns {HTMLElement} Thumbnail element
+   */
   createThumbnail(index) {
     const listing = this.listings[index];
     const thumb = DOMUtils.createElement("img");
@@ -402,8 +507,15 @@ class CarouselComponent {
   }
 }
 
-// Main Carousel Controller
+/**
+ * Main carousel controller
+ * Manages loading and displaying featured listings
+ */
 const CarouselController = {
+  /**
+   * Loads and displays featured listings carousel
+   * Handles loading states and error conditions
+   */
   async load() {
     if (!elements.listingsCarousel) return;
 
@@ -417,6 +529,7 @@ const CarouselController = {
         return;
       }
 
+      // Create and render carousel
       const carousel = new CarouselComponent(listings);
       carousel.render();
       DOMUtils.show(elements.listingsCarousel);
@@ -442,7 +555,10 @@ const CarouselController = {
   },
 };
 
-// Page Initializer
+/**
+ * Main page initializer
+ * Coordinates all homepage functionality
+ */
 const PageInitializer = {
   init() {
     if (!elements.mainContent) return;
@@ -452,7 +568,12 @@ const PageInitializer = {
     this.setupEventListeners();
   },
 
+  /**
+   * Sets up global event listeners
+   * Handles authentication state changes
+   */
   setupEventListeners() {
+    // Listen for authentication changes in other tabs
     window.addEventListener("storage", (e) => {
       if (e.key === "token" || e.key === "user") {
         AuthButtonRenderer.render();
@@ -461,10 +582,9 @@ const PageInitializer = {
   },
 };
 
-// Initialize page
+// Initialize homepage when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   PageInitializer.init();
 });
 
-// Export for other modules
 export { CarouselComponent };
