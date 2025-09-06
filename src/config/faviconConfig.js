@@ -47,14 +47,16 @@ export const faviconConfig = {
       "Discover amazing deals and rare finds! Bid on treasures or sell your items to collectors worldwide.",
     icons: [
       {
-        src: "/favicon/android-chrome-192x192.png",
+        src: "/favicon/web-app-manifest-192x192.png",
         sizes: "192x192",
         type: "image/png",
+        purpose: "maskable",
       },
       {
-        src: "/favicon/android-chrome-512x512.png",
+        src: "/favicon/web-app-manifest-512x512.png",
         sizes: "512x512",
         type: "image/png",
+        purpose: "maskable",
       },
     ],
     theme_color: "#ec4899",

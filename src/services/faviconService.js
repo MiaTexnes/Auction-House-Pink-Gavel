@@ -31,7 +31,7 @@ function addFavicons() {
     },
     {
       rel: "manifest",
-      href: "/site.webmanifest",
+      href: faviconConfig.manifest.href,
     },
   ];
 

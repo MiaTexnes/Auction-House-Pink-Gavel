@@ -36,8 +36,9 @@ export default defineConfig({
     "**/*.gif",
     "**/*.svg",
     "**/*.ico",
+    "**/*.webmanifest",
   ],
-  publicDir: "assets",
+  publicDir: "public",
   css: {
     postcss: "./postcss.config.js",
   },
