@@ -26,7 +26,6 @@ export default defineConfig({
         profile: resolve(__dirname, "profile.html"),
         register: resolve(__dirname, "register.html"),
         sellerProfile: resolve(__dirname, "sellerProfile.html"),
-        users: resolve(__dirname, "profiles.html"),
       },
     },
   },

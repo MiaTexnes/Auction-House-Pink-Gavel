@@ -63,15 +63,15 @@ function renderHeader() {
           <div class="flex items-center space-x-6">
             <!-- Logo -->
             <div class="flex items-center space-x-3">
-              <a href="/index.html" class="flex items-center space-x-2">
-                <img src="/images/logo.png" alt="Pink Gavel Auctions" class="h-14 w-14">
-                <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">Pink Gavel Auctions</span>
+              <a href="/index.html" class="flex items-center space-x-2 hover:scale-105 transition-transform duration-300 ease-in-out group">
+                <img src="/images/logo.png" alt="Pink Gavel Auctions" class="h-14 w-14 group-hover:rotate-3 transition-transform duration-300">
+                <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">Pink Gavel Auctions</span>
               </a>
             </div>
 
             <!-- Navigation Links -->
             <div class="hidden md:flex items-center space-x-6">
-              <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
+              <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/listings.html"
                   ? "font-bold text-pink-600"
                   : ""
@@ -79,11 +79,7 @@ function renderHeader() {
               ${
                 authenticated
                   ? `
-                <a href="/profiles.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors ${
-                  currentPath === "/profiles.html"
-                    ? "font-bold text-pink-600"
-                    : ""
-                }">Users</a>
+                
               `
                   : ""
               }
@@ -110,7 +106,7 @@ function renderHeader() {
                 ? `
               <div class="flex items-center space-x-4">
                 <span class="text-gray-700 dark:text-gray-300 text-md">
-                  Hello, <a href="/profile.html" class="text-pink-500 font-bold hover:underline">${currentUser.name}</a>
+                  Hello, <a href="/profile.html" class="text-pink-500 font-bold hover:underline hover:scale-105 transition-all duration-300">${currentUser.name}</a>
                 </span>
                 <div id="user-credits" class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Loading...
@@ -121,8 +117,12 @@ function renderHeader() {
               </div>
             `
                 : `
-              <a href="/login.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">Login</a>
-                <a href="/register.html" class="text-center py-1 px-4 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200">Register</a>
+              <a href="/login.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+                currentPath === "/login.html" ? "font-bold text-pink-600" : ""
+              }">Login</a>
+                <a href="/register.html" class="text-center py-1 px-4 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 hover:scale-105 transition-all duration-200 ${
+                  currentPath === "/register.html" ? "ring-2 ring-pink-300" : ""
+                }">Register</a>
             `
             }
             <!-- Dark mode toggle always visible -->
@@ -180,7 +180,7 @@ function renderHeader() {
                 authenticated
                   ? `
                 <span class="text-gray-800 dark:text-gray-300 text-lg font-semibold">
-                  Hello, <a href="/profile.html" class="text-pink-500 hover:underline">${currentUser.name}</a>
+                  Hello, <a href="/profile.html" class="text-pink-500 hover:underline hover:scale-105 transition-all duration-300">${currentUser.name}</a>
                 </span>
                 <div id="user-credits" class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-md font-semibold">
                   Loading...
@@ -201,21 +201,17 @@ function renderHeader() {
               </button>
             </div>
 
-            <a href="/index.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
+            <a href="/index.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
               currentPath === "/index.html" ? "font-bold text-pink-600" : ""
             }">Home</a>
-            <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
+            <a href="/listings.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
               currentPath === "/listings.html" ? "font-bold text-pink-600" : ""
             }">Auctions</a>
             ${
               authenticated
                 ? `
-              <a href="/profiles.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
-                currentPath === "/profiles.html"
-                  ? "font-bold text-pink-600"
-                  : ""
-              }">Users</a>
-              <a href="/profile.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2 ${
+
+              <a href="/profile.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
                 currentPath === "/profile.html" ? "font-bold text-pink-600" : ""
               }">Profile</a>
               <button id="mobile-logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
@@ -224,8 +220,12 @@ function renderHeader() {
             `
                 : `
               <div class="flex flex-col space-y-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <a href="/login.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors py-2">Login</a>
-                <a href="/register.html" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors text-center">Register</a>
+                <a href="/login.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
+                  currentPath === "/login.html" ? "font-bold text-pink-600" : ""
+                }">Login</a>
+                <a href="/register.html" class="bg-pink-500 hover:bg-pink-600 hover:scale-105 text-white px-4 py-2 rounded-lg transition-all duration-300 text-center ${
+                  currentPath === "/register.html" ? "ring-2 ring-pink-300" : ""
+                }">Register</a>
               </div>
             `
             }

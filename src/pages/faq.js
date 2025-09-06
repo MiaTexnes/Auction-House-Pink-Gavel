@@ -1,14 +1,12 @@
 // FAQ Page Controller
 class FAQController {
   constructor() {
-    this.searchInput = document.getElementById("faq-search");
     this.categoryButtons = document.querySelectorAll(".category-btn");
     this.faqItems = document.querySelectorAll(".faq-item");
     this.faqContainer = document.getElementById("faq-container");
     this.noResults = document.getElementById("no-results");
 
     this.currentCategory = "all";
-    this.currentSearch = "";
 
     this.init();
   }
@@ -19,12 +17,6 @@ class FAQController {
   }
 
   setupEventListeners() {
-    // Search functionality
-    this.searchInput.addEventListener("input", (e) => {
-      this.currentSearch = e.target.value.toLowerCase();
-      this.filterFAQs();
-    });
-
     // Category filtering
     this.categoryButtons.forEach((button) => {
       button.addEventListener("click", (e) => {
@@ -84,21 +76,11 @@ class FAQController {
 
     this.faqItems.forEach((item) => {
       const category = item.dataset.category;
-      const questionText = item
-        .querySelector(".faq-question span")
-        .textContent.toLowerCase();
-      const answerText = item
-        .querySelector(".faq-answer p")
-        .textContent.toLowerCase();
 
       const matchesCategory =
         this.currentCategory === "all" || category === this.currentCategory;
-      const matchesSearch =
-        this.currentSearch === "" ||
-        questionText.includes(this.currentSearch) ||
-        answerText.includes(this.currentSearch);
 
-      if (matchesCategory && matchesSearch) {
+      if (matchesCategory) {
         item.style.display = "block";
         visibleCount++;
 
@@ -124,28 +106,6 @@ class FAQController {
       this.noResults.classList.add("hidden");
       this.faqContainer.classList.remove("hidden");
     }
-  }
-
-  // Method to highlight search terms
-  highlightSearchTerms() {
-    if (this.currentSearch === "") return;
-
-    this.faqItems.forEach((item) => {
-      if (item.style.display !== "none") {
-        const question = item.querySelector(".faq-question span");
-        const answer = item.querySelector(".faq-answer p");
-
-        [question, answer].forEach((element) => {
-          const text = element.textContent;
-          const regex = new RegExp(`(${this.currentSearch})`, "gi");
-          const highlightedText = text.replace(
-            regex,
-            '<mark class="bg-yellow-200 dark:bg-yellow-600">$1</mark>',
-          );
-          element.innerHTML = highlightedText;
-        });
-      }
-    });
   }
 }
 

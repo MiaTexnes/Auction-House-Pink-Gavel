@@ -201,7 +201,7 @@ class CarouselComponent {
     );
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex items-center justify-between gap-4 w-full",
+      "flex  items-center justify-between gap-4 w-full",
     );
 
     this.elements.leftBtn = this.createNavigationButton("left");
@@ -224,7 +224,7 @@ class CarouselComponent {
     );
     this.elements.scrollBar = DOMUtils.createElement(
       "div",
-      "flex justify-center gap-2 overflow-x-auto pb-2 scrollbar-hide",
+      "flex justify-center gap-2 pb-2 scrollbar-hide",
     );
     scrollBarContainer.appendChild(this.elements.scrollBar);
 
@@ -300,8 +300,22 @@ class CarouselComponent {
       card.style.minWidth = "auto";
       card.style.maxWidth = "none";
 
+      // Create a wrapper div to contain hover effects
+      const cardWrapper = document.createElement("div");
+      cardWrapper.className = "relative overflow-hidden";
+      cardWrapper.style.cssText =
+        "transform-style: preserve-3d; contain: layout style paint;";
+
+      // Remove hover scale and translate from the original card
+      card.className = card.className
+        .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
+        .replace("hover:scale-[1.02]", "")
+        .replace("hover:-translate-y-1", "")
+        .replace("transform", "");
+
+      cardWrapper.appendChild(card);
       ImageHandler.optimizeCardImages(card);
-      this.elements.cardArea.appendChild(card);
+      this.elements.cardArea.appendChild(cardWrapper);
     }
   }
 

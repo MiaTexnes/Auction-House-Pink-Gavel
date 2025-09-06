@@ -33,9 +33,9 @@ export function initializeFooter() {
           <div class="col-span-2 md:col-span-1 flex flex-col items-center md:items-start">
             <div class="flex items-center space-x-2 mb-4">
 
-              <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+              <a href="/index.html" class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
                 Pink Gavel Auctions
-              </span>
+              </a>
             </div>
             <p class="text-gray-600 dark:text-gray-300 text-sm text-center md:text-left max-w-xs">
               Discover unique treasures at our premium online auction platform.
@@ -64,10 +64,10 @@ export function initializeFooter() {
               <div class="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
             </h3>
             <div class="space-y-3 flex flex-col items-center md:items-start">
-              <a href="/auth/login.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
+              <a href="/login.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
                 Login
               </a>
-              <a href="/auth/register.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
+              <a href="/register.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
                 Register
               </a>
               <a href="/profile.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
