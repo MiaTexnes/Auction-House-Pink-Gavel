@@ -83,7 +83,7 @@ export function initializeFooter() {
               <div class="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
             </h3>
             <div class="space-y-3 flex flex-col items-center md:items-start">
-              <a href="/faq.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
+              <a href="faq.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
                 FAQ
               </a>
               <a href="/contact.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
