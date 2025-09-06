@@ -55,7 +55,7 @@ export const TimeUtils = {
     };
 
     if (includeClass) {
-      result.class = "text-green-800 dark:text-green-400 font-semibold";
+      result.class = "text-green-800 dark:text-green-400 text-sm font-semibold";
     }
 
     return result;

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ | Pink Gavel Auctions</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900 dark:text-white min-h-screen">
+    <header></header>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+      <!-- Hero Section -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent mb-4">
+          Frequently Asked Questions
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Find answers to common questions about Pink Gavel Auctions. Can't find what you're looking for? 
+          <a href="/contact.html" class="text-pink-500 hover:underline font-semibold">Contact us</a> directly.
+        </p>
+      </div>
+
+      <!-- Search Box -->
+      <div class="mb-8">
+        <div class="relative max-w-xl mx-auto">
+          <input
+            type="text"
+            id="faq-search"
+            placeholder="Search FAQs..."
+            class="w-full px-4 py-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+          >
+          <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- FAQ Categories -->
+      <div class="mb-8">
+        <div class="flex flex-wrap justify-center gap-3">
+          <button class="category-btn active bg-pink-500 text-white px-4 py-2 rounded-full font-semibold transition-all hover:bg-pink-600" data-category="all">
+            All
+          </button>
+          <button class="category-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-semibold transition-all hover:bg-pink-500 hover:text-white" data-category="bidding">
+            Bidding
+          </button>
+          <button class="category-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-semibold transition-all hover:bg-pink-500 hover:text-white" data-category="account">
+            Account
+          </button>
+          <button class="category-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-semibold transition-all hover:bg-pink-500 hover:text-white" data-category="selling">
+            Selling
+          </button>
+          <button class="category-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full font-semibold transition-all hover:bg-pink-500 hover:text-white" data-category="payments">
+            Payments
+          </button>
+        </div>
+      </div>
+
+      <!-- FAQ Items -->
+      <div id="faq-container" class="space-y-4">
+        <!-- Bidding FAQs -->
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="bidding">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">How do I place a bid on an item?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              To place a bid, simply navigate to the item's page and enter your bid amount in the bidding section. 
+              Make sure your bid meets the minimum requirement and that you have sufficient credits in your account. 
+              Click "Place Bid" to confirm your bid.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="bidding">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">What happens if I'm outbid?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              If someone places a higher bid than yours, you'll be notified and your credits will be returned to your account. 
+              You can then choose to place a higher bid if you wish to continue bidding on the item.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="bidding">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">Can I cancel my bid?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Once placed, bids are binding and cannot be canceled. This ensures fairness for all participants. 
+              Please make sure you're comfortable with your bid amount before confirming it.
+            </p>
+          </div>
+        </div>
+
+        <!-- Account FAQs -->
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="account">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">How do I create an account?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Click the "Register" button in the top navigation or go to our 
+              <a href="/register.html" class="text-pink-500 hover:underline">registration page</a>. 
+              Fill in your name, email, and choose a secure password. You'll receive 1000 free credits to start bidding!
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="account">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">How can I update my profile?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Go to your <a href="/profile.html" class="text-pink-500 hover:underline">profile page</a> and click the "Edit Profile" button. 
+              You can update your avatar, bio, and other personal information. Changes are saved automatically.
+            </p>
+          </div>
+        </div>
+
+        <!-- Selling FAQs -->
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="selling">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">How do I create a listing?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              From your profile page, click "New Listing" and fill in the item details including title, description, 
+              end date, and image URL. Make sure to provide clear, accurate information to attract bidders.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="selling">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">What happens when my auction ends?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              When your auction ends, the highest bidder wins the item and the credits are transferred to your account. 
+              You'll need to coordinate with the winner for item delivery outside of our platform.
+            </p>
+          </div>
+        </div>
+
+        <!-- Payments FAQs -->
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="payments">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">How does the credit system work?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Pink Gavel Auctions uses a credit-based system. You start with 1000 free credits upon registration. 
+              Credits are used to place bids and are transferred between users when auctions are won. 
+              Currently, additional credits cannot be purchased.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="payments">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">What if I run out of credits?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              If you run out of credits, you can earn more by selling items through our auction platform. 
+              When your items are sold, you'll receive credits from the winning bidders. You can also wait for 
+              future features that may allow credit purchases.
+            </p>
+          </div>
+        </div>
+
+        <!-- General FAQs -->
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="general">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">Is Pink Gavel Auctions safe to use?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Yes! We use secure authentication and all transactions are protected. However, as with any online marketplace, 
+              please exercise caution when dealing with other users and verify items before completing transactions outside our platform.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden" data-category="general">
+          <button class="faq-question w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white">Can I browse without creating an account?</span>
+            <svg class="faq-icon w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-4">
+            <p class="text-gray-600 dark:text-gray-300">
+              Yes, you can browse all listings and view item details without an account. However, to place bids, 
+              create listings, or access user profiles, you'll need to <a href="/register.html" class="text-pink-500 hover:underline">create a free account</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results Message -->
+      <div id="no-results" class="hidden text-center py-12">
+        <div class="text-gray-400 mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47.901-6.06 2.377L5.05 20.95A.5.5 0 005.5 21h13a.5.5 0 00.45-.95l-.89-3.073z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">No FAQs found</h3>
+        <p class="text-gray-500 dark:text-gray-400">
+          Try adjusting your search terms or browse all categories.
+        </p>
+      </div>
+
+      <!-- Contact Section -->
+      <div class="mt-16 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          Still have questions?
+        </h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">
+          Our support team is here to help you succeed at Pink Gavel Auctions.
+        </p>
+        <a 
+          href="/contact.html" 
+          class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+        >
+          Contact Support
+          <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+      </div>
+    </main>
+
+    <footer></footer>
+
+    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/pages/faq.js"></script>
+  </body>
+</html>

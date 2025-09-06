@@ -52,12 +52,8 @@ export function initializeFooter() {
               <a href="/listings.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
                 All Auctions
               </a>
-              <a href="/categories.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
-                Categories
-              </a>
-              <a href="/featured.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
-                Featured Items
-              </a>
+
+
             </div>
           </div>
 
@@ -87,15 +83,13 @@ export function initializeFooter() {
               <div class="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"></div>
             </h3>
             <div class="space-y-3 flex flex-col items-center md:items-start">
-              <a href="/help.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
-                Help Center
+              <a href="/faq.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
+                FAQ
               </a>
               <a href="/contact.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
                 Contact Us
               </a>
-              <a href="/faq.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-all duration-300 text-sm hover:translate-x-1">
-                FAQ
-              </a>
+
             </div>
           </div>
         </div>
@@ -131,10 +125,10 @@ export function initializeFooter() {
 
 
         <!-- Bottom Copyright -->
-        <div class="border-t border-pink-200 dark:border-gray-700 pt-6">
+        <div class="border-t p-3 border-pink-200 dark:border-gray-700 pt-6">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <p class="text-sm text-gray-600 dark:text-gray-400">
-              &copy; ${new Date().getFullYear()} Pink Gavel Auctions. All rights reserved.
+              &copy; 2025 Pink Gavel Auctions. All rights reserved.
             </p>
             <div class="flex items-center gap-6 text-sm">
               <a href="/privacy.html" class="text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-300">

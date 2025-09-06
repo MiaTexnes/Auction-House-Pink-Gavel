@@ -481,7 +481,6 @@ class UIManager {
       const buttonContainer = createPaginationButtons({
         showLoadMore: true,
         showViewLess: showViewLess,
-        loadMoreText: `Load More (${nextBatchSize} of ${remainingCount} remaining)`,
         viewLessText: "View Less",
         onLoadMore: () => this.handleLoadMore(state),
         onViewLess: () => this.handleViewLess(state),
