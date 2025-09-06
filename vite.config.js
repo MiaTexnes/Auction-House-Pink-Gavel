@@ -20,6 +20,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         listings: resolve(__dirname, "listings.html"),
         contact: resolve(__dirname, "contact.html"),
+        faq: resolve(__dirname, "faq.html"),
         item: resolve(__dirname, "item.html"),
         login: resolve(__dirname, "login.html"),
         profile: resolve(__dirname, "profile.html"),
