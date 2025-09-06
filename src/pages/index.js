@@ -2,11 +2,12 @@ import { isAuthenticated } from "../library/auth.js";
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import logoImage from "/assets/images/logo.png";
 
 // Constants
 const DEFAULT_LISTINGS_LIMIT = 20;
 const CAROUSEL_UPDATE_DELAY = 100;
-const DEFAULT_IMAGE = "images/logo.png";
+const DEFAULT_IMAGE = logoImage;
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
 // DOM Elements
