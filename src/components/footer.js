@@ -1,6 +1,6 @@
 export function initializeFooter() {
   const footer = document.createElement("footer");
-  footer.className = "relative mt-auto";
+  footer.className = "mt-auto";
 
   footer.innerHTML = `
     <!-- Wave SVG -->
@@ -158,6 +158,17 @@ export function initializeFooter() {
   `;
 
   document.body.appendChild(footer);
+
+  // Ensure body uses flexbox for proper sticky footer
+  document.body.style.display = "flex";
+  document.body.style.flexDirection = "column";
+  document.body.style.minHeight = "100vh";
+
+  // Ensure main content grows to push footer down
+  const main = document.querySelector("main");
+  if (main) {
+    main.style.flex = "1";
+  }
 
   // Add theme-aware wave switching
   const updateWave = () => {

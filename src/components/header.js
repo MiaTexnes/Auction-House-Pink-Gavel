@@ -112,7 +112,7 @@ function renderHeader() {
                 <div id="user-credits" class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Loading...
                 </div>
-                <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition-all duration-300">
                   Logout
                 </button>
               </div>
@@ -215,7 +215,7 @@ function renderHeader() {
               <a href="/profile.html" class="text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
                 currentPath === "/profile.html" ? "font-bold text-pink-600" : ""
               }">Profile</a>
-              <button id="mobile-logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+              <button id="mobile-logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition-all duration-300">
                 Logout
               </button>
             `

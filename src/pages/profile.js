@@ -450,6 +450,7 @@ class NewListingModalManager {
     const modal = document.getElementById("newListingModal");
     if (modal) {
       modal.classList.remove("hidden");
+      modal.classList.add("flex");
     }
   }
 
@@ -458,6 +459,7 @@ class NewListingModalManager {
     const form = document.getElementById("newListingForm");
     if (modal) {
       modal.classList.add("hidden");
+      modal.classList.remove("flex");
     }
     if (form) {
       form.reset();
