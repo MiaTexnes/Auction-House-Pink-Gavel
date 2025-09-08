@@ -80,7 +80,7 @@ class UIManager {
 
   generateUserBio(profile) {
     return `
-      <div class="mb-6 text-center">
+      <div class="mb-6 text-center px-4 md:px-8">
         <h3 class="text-xl font-semibold mb-2">User Bio</h3>
         <p class="text-gray-700 dark:text-gray-300">${profile.bio || "No bio provided."}</p>
       </div>
@@ -89,18 +89,18 @@ class UIManager {
 
   generateStatsSection(profile) {
     return `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 px-4 md:px-8">
         <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">Total Listings</h4>
+          <h4 class="text-lg font-semibold">My Listings</h4>
           <p class="text-2xl font-bold text-black dark:text-white">${profile.listings?.length || 0}</p>
         </div>
         <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">Wins</h4>
+          <h4 class="text-lg font-semibold">🏆My Wins🏆</h4>
           <p class="text-2xl font-bold text-black dark:text-white">${profile.wins?.length || 0}</p>
         </div>
         <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">Credits</h4>
-          <p class="text-2xl font-bold text-black dark:text-white">${profile.credits || 0}</p>
+          <h4 class="text-lg font-semibold">My Credits</h4>
+          <p class="text-2xl font-bold text-green-600 ">${profile.credits || 0}</p>
         </div>
       </div>
     `;
@@ -108,7 +108,7 @@ class UIManager {
 
   generateActionButtons() {
     return `
-      <div class="flex justify-center space-x-4 mb-6">
+      <div class="flex justify-center space-x-4 mb-6 px-4 md:px-8">
         <button id="newListingBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">New Listing</button>
         <button id="editProfileBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">Edit Profile</button>
       </div>
@@ -118,14 +118,14 @@ class UIManager {
   generateWinsSection(profile) {
     if (!profile.wins?.length) {
       return `
-        <div class="mb-6">
+        <div class="mb-6 px-4 md:px-8">
           <h3 class="text-xl font-semibold mb-4">Wins</h3>
           <div class="text-center text-gray-500 dark:text-gray-400">No wins yet.</div>
         </div>
       `;
     }
     return `
-      <div class="mb-6">
+      <div class="mb-6 px-4 md:px-8">
         <h3 class="text-xl font-semibold mb-4">Wins</h3>
         <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
@@ -138,11 +138,11 @@ class UIManager {
   generateListingsSection(profile) {
     if (!profile.listings?.length) {
       return `
-        <div class="mb-6 text-center text-gray-500 dark:text-gray-400">No listings created yet.</div>
+        <div class="mb-6 text-center text-gray-500 dark:text-gray-400 px-4 md:px-8">No listings created yet.</div>
       `;
     }
     return `
-      <div class="mb-6">
+      <div class="mb-6 px-4 md:px-8">
         <h3 class="text-xl font-semibold mb-4">Your Listings</h3>
         <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
@@ -428,11 +428,22 @@ class NewListingModalManager {
   setupCloseModalListeners() {
     const closeModalBtn = document.getElementById("closeNewListingModal");
     const cancelBtn = document.getElementById("cancelNewListingBtn");
+    const modal = document.getElementById("newListingModal");
+
     if (closeModalBtn) {
       closeModalBtn.addEventListener("click", () => this.closeModal());
     }
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => this.closeModal());
+    }
+
+    // Close modal when clicking outside of it
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          this.closeModal();
+        }
+      });
     }
   }
 
@@ -561,11 +572,21 @@ class EditProfileModalManager {
   setupCloseListeners() {
     const closeBtn = document.getElementById("closeEditProfileModal");
     const cancelBtn = document.getElementById("cancelEditProfileBtn");
+
     if (closeBtn) {
       closeBtn.addEventListener("click", () => this.close());
     }
     if (cancelBtn) {
       cancelBtn.addEventListener("click", () => this.close());
+    }
+
+    // Close modal when clicking outside of it
+    if (this.modal) {
+      this.modal.addEventListener("click", (e) => {
+        if (e.target === this.modal) {
+          this.close();
+        }
+      });
     }
   }
 
