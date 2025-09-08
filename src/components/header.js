@@ -181,7 +181,7 @@ function renderHeader() {
                 authenticated
                   ? `
                 <span class="text-gray-800 dark:text-gray-300 text-lg font-semibold">
-                  Hello, <a href="/profile.html" class="text-pink-500 hover:underline hover:scale-105 transition-all duration-300">${currentUser.name}</a>
+                  Hello, <a href="/profile.html" class="text-pink-800 dark:text-pink-500 hover:underline hover:scale-105 transition-all duration-300">${currentUser.name}</a>
                 </span>
                 <div id="user-credits" class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-md font-semibold">
                   Loading...
