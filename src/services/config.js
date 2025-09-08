@@ -1,4 +1,4 @@
-const apiKey = import.meta.env.VITE_X_NOROFF_API_KEY;
+const apiKey = import.meta.env.VITE_NOROFF_API_KEY;
 
 export const config = {
   X_NOROFF_API_KEY: apiKey || "",
