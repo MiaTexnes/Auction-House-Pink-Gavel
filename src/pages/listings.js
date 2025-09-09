@@ -432,7 +432,7 @@ class ListingCardBuilder {
    * @returns {string} HTML for title section
    */
   generateTitleHTML(title) {
-    return `<h2 class="text-lg font-semibold mb-2 line-clamp-2 text-gray-900 dark:text-white transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400" style="height: 48px; min-height: 48px; max-height: 48px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${title}</h2>`;
+    return `<h2 class="text-lg font-semibold mb-2 line-clamp-2 text-gray-900 dark:text-white transition-colors duration-200 hover:text-pink-800 dark:hover:text-pink-400" style="height: 48px; min-height: 48px; max-height: 48px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${title}</h2>`;
   }
 
   /**

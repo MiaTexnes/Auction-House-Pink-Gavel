@@ -434,7 +434,7 @@ class UIManager {
       if (isAuthenticated()) {
         // Create clickable profile link for authenticated users
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(sellerName)}`;
-        this.elements.item.seller.name.innerHTML = `<a href="${profileUrl}" class="text-pink-500 hover:underline">${sellerName}</a>`;
+        this.elements.item.seller.name.innerHTML = `<a href="${profileUrl}" class="text-pink-700 hover:underline">${sellerName}</a>`;
       } else {
         // Plain text for non-authenticated users
         this.elements.item.seller.name.textContent = sellerName;
@@ -549,7 +549,7 @@ class UIManager {
       const createBidderNameHTML = (name) => {
         if (isAuthenticated() && name && name !== "Unknown Bidder") {
           const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(name)}`;
-          return `<a href="${profileUrl}" class="text-pink-500 hover:underline">${name}</a>`;
+          return `<a href="${profileUrl}" class="text-pink-800 hover:underline">${name}</a>`;
         }
         return name;
       };
@@ -580,7 +580,7 @@ class UIManager {
           "flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg";
         if (isHighestBid) {
           statusText =
-            '<span class="text-xs text-pink-500 font-semibold">Highest Bid</span>';
+            '<span class="text-xs text-pink-700 font-semibold">Highest Bid</span>';
         }
         bidElement.innerHTML = `
           <div class="flex items-center space-x-3">
@@ -588,12 +588,12 @@ class UIManager {
                  alt="${bidderName}"
                  class="w-10 h-10 rounded-full object-cover border-2 ${isHighestBid ? "border-pink-500" : "border-gray-300 dark:border-gray-600"}">
             <div>
-              <p class="font-semibold ${isHighestBid ? "text-pink-600" : ""}">${createBidderNameHTML(bidderName)}</p>
+              <p class="font-semibold ${isHighestBid ? "text-pink-800" : ""}">${createBidderNameHTML(bidderName)}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(bid.created).toLocaleString()}</p>
             </div>
           </div>
           <div class="text-right">
-            <p class="font-bold text-lg ${isHighestBid ? "text-pink-600" : ""}">${bid.amount} credits</p>
+            <p class="font-bold text-lg ${isHighestBid ? "text-pink-800" : ""}">${bid.amount} credits</p>
             ${statusText}
           </div>
         `;
