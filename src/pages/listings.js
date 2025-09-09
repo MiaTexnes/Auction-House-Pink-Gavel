@@ -421,7 +421,7 @@ class ListingCardBuilder {
     }
 
     // Fallback gradient placeholder for listings without images
-    return `<div class="w-full flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600" style="height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT};" role="img" aria-label="No image available for this auction listing: ${title || "Untitled item"}">
+    return `<div class="w-full flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-black text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600" style="height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.IMAGE_HEIGHT};" role="img" aria-label="No image available for this auction listing: ${title || "Untitled item"}">
       No image on this listing
     </div>`;
   }

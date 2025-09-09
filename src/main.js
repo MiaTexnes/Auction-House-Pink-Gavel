@@ -2,7 +2,6 @@ import "./css/style.css";
 import { initDarkMode } from "./components/darkLight.js";
 import { initializeHeader } from "./components/header.js";
 import { initializeFooter } from "./components/footer.js";
-import { createGradientButton } from "./components/buttons.js";
 import { initializeInactivityTracking } from "./services/inactivityService.js";
 import { initializeTheme } from "./services/themeService.js";
 import { addFavicons } from "./services/faviconService.js";
@@ -24,112 +23,52 @@ initDarkMode();
 initializeTheme();
 initializeInactivityTracking();
 
+// Page configuration mapping
+const pageConfig = {
+  "index.html": { handler: initializeHomepage },
+  "": { handler: initializeHomepage },
+  "login.html": { controller: LoginController },
+  "register.html": { controller: RegistrationController },
+  "listings.html": { controller: ListingsPageController },
+  "item.html": { controller: ItemPageController },
+  "profile.html": { controller: ProfileController },
+  "sellerProfile.html": { controller: SellerProfileController },
+  "profiles.html": { controller: ProfilesController },
+  "contact.html": { handler: initializeContactPage },
+  "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
+};
+
 // Get current page name from URL
-function getCurrentPage() {
+const getCurrentPage = () => {
   const path = window.location.pathname;
-  const page = path.substring(path.lastIndexOf("/") + 1);
-  return page || "index.html";
-}
+  return path.substring(path.lastIndexOf("/") + 1) || "index.html";
+};
 
-// Page-specific initialization
-function initializePageSpecific() {
-  const currentPage = getCurrentPage();
-
-  switch (currentPage) {
-    case "index.html":
-    case "":
-      // Initialize homepage
-      initializeHomepage();
-      break;
-
-    case "login.html":
-      // Initialize login page
-      const loginController = new LoginController();
-      loginController.init();
-      break;
-
-    case "register.html":
-      // Initialize registration page
-      const registrationController = new RegistrationController();
-      registrationController.init();
-      break;
-
-    case "listings.html":
-      // Initialize listings page
-      const listingsController = new ListingsPageController();
-      listingsController.init();
-      break;
-
-    case "item.html":
-      // Initialize item page
-      const itemController = new ItemPageController();
-      itemController.init();
-      break;
-
-    case "profile.html":
-      // Initialize profile page
-      const profileController = new ProfileController();
-      profileController.init();
-      break;
-
-    case "sellerProfile.html":
-      // Initialize seller profile page
-      const sellerProfileController = new SellerProfileController();
-      sellerProfileController.init();
-      break;
-
-    case "faq.html":
-      // Initialize FAQ page
-      const faqController = new FAQController();
-      faqController.init();
-
-      // Add enhanced features
-      FAQEnhancements.addKeyboardNavigation();
-      FAQEnhancements.addScrollToTop();
-      FAQEnhancements.addShareFunctionality();
-
-      // Add helpful keyboard shortcut hint
-      const searchInput = document.getElementById("faq-search");
-      if (searchInput) {
-        searchInput.setAttribute(
-          "placeholder",
-          "Search FAQs... (Press / to focus)",
-        );
-      }
-
-      // Staggered animation for FAQ items on page load
-      const faqItems = document.querySelectorAll(".faq-item");
-      faqItems.forEach((item, index) => {
-        item.style.opacity = "0";
-        item.style.transform = "translateY(20px)";
-
-        setTimeout(() => {
-          item.style.opacity = "1";
-          item.style.transform = "translateY(0)";
-          item.style.transition = "all 0.4s ease";
-        }, index * 100);
-      });
-      break;
-
-    case "contact.html":
-      // Initialize contact page
-      initializeContactPage();
-      break;
-
-    case "profiles.html":
-      // Initialize profiles page
-      const profilesController = new ProfilesController();
-      profilesController.init();
-      break;
-
-    default:
-      // For pages that don't need specific initialization
-      console.log(`No specific initialization for ${currentPage}`);
-      break;
+// FAQ page enhancements
+function enhanceFAQPage() {
+  if (typeof FAQEnhancements !== "undefined") {
+    FAQEnhancements.addKeyboardNavigation();
+    FAQEnhancements.addScrollToTop();
+    FAQEnhancements.addShareFunctionality();
   }
+
+  const searchInput = document.getElementById("faq-search");
+  searchInput?.setAttribute("placeholder", "Search FAQs... (Press / to focus)");
+
+  // Staggered animation for FAQ items
+  document.querySelectorAll(".faq-item").forEach((item, index) => {
+    Object.assign(item.style, { opacity: "0", transform: "translateY(20px)" });
+    setTimeout(() => {
+      Object.assign(item.style, {
+        opacity: "1",
+        transform: "translateY(0)",
+        transition: "all 0.4s ease",
+      });
+    }, index * 100);
+  });
 }
 
-// Homepage initialization function
+// Homepage initialization
 async function initializeHomepage() {
   const elements = {
     homeAuthButtons: document.getElementById("home-auth-buttons"),
@@ -141,22 +80,39 @@ async function initializeHomepage() {
   };
 
   if (!elements.mainContent) return;
-
-  // Initialize homepage-specific functionality
-  // This would include your AuthButtonRenderer and CarouselController logic
-  // You'll need to extract these from your current index.js
+  // Initialize homepage-specific functionality here
 }
 
-// Main initialization function
-function initializePage() {
-  // Add favicons to the head
-  addFavicons();
+// Page initialization
+function initializePageSpecific() {
+  const currentPage = getCurrentPage();
+  const config = pageConfig[currentPage];
 
-  // Initialize header and footer
+  if (!config) {
+    console.log(`No specific initialization for ${currentPage}`);
+    return;
+  }
+
+  try {
+    if (config.controller) {
+      const controller = new config.controller();
+      controller.init();
+    } else if (config.handler) {
+      config.handler();
+    }
+
+    // Run any page enhancers
+    config.enhancer?.();
+  } catch (error) {
+    console.error(`Failed to initialize ${currentPage}:`, error);
+  }
+}
+
+// Main initialization
+function initializePage() {
+  addFavicons();
   initializeHeader();
   initializeFooter();
-
-  // Initialize page-specific functionality
   initializePageSpecific();
 }
 
