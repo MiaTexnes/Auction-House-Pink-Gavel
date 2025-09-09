@@ -185,7 +185,7 @@ export class SearchAndSortComponent {
       "text-gray-700",
       "dark:text-gray-300",
     );
-    activeButton.classList.add("bg-pink-500", "text-white");
+    activeButton.classList.add("bg-pink-400", "text-black");
   }
 
   /**

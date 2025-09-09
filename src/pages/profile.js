@@ -100,7 +100,7 @@ class UIManager {
         </div>
         <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
           <h4 class="text-lg font-semibold">My Credits</h4>
-          <p class="text-2xl font-bold text-green-600 ">${profile.credits || 0}</p>
+          <p class="text-2xl font-bold text-green-800 dark:text-green-400 ">${profile.credits || 0}</p>
         </div>
       </div>
     `;
@@ -109,8 +109,8 @@ class UIManager {
   generateActionButtons() {
     return `
       <div class="flex justify-center space-x-4 mb-6 px-4 md:px-8">
-        <button id="newListingBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">New Listing</button>
-        <button id="editProfileBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">Edit Profile</button>
+        <button id="newListingBtn" class="bg-green-300 hover:bg-green-400 text-black font-semibold py-2 px-6 rounded-lg transition-colors">New Listing</button>
+        <button id="editProfileBtn" class="bg-blue-300 hover:bg-blue-400 text-black font-semibold py-2 px-6 rounded-lg transition-colors">Edit Profile</button>
       </div>
     `;
   }
@@ -177,7 +177,7 @@ class UIManager {
             </div>
             <div class="flex justify-end space-x-2">
               <button type="button" id="cancelNewListingBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">Cancel</button>
-              <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Create</button>
+              <button type="submit" class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors">Create</button>
             </div>
           </form>
         </div>
@@ -546,7 +546,7 @@ class EditProfileModalManager {
           </div>
           <div class="flex justify-end space-x-2">
             <button type="button" id="cancelEditProfileBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">Cancel</button>
-            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Save Changes</button>
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors">Save Changes</button>
           </div>
         </form>
       </div>

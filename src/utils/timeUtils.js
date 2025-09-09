@@ -25,7 +25,7 @@ export const TimeUtils = {
       };
 
       if (includeClass) {
-        result.class = "underline text-red-700 dark:text-red-400 font-semibold";
+        result.class = "text-red-700 dark:text-red-400 font-semibold";
       }
 
       return result;

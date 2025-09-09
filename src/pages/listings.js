@@ -451,11 +451,14 @@ class ListingCardBuilder {
    * @returns {string} HTML for seller info section
    */
   generateSellerInfoHTML(createdDate, sellerInfo) {
+    // Create descriptive alt text for seller avatar
+    const avatarAltText = `Profile picture of ${sellerInfo.name}, the seller of this auction item`;
+
     return `<div class="flex flex-col items-start gap-1 text-gray-500 dark:text-gray-400 mb-2 flex-shrink-0">
       <span class="text-base font-semibold text-gray-700 dark:text-gray-200 mb-1">Created: ${createdDate.toLocaleDateString()}</span>
       <div class="flex items-center gap-2 mb-3">
         <span class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
-          <img src="${sellerInfo.avatar}" alt="${sellerInfo.name}" loading="lazy" class="w-full h-full object-cover rounded-full" style="display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+          <img src="${sellerInfo.avatar}" alt="${avatarAltText}" loading="lazy" class="w-full h-full object-cover rounded-full" style="display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
         </span>
         <span class="text-sm text-gray-600 dark:text-gray-400">${sellerInfo.name}</span>
       </div>
@@ -469,7 +472,7 @@ class ListingCardBuilder {
    * @returns {string} HTML for time and bids section
    */
   generateTimeAndBidsHTML(timeInfo, bidCount) {
-    return `<div class="flex items-center justify-between text-md text-gray-600 font-semibold dark:text-gray-400 mb-3 flex-shrink-0" style="height: 24px; min-height: 24px; max-height: 24px;">
+    return `<div class="flex items-center justify-between text-md text-gray-600 font-semibold dark:text-white mb-3 flex-shrink-0" style="height: 24px; min-height: 24px; max-height: 24px;">
       <span class="font-medium ${timeInfo.class} transition-colors duration-200 truncate" style="max-width: 60%;">${timeInfo.text}</span>
       <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-md font-medium  flex-shrink-0">Bids: ${bidCount}</span>
     </div>`;
@@ -1327,13 +1330,8 @@ class ListingsPageController {
       '.sort-btn[data-sort="newest"]',
     );
     if (newestButton) {
-      newestButton.classList.remove(
-        "bg-gray-200",
-        "dark:bg-gray-700",
-        "text-gray-700",
-        "dark:text-gray-300",
-      );
-      newestButton.classList.add("bg-pink-500", "text-white");
+      // Use the search component's method to ensure consistent styling
+      searchAndSortComponent.updateSortButtonStyles(newestButton);
     }
   }
 
