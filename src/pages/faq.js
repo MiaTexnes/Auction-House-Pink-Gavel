@@ -70,7 +70,7 @@ class FAQController {
       );
     });
 
-    activeButton.classList.add("active", "bg-pink-500", "text-white");
+    activeButton.classList.add("active", "bg-pink-500", "text-black");
     activeButton.classList.remove(
       "bg-gray-200",
       "dark:bg-gray-700",
@@ -226,7 +226,7 @@ class FAQEnhancements {
       </svg>
     `;
     scrollButton.className =
-      "fixed bottom-8 right-8 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 opacity-0 invisible";
+      "fixed bottom-8 right-8 bg-pink-500 hover:bg-pink-600 text-black p-3 rounded-full shadow-lg transition-all duration-300 opacity-0 invisible";
     scrollButton.setAttribute("aria-label", "Scroll to top");
 
     document.body.appendChild(scrollButton);
