@@ -1108,14 +1108,5 @@ class ItemPageController {
   }
 }
 
-/**
- * APPLICATION INITIALIZATION
- * =========================
- *
- * Initialize the item page when the DOM is fully loaded.
- * Creates a global controller instance for debugging and external access.
- */
-document.addEventListener("DOMContentLoaded", () => {
-  window.itemPageController = new ItemPageController();
-  window.itemPageController.init();
-});
+// Export the main controller class
+export { ItemPageController };

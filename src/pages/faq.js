@@ -288,32 +288,4 @@ class FAQEnhancements {
   }
 }
 
-// Initialize FAQ functionality when page loads
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize main FAQ controller
-  const faqController = new FAQController();
-
-  // Add enhanced features
-  FAQEnhancements.addKeyboardNavigation();
-  FAQEnhancements.addScrollToTop();
-  FAQEnhancements.addShareFunctionality();
-
-  // Add helpful keyboard shortcut hint
-  const searchInput = document.getElementById("faq-search");
-  searchInput.setAttribute("placeholder", "Search FAQs... (Press / to focus)");
-
-  // Staggered animation for FAQ items on page load
-  const faqItems = document.querySelectorAll(".faq-item");
-  faqItems.forEach((item, index) => {
-    item.style.opacity = "0";
-    item.style.transform = "translateY(20px)";
-
-    setTimeout(() => {
-      item.style.opacity = "1";
-      item.style.transform = "translateY(0)";
-      item.style.transition = "all 0.4s ease";
-    }, index * 100);
-  });
-});
-
 export { FAQController, AnimationUtils, FAQEnhancements };

@@ -65,7 +65,7 @@ function renderHeader() {
             <!-- Logo -->
             <div class="flex items-center space-x-3">
               <a href="/index.html" class="flex items-center space-x-2 hover:scale-105 transition-transform duration-300 ease-in-out group">
-                <img src="${logoImage}" alt="Pink Gavel Auctions" class="h-14 w-14 group-hover:rotate-3 transition-transform duration-300">
+                <img src="${logoImage}" alt="Pink Gavel Auctions Logo" class="h-14 w-14 group-hover:rotate-3 transition-transform duration-300">
                 <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">Pink Gavel Auctions</span>
               </a>
             </div>

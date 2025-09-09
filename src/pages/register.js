@@ -462,8 +462,5 @@ class RegistrationController {
   }
 }
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
-  const registrationController = new RegistrationController();
-  registrationController.init();
-});
+// Export the main controller classes
+export { RegistrationController, ValidationManager, ErrorHandler };

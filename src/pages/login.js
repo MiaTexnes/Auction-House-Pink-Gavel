@@ -320,20 +320,5 @@ async function handleLogin(event) {
   }
 }
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
-  const loginController = new LoginController();
-  loginController.init();
-
-  // Login form handling
-  if (loginForm) {
-    loginForm.addEventListener("submit", handleLogin);
-    const emailField = document.getElementById("email");
-    if (emailField && emailField.value === "") {
-      emailField.focus();
-    }
-  }
-});
-
-// Export for testing purposes
+// Export the main controller class
 export { LoginController, ValidationManager, ErrorHandler };

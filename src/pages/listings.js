@@ -1387,16 +1387,8 @@ export function createListingCard(listing) {
   return cardBuilder.build(listing);
 }
 
-/**
- * APPLICATION INITIALIZATION
- * Initialize the listings page when the DOM is fully loaded
- */
-document.addEventListener("DOMContentLoaded", () => {
-  const app = new ListingsPageController();
-  app.init().catch((error) => {
-    console.error("Failed to initialize listings page:", error);
-  });
-});
+// Export the main controller class
+export { ListingsPageController };
 
 /**
  * LISTING NORMALIZATION UTILITY

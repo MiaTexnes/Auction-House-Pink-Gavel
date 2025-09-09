@@ -743,6 +743,5 @@ class ProfileController {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  new ProfileController().init();
-});
+// Export the main controller class
+export { ProfileController };
