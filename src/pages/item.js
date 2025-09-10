@@ -328,7 +328,7 @@ class UIManager {
     tags.forEach((tag) => {
       const tagElement = document.createElement("span");
       tagElement.className =
-        "inline-block bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 px-4 py-2 rounded-full text-lg mr-3 mb-2 shadow-md";
+        "inline-block bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-white px-4 py-2 rounded-full text-lg mr-3 mb-2 shadow-md";
       tagElement.textContent = `#${tag}`;
       tagsEl.appendChild(tagElement);
     });
@@ -434,7 +434,7 @@ class UIManager {
       if (isAuthenticated()) {
         // Create clickable profile link for authenticated users
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(sellerName)}`;
-        this.elements.item.seller.name.innerHTML = `<a href="${profileUrl}" class="text-pink-700 hover:underline">${sellerName}</a>`;
+        this.elements.item.seller.name.innerHTML = `<a href="${profileUrl}" class="text-pink-700 dark:text-pink-400 hover:font-bold  underline">${sellerName}</a>`;
       } else {
         // Plain text for non-authenticated users
         this.elements.item.seller.name.textContent = sellerName;

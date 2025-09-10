@@ -23,7 +23,7 @@
  */
 
 import { isAuthenticated, getAuthHeader } from "../library/auth.js";
-import { createListing } from "../library/newListing.js";
+import { NewListingModalManager } from "../components/modalManager.js";
 import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
@@ -903,47 +903,50 @@ class APIService {
  */
 class ModalManager {
   constructor(elementManager, state, ui) {
-    this.elements = elementManager; // DOM element manager
-    this.state = state; // Application state manager
-    this.ui = ui; // UI manager for updates
+    this.elements = elementManager;
+    this.state = state;
+    this.ui = ui;
+
+    this.listingModal = null;
   }
 
-  /**
-   * Opens the "Add New Listing" modal
-   * Sets up form defaults and displays the modal interface
-   */
+  initNewListingModal() {
+    this.listingModal = new NewListingModalManager({
+      onSuccess: async (listing) => {
+        // Handle successful listing creation
+        await this.reloadListings();
+      },
+      onError: (errorMessage) => {
+        this.ui.showError(errorMessage);
+      },
+    });
+  }
+
   openAddListingModal() {
-    const modal = this.elements.get("addListingModal");
-    if (!modal) return;
-
-    modal.classList.remove("hidden");
-    this.setupFormDefaults();
+    if (!this.listingModal) {
+      this.initNewListingModal();
+    }
+    this.listingModal.openModal();
   }
 
-  /**
-   * Closes the modal and resets form state
-   * Clears form data and any selected media URLs
-   */
   closeAddListingModal() {
-    const modal = this.elements.get("addListingModal");
-    const form = this.elements.get("addListingForm");
-
-    if (!modal) return;
-
-    modal.classList.add("hidden");
-    if (form) {
-      form.reset();
-      this.state.clearMediaUrls();
+    if (this.listingModal) {
+      this.listingModal.closeModal();
     }
   }
 
-  /**
-   * Sets up default values and constraints for the form
-   * Sets minimum datetime and clears any existing media URLs
-   */
-  setupFormDefaults() {
-    Utils.setMinimumDateTime(this.elements.get("listingEndDate"));
-    this.state.clearMediaUrls();
+  async reloadListings() {
+    // The reload functionality from your EventHandler
+    try {
+      const listings = await this.apiService.fetchListings();
+      this.state.setListings(listings);
+      this.state.resetDisplayedCount();
+      this.ui.displayInitialListings(listings, this.state);
+    } catch (error) {
+      this.ui.showError(`Error: ${error.message}`);
+    } finally {
+      this.ui.hideLoading();
+    }
   }
 }
 
@@ -971,6 +974,7 @@ class EventHandler {
   setupAllEventListeners() {
     this.setupSearchEvents(); // Search and filter events
     this.setupModalEvents(); // Modal open/close events
+    this.setupMediaModalEvents(); // Media modal events
     this.setupFormEvents(); // Form submission events
     this.setupAuthEvents(); // Authentication change events
     this.setupLoadMoreEvents(); // Pagination events
@@ -1037,6 +1041,55 @@ class EventHandler {
       modal.addEventListener("click", (event) => {
         if (event.target === modal) {
           this.modalManager.closeAddListingModal();
+        }
+      });
+    }
+  }
+
+  /**
+   * Sets up media modal event listeners
+   * Handles opening/closing media modal and form interactions
+   */
+  setupMediaModalEvents() {
+    // Open media modal button
+    const openMediaModalBtn = document.getElementById("openMediaModalBtn");
+    if (openMediaModalBtn) {
+      openMediaModalBtn.addEventListener("click", () => {
+        this.openMediaModal();
+      });
+    }
+
+    // Back button in media modal
+    const backToListingBtn = document.getElementById("backToListingBtn");
+    if (backToListingBtn) {
+      backToListingBtn.addEventListener("click", () => {
+        this.closeMediaModal();
+      });
+    }
+
+    // Add more media URLs button
+    const addMoreUrlBtn = document.getElementById("addMoreUrlBtn");
+    if (addMoreUrlBtn) {
+      addMoreUrlBtn.addEventListener("click", () => {
+        this.addMoreMediaUrlInput();
+      });
+    }
+
+    // Media form submission
+    const addMediaForm = document.getElementById("addMediaForm");
+    if (addMediaForm) {
+      addMediaForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleMediaFormSubmission();
+      });
+    }
+
+    // Close media modal when clicking on backdrop
+    const mediaModal = document.getElementById("addMediaModal");
+    if (mediaModal) {
+      mediaModal.addEventListener("click", (event) => {
+        if (event.target === mediaModal) {
+          this.closeMediaModal();
         }
       });
     }
@@ -1227,6 +1280,73 @@ class EventHandler {
     } finally {
       this.ui.hideLoading();
     }
+  }
+
+  /**
+   * Opens the media upload modal
+   */
+  openMediaModal() {
+    const mediaModal = document.getElementById("addMediaModal");
+    if (mediaModal) {
+      mediaModal.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Closes the media upload modal
+   */
+  closeMediaModal() {
+    const mediaModal = document.getElementById("addMediaModal");
+    if (mediaModal) {
+      mediaModal.classList.add("hidden");
+    }
+  }
+
+  /**
+   * Adds another media URL input field
+   */
+  addMoreMediaUrlInput() {
+    const mediaUrlInputs = document.getElementById("mediaUrlInputs");
+    if (!mediaUrlInputs) return;
+
+    const currentInputs = mediaUrlInputs.querySelectorAll(
+      'input[name="mediaUrl"]',
+    );
+    const nextIndex = currentInputs.length + 1;
+
+    const newInput = document.createElement("input");
+    newInput.type = "url";
+    newInput.name = "mediaUrl";
+    newInput.placeholder = `Image URL ${nextIndex}`;
+    newInput.setAttribute("aria-label", `Upload Media URL ${nextIndex}`);
+    newInput.className =
+      "w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white";
+
+    mediaUrlInputs.appendChild(newInput);
+  }
+
+  /**
+   * Handles media form submission
+   */
+  handleMediaFormSubmission() {
+    const mediaInputs = document.querySelectorAll('input[name="mediaUrl"]');
+    const urls = [];
+
+    mediaInputs.forEach((input) => {
+      const url = input.value.trim();
+      if (url) {
+        urls.push({ url, alt: "" });
+      }
+    });
+
+    // Store the media URLs in state
+    this.state.setMediaUrls(urls);
+
+    // Update the media count display in the main modal using modal manager
+    this.modalManager.updateMediaCountDisplay(urls.length);
+
+    // Close the media modal
+    this.closeMediaModal();
   }
 }
 

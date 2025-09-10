@@ -16,7 +16,6 @@ import { ProfileController } from "./pages/profile.js";
 import { ListingsPageController } from "./pages/listings.js";
 import { ItemPageController } from "./pages/item.js";
 import { SellerProfileController } from "./pages/sellerProfile.js";
-import { ProfilesController } from "./pages/deleteLaterprofiles.js";
 
 // Initialize core functionality
 initDarkMode();
@@ -33,7 +32,6 @@ const pageConfig = {
   "item.html": { controller: ItemPageController },
   "profile.html": { controller: ProfileController },
   "sellerProfile.html": { controller: SellerProfileController },
-  "profiles.html": { controller: ProfilesController },
   "contact.html": { handler: initializeContactPage },
   "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
 };

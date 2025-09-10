@@ -1,24 +1,34 @@
-import { config } from "../services/config.js"; // Import config for API key
-import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
-import { processTags } from "../utils/tagUtils.js"; // Import shared tag utility
+import { config } from "../services/config.js";
+import { API_BASE_URL } from "../services/baseApi.js";
+import { processTags } from "../utils/tagUtils.js";
 
 // Helper function to validate URL format
 function isValidUrl(string) {
   try {
     new URL(string);
     return true;
-  } catch (err) {
+  } catch (_) {
     return false;
   }
 }
 
-// Function to create a new listing via the API
+/**
+ * Creates a new auction listing
+ *
+ * @param {Object} options - Listing creation options
+ * @param {string} options.title - The listing title
+ * @param {string} options.description - The listing description
+ * @param {string} options.endsAt - ISO string of end date/time
+ * @param {Array} options.media - Array of media objects with url and alt
+ * @param {string|Array} options.tags - Tags as string or array
+ * @returns {Promise<Object>} - The created listing
+ */
 export async function createListing({
   title,
   description,
   endsAt,
-  media,
-  tags,
+  media = [],
+  tags = [],
 }) {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("You must be logged in to create a listing.");
@@ -47,59 +57,52 @@ export async function createListing({
   let formattedMedia = [];
   if (media && media.length > 0) {
     formattedMedia = media
-      .filter((url) => url && url.trim()) // Filter out empty or null URLs
-      .map((url) => {
-        const trimmedUrl = url.trim();
-        if (!isValidUrl(trimmedUrl)) {
-          throw new Error("Invalid media URL format");
+      .filter((item) => item && item.url && item.url.trim().length > 0)
+      .map((item) => {
+        // Validate URL format
+        if (!isValidUrl(item.url)) {
+          throw new Error(`Invalid media URL: ${item.url}`);
         }
         return {
-          url: trimmedUrl,
-          alt: "",
+          url: item.url,
+          alt: item.alt || "",
         };
       });
   }
 
-  // Process tags
+  // Process tags if provided
   const processedTags = processTags(tags);
 
-  // Ensure endsAt is in ISO 8601 format
-  const formattedEndsAt = new Date(endsAt).toISOString();
-
-  const requestBody = {
-    title: title.trim(),
-    description: description.trim(),
-    endsAt: formattedEndsAt,
-    media: formattedMedia,
-    tags: processedTags,
-  };
-
   try {
-    const res = await fetch(`${API_BASE_URL}/auction/listings`, {
-      // Use API_BASE_URL instead of hardcoded URL
+    const response = await fetch(`${API_BASE_URL}/auction/listings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Noroff-API-Key": config.X_NOROFF_API_KEY, // Use API key from config
         Authorization: `Bearer ${token}`,
+        "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        title,
+        description,
+        tags: processedTags,
+        media: formattedMedia,
+        endsAt,
+      }),
     });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(
-        errorData.errors?.[0]?.message ||
-          errorData.message ||
-          "Failed to create listing.",
-      );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.errors?.[0]?.message || "Failed to create listing");
     }
 
-    return res.json();
+    return data.data;
   } catch (error) {
-    if (error.name === "TypeError" && error.message.includes("fetch")) {
-      throw new Error("Network error. Please check your internet connection.");
+    if (error.message) {
+      throw error;
     }
-    throw error;
+    throw new Error(
+      "Network error. Please check your connection and try again.",
+    );
   }
 }

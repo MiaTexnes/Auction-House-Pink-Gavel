@@ -11,6 +11,7 @@ import {
   createViewLessButton,
 } from "../components/buttons.js";
 import { generateProfileHeader } from "../utils/profileUtils.js";
+import { NewListingModalManager } from "../components/modalManager.js";
 
 const LISTING_DISPLAY_LIMIT = 4;
 const MESSAGE_DISPLAY_DURATION = 4000;
@@ -153,36 +154,8 @@ class UIManager {
   }
 
   generateNewListingModal() {
-    return `
-      <div id="newListingModal" class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
-          <button id="closeNewListingModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white">&times;</button>
-          <h2 class="text-2xl font-bold mb-4">Create New Listing</h2>
-          <form id="newListingForm" class="space-y-4">
-            <div>
-              <label for="listingTitle" class="block mb-1 font-semibold">Title</label>
-              <input type="text" id="listingTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
-            </div>
-            <div>
-              <label for="listingDesc" class="block mb-1 font-semibold">Description</label>
-              <textarea id="listingDesc" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white" rows="3" required></textarea>
-            </div>
-            <div>
-              <label for="listingEndDate" class="block mb-1 font-semibold">End Date</label>
-              <input type="datetime-local" id="listingEndDate" name="endsAt" class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
-            </div>
-            <div>
-              <label for="listingImage" class="block mb-1 font-semibold">Image URL</label>
-              <input type="url" id="listingImage" name="media" class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-            </div>
-            <div class="flex justify-end space-x-2">
-              <button type="button" id="cancelNewListingBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">Cancel</button>
-              <button type="submit" class="bg-green-500 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors">Create</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    `;
+    // Modal HTML is now provided by the shared NewListingModalManager component
+    return "";
   }
 
   renderUserListings(profile) {
@@ -222,7 +195,7 @@ class UIManager {
   }
 
   setupNewListingModalListeners(profile) {
-    new NewListingModalManager(this, profile).setupEventListeners();
+    new ProfileNewListingHandler(this, profile).setupEventListeners();
   }
 
   setMinimumDateTime() {
@@ -405,105 +378,41 @@ class WinsManager extends ListingsManager {
 }
 
 // Modal Managers
-class NewListingModalManager {
+class ProfileNewListingHandler {
   constructor(uiManager, profile) {
     this.uiManager = uiManager;
     this.profile = profile;
+    this.modalManager = null;
   }
 
   setupEventListeners() {
-    this.setupOpenModalListener();
-    this.setupCloseModalListeners();
-    this.setupFormSubmissionListener();
-    this.uiManager.setMinimumDateTime();
-  }
-
-  setupOpenModalListener() {
     const newListingBtn = document.getElementById("newListingBtn");
     if (newListingBtn) {
       newListingBtn.addEventListener("click", () => this.openModal());
     }
   }
 
-  setupCloseModalListeners() {
-    const closeModalBtn = document.getElementById("closeNewListingModal");
-    const cancelBtn = document.getElementById("cancelNewListingBtn");
-    const modal = document.getElementById("newListingModal");
-
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener("click", () => this.closeModal());
-    }
-    if (cancelBtn) {
-      cancelBtn.addEventListener("click", () => this.closeModal());
-    }
-
-    // Close modal when clicking outside of it
-    if (modal) {
-      modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          this.closeModal();
-        }
-      });
-    }
-  }
-
-  setupFormSubmissionListener() {
-    const form = document.getElementById("newListingForm");
-    if (form) {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        await this.handleFormSubmission();
-      });
-    }
-  }
-
   openModal() {
-    const modal = document.getElementById("newListingModal");
-    if (modal) {
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+    if (!this.modalManager) {
+      this.initModalManager();
     }
+    this.modalManager.openModal();
   }
 
-  closeModal() {
-    const modal = document.getElementById("newListingModal");
-    const form = document.getElementById("newListingForm");
-    if (modal) {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-    if (form) {
-      form.reset();
-    }
-  }
-
-  async handleFormSubmission() {
-    const formData = this.getFormData();
-    try {
-      await APIService.createListing(formData);
-      this.uiManager.showMessage("success", "Listing created successfully!");
-      this.closeModal();
-      const refreshedProfile = await APIService.fetchProfile(this.profile.name);
-      this.uiManager.renderProfileView(refreshedProfile);
-    } catch (err) {
-      this.uiManager.showMessage(
-        "error",
-        err.message || "Failed to create listing.",
-      );
-    }
-  }
-
-  getFormData() {
-    const title = document.getElementById("listingTitle").value.trim();
-    const description = document.getElementById("listingDesc").value.trim();
-    const endsAt = document.getElementById("listingEndDate").value;
-    const mediaUrl = document.getElementById("listingImage").value.trim();
-    return {
-      title,
-      description,
-      endsAt: new Date(endsAt).toISOString(),
-      media: mediaUrl ? [{ url: mediaUrl, alt: title }] : [],
-    };
+  initModalManager() {
+    this.modalManager = new NewListingModalManager({
+      onSuccess: async (listing) => {
+        this.uiManager.showMessage("success", "Listing created successfully!");
+        const refreshedProfile = await APIService.fetchProfile(
+          this.profile.name,
+        );
+        this.uiManager.renderProfileView(refreshedProfile);
+      },
+      onError: (errorMessage) => {
+        this.uiManager.showMessage("error", errorMessage);
+      },
+      profile: this.profile,
+    });
   }
 }
 
