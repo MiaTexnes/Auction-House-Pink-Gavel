@@ -1,18 +1,13 @@
-const apiKey = import.meta.env.VITE_NOROFF_API_KEY;
-
 export const config = {
-  X_NOROFF_API_KEY: apiKey || "",
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  // Use Netlify function for API calls in production
+  API_BASE_URL: import.meta.env.PROD
+    ? "/.netlify/functions/api-proxy"
+    : import.meta.env.VITE_API_BASE_URL,
+  // For development, you can still use direct API calls with a dev-only key
+  X_NOROFF_API_KEY: import.meta.env.DEV
+    ? import.meta.env.VITE_DEV_API_KEY || ""
+    : "",
   isDev: import.meta.env.DEV,
   mode: import.meta.env.MODE,
+  useProxy: import.meta.env.PROD,
 };
-
-// Production error logging
-if (!apiKey) {
-  console.error("❌ CRITICAL: VITE_X_NOROFF_API_KEY is missing!");
-  console.error("Environment mode:", import.meta.env.MODE);
-  console.error(
-    "Available vars:",
-    Object.keys(import.meta.env).filter((k) => k.startsWith("VITE_")),
-  );
-}
