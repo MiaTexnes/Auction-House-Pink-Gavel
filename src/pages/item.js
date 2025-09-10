@@ -97,6 +97,19 @@ class DOMElements {
       authRequired: document.getElementById("auth-required"), // Login prompt for guests
     };
 
+    // Winner display elements - show winner information prominently
+    this.winner = {
+      banner: document.getElementById("winner-banner"), // Main winner banner
+      bannerAvatar: document.getElementById("winner-banner-avatar"), // Winner avatar in banner
+      bannerName: document.getElementById("winner-banner-name"), // Winner name in banner
+      bannerAmount: document.getElementById("winner-banner-amount"), // Winning amount in banner
+      currentBidContainer: document.getElementById("current-bid-container"), // Current bid container for styling
+      currentBidLabel: document.getElementById("current-bid-label"), // Current bid label to change
+      winnerInfo: document.getElementById("winner-info"), // Winner info in current bid area
+      winnerAvatar: document.getElementById("current-bid-winner-avatar"), // Winner avatar in current bid
+      winnerName: document.getElementById("current-bid-winner-name"), // Winner name in current bid
+    };
+
     // Modal dialog elements - handle edit and delete confirmations
     this.modals = {
       delete: {
@@ -271,9 +284,18 @@ class UIManager {
     const statusEl = this.elements.item.status;
     if (statusEl) {
       if (timeInfo.isEnded) {
-        statusEl.textContent = "Ended";
-        statusEl.className =
-          "absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold bg-red-500 text-white";
+        const bids = listing.bids || [];
+        if (bids.length > 0) {
+          // Show "SOLD!" with winner styling when auction ends with bids
+          statusEl.textContent = "🏆 SOLD!";
+          statusEl.className =
+            "absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 shadow-lg winner-pulse";
+        } else {
+          // Show "Ended" for auctions without bids
+          statusEl.textContent = "Ended";
+          statusEl.className =
+            "absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold bg-red-500 text-white";
+        }
       } else {
         statusEl.textContent = "Active";
         statusEl.className =
@@ -518,6 +540,132 @@ class UIManager {
   }
 
   /**
+   * Shows the prominent winner banner when auction has ended with a winner
+   * Displays winner information in a highly visible banner at the top of the page
+   * @param {Object} winner - The winning bid object with bidder information
+   * @param {boolean} isEnded - Whether the auction has ended
+   */
+  showWinnerBanner(winner, isEnded) {
+    if (!isEnded || !winner || !this.elements.winner.banner) return;
+
+    const avatarUrl = winner.bidder?.avatar?.url || DEFAULT_BIDDER_AVATAR;
+    const winnerName = winner.bidder?.name || "Unknown Winner";
+
+    // Populate banner content
+    if (this.elements.winner.bannerAvatar) {
+      this.elements.winner.bannerAvatar.src = avatarUrl;
+      this.elements.winner.bannerAvatar.alt = `${winnerName} avatar`;
+    }
+
+    if (this.elements.winner.bannerName) {
+      if (isAuthenticated() && winnerName !== "Unknown Winner") {
+        const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(winnerName)}`;
+        this.elements.winner.bannerName.innerHTML = `<a href="${profileUrl}" class="hover:underline text-white">${winnerName}</a>`;
+      } else {
+        this.elements.winner.bannerName.textContent = winnerName;
+      }
+    }
+
+    if (this.elements.winner.bannerAmount) {
+      this.elements.winner.bannerAmount.textContent = `${winner.amount} credits`;
+    }
+
+    // Show the banner with animation
+    this.elements.winner.banner.classList.remove("hidden");
+    this.elements.winner.banner.classList.add(
+      "winner-bounce-in",
+      "winner-shimmer",
+    );
+
+    // Add celebration animation after initial bounce
+    setTimeout(() => {
+      if (this.elements.winner.banner) {
+        this.elements.winner.banner.classList.remove("winner-shimmer");
+        this.elements.winner.banner.classList.add("winner-celebration");
+      }
+    }, 1000);
+
+    // Remove celebration animation after 5 seconds, keep subtle pulse
+    setTimeout(() => {
+      if (this.elements.winner.banner) {
+        this.elements.winner.banner.classList.remove("winner-celebration");
+      }
+    }, 6000);
+  }
+
+  /**
+   * Updates the current bid area to show winner information when auction ends
+   * Transforms the current bid display to highlight the winner
+   * @param {Object} winner - The winning bid object with bidder information
+   * @param {boolean} isEnded - Whether the auction has ended
+   */
+  updateCurrentBidWithWinner(winner, isEnded) {
+    if (!isEnded || !winner) return;
+
+    // Update the current bid container styling
+    if (this.elements.winner.currentBidContainer) {
+      this.elements.winner.currentBidContainer.classList.add(
+        "bg-green-50",
+        "dark:bg-green-900",
+        "border-2",
+        "border-green-400",
+      );
+      this.elements.winner.currentBidContainer.classList.remove(
+        "bg-gray-50",
+        "dark:bg-gray-800",
+      );
+    }
+
+    // Change the label from "Current Bid" to "Winning Bid"
+    if (this.elements.winner.currentBidLabel) {
+      this.elements.winner.currentBidLabel.textContent = "Winning Bid";
+      this.elements.winner.currentBidLabel.classList.add(
+        "text-green-700",
+        "dark:text-green-300",
+        "font-semibold",
+      );
+      this.elements.winner.currentBidLabel.classList.remove(
+        "text-gray-600",
+        "dark:text-gray-400",
+      );
+    }
+
+    // Update current bid amount styling
+    if (this.elements.item.bid.current) {
+      this.elements.item.bid.current.classList.add(
+        "text-green-700",
+        "dark:text-green-300",
+      );
+      this.elements.item.bid.current.classList.remove(
+        "text-pink-800",
+        "dark:text-white",
+      );
+    }
+
+    // Show winner info in current bid area
+    const avatarUrl = winner.bidder?.avatar?.url || DEFAULT_BIDDER_AVATAR;
+    const winnerName = winner.bidder?.name || "Unknown Winner";
+
+    if (this.elements.winner.winnerAvatar) {
+      this.elements.winner.winnerAvatar.src = avatarUrl;
+      this.elements.winner.winnerAvatar.alt = `${winnerName} avatar`;
+    }
+
+    if (this.elements.winner.winnerName) {
+      if (isAuthenticated() && winnerName !== "Unknown Winner") {
+        const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(winnerName)}`;
+        this.elements.winner.winnerName.innerHTML = `<a href="${profileUrl}" class="hover:underline">${winnerName}</a>`;
+      } else {
+        this.elements.winner.winnerName.textContent = winnerName;
+      }
+    }
+
+    if (this.elements.winner.winnerInfo) {
+      this.elements.winner.winnerInfo.classList.remove("hidden");
+    }
+  }
+
+  /**
    * Renders the complete bidding history with special winner highlighting
    * Creates different displays for winners vs regular bids, sorted by amount
    * @param {Object[]} bids - Array of bid objects with bidder info
@@ -564,20 +712,44 @@ class UIManager {
       let bidElement;
 
       if (isHighestBid && isEnded) {
-        // Special winner display - larger, centered, green styling
+        // Special winner display - highly prominent with trophy and celebration
         bidElement = document.createElement("div");
         bidElement.className =
-          "flex flex-col items-center justify-center p-6 bg-green-50 dark:bg-green-900 rounded-lg mb-4";
-        statusText =
-          '<span class="block text-2xl text-green-700 font-bold text-center mb-2">Winner</span>';
+          "relative flex flex-col items-center justify-center p-8 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-800 dark:to-green-900 rounded-xl mb-6 border-4 border-green-400 shadow-2xl transform transition-all duration-300 hover:scale-105 winner-bounce-in";
+
+        statusText = `
+          <div class="absolute -top-3 -right-3 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold shadow-lg winner-pulse trophy-glow">
+            🏆 WINNER
+          </div>
+          <div class="text-center mb-4">
+            <div class="text-6xl mb-2">🎉</div>
+            <h3 class="text-3xl font-bold text-green-800 dark:text-green-200 mb-2">AUCTION WINNER!</h3>
+          </div>
+        `;
+
         bidElement.innerHTML = `
           ${statusText}
-          <img src="${avatarUrl}"
-               alt="${bidderName}"
-               class="w-16 h-16 rounded-full object-cover border-4 border-green-600 mx-auto mb-2">
-          <p class="font-semibold text-green-800 text-xl text-center mb-1">${createBidderNameHTML(bidderName)}</p>
-          <p class="text-lg font-bold text-green-700 text-center mb-2">${bid.amount} credits</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400 text-center">${new Date(bid.created).toLocaleString()}</p>
+          <div class="relative">
+            <img src="${avatarUrl}"
+                 alt="${bidderName}"
+                 class="w-24 h-24 rounded-full object-cover border-6 border-yellow-400 mx-auto mb-4 shadow-xl">
+            <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-yellow-900 rounded-full p-2 shadow-lg">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <p class="font-bold text-green-800 dark:text-green-200 text-2xl text-center mb-2">${createBidderNameHTML(bidderName)}</p>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-inner">
+            <p class="text-3xl font-bold text-green-700 dark:text-green-300 text-center mb-1">${bid.amount} credits</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center">Winning Bid</p>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center mt-4">${new Date(bid.created).toLocaleString()}</p>
+          <div class="mt-4 flex space-x-2">
+            <span class="text-2xl">🎊</span>
+            <span class="text-2xl">🏆</span>
+            <span class="text-2xl">🎉</span>
+          </div>
         `;
       } else {
         // Regular bid display - horizontal layout
@@ -673,7 +845,7 @@ class UIManager {
       // Restore original button text
       deleteBtn.innerHTML = `
 
-          
+
         Delete Listing
       `;
 
@@ -945,6 +1117,16 @@ class ItemPageController {
     // Update status and show appropriate user actions
     const isEnded = this.ui.updateAuctionStatus(listing);
     this.ui.handleUserActions(listing, isEnded);
+
+    // Show winner information if auction has ended with bids
+    if (isEnded && bids.length > 0) {
+      const sortedBids = [...bids].sort((a, b) => b.amount - a.amount);
+      const winner = sortedBids[0]; // Highest bid is the winner
+
+      // Show prominent winner displays
+      this.ui.showWinnerBanner(winner, isEnded);
+      this.ui.updateCurrentBidWithWinner(winner, isEnded);
+    }
   }
 
   /**
@@ -955,12 +1137,30 @@ class ItemPageController {
     const listing = this.state.getListing();
     if (!listing) return;
 
+    let wasEnded = false;
+
     const updateCountdown = () => {
       const isEnded = this.ui.updateAuctionStatus(listing);
-      if (isEnded) {
-        // Stop timer and update UI when auction ends
+
+      if (isEnded && !wasEnded) {
+        // Auction just ended - show winner information
+        wasEnded = true;
         this.state.stopCountdown();
         this.ui.handleUserActions(listing, true);
+
+        // Show winner displays if there are bids
+        const bids = listing.bids || [];
+        if (bids.length > 0) {
+          const sortedBids = [...bids].sort((a, b) => b.amount - a.amount);
+          const winner = sortedBids[0]; // Highest bid is the winner
+
+          // Show prominent winner displays
+          this.ui.showWinnerBanner(winner, isEnded);
+          this.ui.updateCurrentBidWithWinner(winner, isEnded);
+
+          // Re-render bidding history to show winner styling
+          this.ui.renderBiddingHistory(bids);
+        }
       }
     };
 

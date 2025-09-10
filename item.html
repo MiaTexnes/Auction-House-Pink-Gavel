@@ -52,6 +52,45 @@
           </button>
         </div>
 
+        <!-- Winner Banner - Hidden by default, shown when auction has ended with winner -->
+        <div
+          id="winner-banner"
+          class="hidden mb-8 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl shadow-xl p-6 transform transition-all duration-300"
+        >
+          <div class="flex items-center justify-center space-x-4">
+            <div class="flex-shrink-0">
+              <svg
+                class="w-12 h-12 text-yellow-300"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 2L3 7v11h14V7l-7-5zM8 8a2 2 0 114 0v1h1a1 1 0 011 1v5a1 1 0 01-1 1H7a1 1 0 01-1-1v-5a1 1 0 011-1h1V8z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="text-center">
+              <h2 class="text-3xl font-bold mb-2">🎉 AUCTION WON! 🎉</h2>
+              <div class="flex items-center justify-center space-x-3">
+                <img
+                  id="winner-banner-avatar"
+                  src=""
+                  alt=""
+                  class="w-16 h-16 rounded-full border-4 border-yellow-300 shadow-lg"
+                />
+                <div class="text-left">
+                  <p class="text-2xl font-bold" id="winner-banner-name"></p>
+                  <p class="text-xl opacity-90">
+                    Winning bid:
+                    <span id="winner-banner-amount" class="font-bold"></span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image and Gallery -->
           <div class="space-y-4">
@@ -108,9 +147,13 @@
             <!-- Current Bid and Time Remaining -->
             <div class="grid grid-cols-2 gap-4">
               <div
-                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center"
+                id="current-bid-container"
+                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center transition-all duration-300"
               >
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p
+                  id="current-bid-label"
+                  class="text-sm text-gray-600 dark:text-gray-400 mb-1"
+                >
                   Current Bid
                 </p>
                 <p
@@ -121,6 +164,29 @@
                   id="bid-count"
                   class="text-sm text-gray-500 dark:text-gray-400"
                 ></p>
+                <!-- Winner info - shown when auction ends -->
+                <div
+                  id="winner-info"
+                  class="hidden mt-2 p-2 bg-green-100 dark:bg-green-900 rounded-md"
+                >
+                  <p
+                    class="text-xs text-green-800 dark:text-green-200 font-semibold"
+                  >
+                    WINNER
+                  </p>
+                  <div class="flex items-center justify-center space-x-2 mt-1">
+                    <img
+                      id="current-bid-winner-avatar"
+                      src=""
+                      alt=""
+                      class="w-6 h-6 rounded-full border border-green-400"
+                    />
+                    <p
+                      id="current-bid-winner-name"
+                      class="text-xs text-green-800 dark:text-green-200 font-medium"
+                    ></p>
+                  </div>
+                </div>
               </div>
               <div
                 class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center"
