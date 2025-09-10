@@ -277,7 +277,7 @@ class UIManager {
       } else {
         statusEl.textContent = "Active";
         statusEl.className =
-          "absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold bg-green-500 text-white";
+          "absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold bg-green-500 text-black";
       }
     }
 
@@ -493,6 +493,12 @@ class UIManager {
       this.elements.bidding.section?.classList.add("hidden");
       this.elements.actions.authRequired?.classList.add("hidden");
       this.elements.actions.owner?.classList.remove("hidden");
+
+      // Update delete button state based on bids
+      this.updateDeleteButtonState(listing);
+
+      // Update edit button state based on auction end status and bids
+      this.updateEditButtonState(listing, isEnded);
     } else if (isEnded) {
       // Hide all actions for ended auctions
       this.elements.bidding.section?.classList.add("hidden");
@@ -628,6 +634,103 @@ class UIManager {
     if (this.elements.modals.edit.tags) {
       const tagsString = listing.tags ? listing.tags.join(", ") : "";
       this.elements.modals.edit.tags.value = tagsString;
+    }
+  }
+
+  /**
+   * Updates the delete button state based on whether the listing has bids
+   * Disables the delete button and shows a tooltip if bids exist
+   * @param {Object} listing - The auction listing object
+   */
+  updateDeleteButtonState(listing) {
+    const deleteBtn = document.getElementById("delete-listing-btn");
+    if (!deleteBtn) return;
+
+    const bids = listing.bids || [];
+    const hasBids = bids.length > 0;
+
+    if (hasBids) {
+      // Disable the delete button and update styling
+      deleteBtn.disabled = true;
+      deleteBtn.classList.add("opacity-50", "cursor-not-allowed");
+      deleteBtn.classList.remove("hover:bg-red-600");
+
+      // Update button text to indicate why it's disabled
+      deleteBtn.innerHTML = `
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Cannot Delete (Has Bids)
+      `;
+
+      // Add tooltip
+      deleteBtn.title = "This listing cannot be deleted because it has bids.";
+    } else {
+      // Enable the delete button and restore original styling
+      deleteBtn.disabled = false;
+      deleteBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      deleteBtn.classList.add("hover:bg-red-600");
+
+      // Restore original button text
+      deleteBtn.innerHTML = `
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Delete Listing
+      `;
+
+      // Remove tooltip
+      deleteBtn.removeAttribute("title");
+    }
+  }
+
+  /**
+   * Updates the edit button state based on whether the auction has ended with bids
+   * Disables the edit button for ended auctions that have bids
+   * @param {Object} listing - The auction listing object
+   * @param {boolean} isEnded - Whether the auction has ended
+   */
+  updateEditButtonState(listing, isEnded) {
+    const editBtn = document.getElementById("edit-listing-btn");
+    if (!editBtn) return;
+
+    const bids = listing.bids || [];
+    const hasBids = bids.length > 0;
+    const shouldDisableEdit = isEnded && hasBids;
+
+    if (shouldDisableEdit) {
+      // Disable the edit button and update styling
+      editBtn.disabled = true;
+      editBtn.classList.add("opacity-50", "cursor-not-allowed");
+      editBtn.classList.remove("hover:bg-blue-600");
+
+      // Update button text to indicate why it's disabled
+      editBtn.innerHTML = `
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        Cannot Edit (Ended with Bids)
+      `;
+
+      // Add tooltip
+      editBtn.title =
+        "This listing cannot be edited because it has ended and has bids.";
+    } else {
+      // Enable the edit button and restore original styling
+      editBtn.disabled = false;
+      editBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      editBtn.classList.add("hover:bg-blue-600");
+
+      // Restore original button text
+      editBtn.innerHTML = `
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        Edit Listing
+      `;
+
+      // Remove tooltip
+      editBtn.removeAttribute("title");
     }
   }
 }
@@ -940,6 +1043,20 @@ class ItemPageController {
     if (editBtn) {
       editBtn.addEventListener("click", () => {
         const listing = this.state.getListing();
+
+        // Check if auction has ended with bids
+        const bids = listing.bids || [];
+        const hasBids = bids.length > 0;
+        const timeInfo = TimeUtils.formatTimeRemainingForItem(listing.endsAt);
+        const isEnded = timeInfo.isEnded;
+
+        if (isEnded && hasBids) {
+          alert(
+            "This listing cannot be edited because it has ended and has bids.",
+          );
+          return;
+        }
+
         this.ui.populateEditForm(listing);
         this.elements.modals.edit.modal?.classList.remove("hidden");
       });
@@ -1059,11 +1176,21 @@ class ItemPageController {
 
   /**
    * Handles listing deletion with API call and redirect
-   * Deletes the listing and redirects to listings page
+   * Prevents deletion if the listing has bids and redirects to listings page
    */
   async handleDelete() {
     try {
       const listing = this.state.getListing();
+
+      // Check if the listing has any bids
+      const bids = listing.bids || [];
+      if (bids.length > 0) {
+        alert(
+          "Cannot delete this listing because it has bids. Items with bids cannot be deleted.",
+        );
+        return;
+      }
+
       await APIService.deleteListing(listing.id);
       alert("Listing deleted successfully!");
       window.location.href = "/listings.html";

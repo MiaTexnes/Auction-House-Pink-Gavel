@@ -43,7 +43,9 @@ export class NewListingModalManager {
     const modal = document.getElementById("addListingModal");
     if (modal) {
       modal.classList.remove("hidden");
+      modal.classList.add("flex");
       this.setupFormDefaults();
+      this.hideError(); // Clear any previous error messages
     }
   }
 
@@ -55,13 +57,20 @@ export class NewListingModalManager {
     const form = document.getElementById("addListingForm");
     const mediaModal = document.getElementById("addMediaModal");
 
-    if (modal) modal.classList.add("hidden");
-    if (mediaModal) mediaModal.classList.add("hidden");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+    if (mediaModal) {
+      mediaModal.classList.add("hidden");
+      mediaModal.classList.remove("flex");
+    }
     if (form) {
       form.reset();
       this.clearMediaUrls();
       this.updateMediaCountDisplay(0);
       this.resetMediaForm();
+      this.hideError(); // Clear any error messages when closing
     }
   }
 
@@ -195,6 +204,7 @@ export class NewListingModalManager {
     const mediaModal = document.getElementById("addMediaModal");
     if (mediaModal) {
       mediaModal.classList.remove("hidden");
+      mediaModal.classList.add("flex");
     }
   }
 
@@ -205,6 +215,7 @@ export class NewListingModalManager {
     const mediaModal = document.getElementById("addMediaModal");
     if (mediaModal) {
       mediaModal.classList.add("hidden");
+      mediaModal.classList.remove("flex");
     }
   }
 
@@ -295,9 +306,35 @@ export class NewListingModalManager {
   }
 
   /**
+   * Shows an error message within the modal
+   */
+  showError(message) {
+    const errorContainer = document.getElementById("listingErrorContainer");
+    const errorText = document.getElementById("listingErrorText");
+
+    if (errorContainer && errorText) {
+      errorText.textContent = message;
+      errorContainer.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Hides the error message in the modal
+   */
+  hideError() {
+    const errorContainer = document.getElementById("listingErrorContainer");
+    if (errorContainer) {
+      errorContainer.classList.add("hidden");
+    }
+  }
+
+  /**
    * Handles form submission for creating new listing
    */
   async handleFormSubmission() {
+    // Hide any existing error messages
+    this.hideError();
+
     const formData = this.getFormData();
 
     try {
@@ -320,10 +357,12 @@ export class NewListingModalManager {
         window.location.reload();
       }
     } catch (err) {
+      // Show error within the modal
+      this.showError(err.message || "Failed to create listing.");
+
+      // Also call error callback if provided
       if (this.onError) {
         this.onError(err.message || "Failed to create listing.");
-      } else {
-        alert(err.message || "Failed to create listing.");
       }
     }
   }
@@ -362,7 +401,7 @@ export class NewListingModalManager {
       <!-- Create New Listing Modal -->
       <div
         id="addListingModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4"
       >
         <div
           class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
@@ -376,6 +415,15 @@ export class NewListingModalManager {
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
             Create New Listing
           </h2>
+          <!-- Error message container -->
+          <div id="listingErrorContainer" class="hidden mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg dark:bg-red-900/20 dark:border-red-700 dark:text-red-400">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              <span id="listingErrorText"></span>
+            </div>
+          </div>
           <form id="addListingForm" class="space-y-4">
             <div>
               <input
@@ -449,7 +497,7 @@ export class NewListingModalManager {
       <!-- Media Upload Modal -->
       <div
         id="addMediaModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"
       >
         <div
           class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
