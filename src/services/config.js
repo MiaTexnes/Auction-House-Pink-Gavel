@@ -2,7 +2,7 @@ const apiKey = import.meta.env.VITE_NOROFF_API_KEY;
 
 export const config = {
   X_NOROFF_API_KEY: apiKey || "",
-  API_BASE_URL: import.meta.env.API_BASE_URL,
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
   isDev: import.meta.env.DEV,
   mode: import.meta.env.MODE,
 };
