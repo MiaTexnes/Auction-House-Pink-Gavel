@@ -6,6 +6,7 @@ import {
 import { updateUserCredits } from "../components/header.js";
 import { config } from "../services/config.js"; // Import the config object
 import { API_BASE_URL } from "./baseApi.js"; // Add this import
+import { safeFetch } from "../utils/requestManager.js";
 
 /**
  * Bidding Service - Handles all bidding operations

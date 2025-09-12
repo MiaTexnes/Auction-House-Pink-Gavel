@@ -8,6 +8,7 @@ import { isAuthenticated } from "../library/auth.js";
 import { createListingCard } from "./listings.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
+import { safeFetch } from "../utils/requestManager.js";
 import logoImage from "/assets/images/logo.png";
 
 // Configuration constants
@@ -59,7 +60,7 @@ const ResponsiveUtils = {
     const width = window.innerWidth;
     if (width < 480) return 1; // Extra small devices
     if (width < 640) return 1; // Small mobile devices
-    if (width < 768) return 1.5; // Larger mobile devices (show partial second card)
+    if (width < 768) return 1; // Larger mobile devices
     if (width < 1024) return 2; // Tablets
     if (width < 1280) return 3; // Small desktops
     return 4; // Large desktops
@@ -72,7 +73,7 @@ const ResponsiveUtils = {
  */
 const APIService = {
   async fetchLatestListings(limit = DEFAULT_LISTINGS_LIMIT) {
-    const response = await fetch(
+    const response = await safeFetch(
       `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&sort=created&sortOrder=desc&limit=${limit}`, // Use API_BASE_URL instead of API_BASE
       {
         headers: {
@@ -273,7 +274,7 @@ class CarouselComponent {
    * @param {HTMLElement} container - Parent container element
    */
   createCarouselStructure(container) {
-    // Main carousel wrapper
+    // Main carousel wrapper with improved mobile handling
     const carouselWrapper = DOMUtils.createElement(
       "div",
       "flex flex-col items-center w-full max-w-full overflow-hidden",
@@ -282,13 +283,13 @@ class CarouselComponent {
     // Carousel container with responsive padding
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+      "w-full max-w-7xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
     );
 
-    // Main area with navigation and cards
+    // Main area with navigation and cards - adjust gap for mobile
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex  items-center justify-between gap-4 w-full",
+      "flex items-center justify-between gap-2 xs:gap-3 sm:gap-4 w-full",
     );
 
     // Create navigation buttons and card area
@@ -388,14 +389,18 @@ class CarouselComponent {
    * Shows current batch of listing cards
    */
   updateCardArea() {
-    this.elements.cardArea.style.gridTemplateColumns = `repeat(${this.cardsPerView}, 1fr)`;
+    // Use integer for grid template columns
+    const columnCount = Math.floor(this.cardsPerView);
+    this.elements.cardArea.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
     this.elements.cardArea.innerHTML = "";
 
-    for (
-      let i = 0;
-      i < Math.min(this.cardsPerView, this.total - this.currentIndex);
-      i++
-    ) {
+    // Check if we're on a small screen and force only 1 card per view
+    const isMobileView = window.innerWidth < 768;
+    const cardsToShow = isMobileView
+      ? 1
+      : Math.min(this.cardsPerView, this.total - this.currentIndex);
+
+    for (let i = 0; i < cardsToShow; i++) {
       const idx = this.currentIndex + i;
       const card = createListingCard(this.listings[idx]);
 

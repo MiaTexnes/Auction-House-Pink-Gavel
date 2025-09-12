@@ -4,6 +4,11 @@
  */
 import { config } from "../services/config.js"; // Import the config object
 import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import {
+  safeFetch,
+  createDebouncedSearch,
+  createCachedFetch,
+} from "../utils/requestManager.js";
 
 export class SearchAndSortComponent {
   constructor() {
@@ -13,6 +18,12 @@ export class SearchAndSortComponent {
     this.isSearching = false;
     this.currentSort = "newest"; // Default sort
     this.dropdownVisible = false;
+    this.cachedFetch = createCachedFetch(300000); // 5 minute cache
+
+    // Create debounced search function
+    this.debouncedSearch = createDebouncedSearch((query) => {
+      this.performSearch(query);
+    }, 500); // 500ms debounce delay
   }
 
   /**
@@ -210,17 +221,18 @@ export class SearchAndSortComponent {
 
       // Show dropdown and perform search for dropdown
       if (query.length > 0) {
+        // Use debounced search for dropdown
+        this.debouncedSearch(query);
+
+        // Also perform dropdown search with longer delay
         clearTimeout(this.searchTimeout);
         this.searchTimeout = setTimeout(() => {
           this.performDropdownSearch(query, searchInput);
-        }, 300);
+        }, 500);
       } else {
         this.hideAllDropdowns();
         // Still perform main search for empty query (shows all results)
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-          this.performSearch(query);
-        }, 300);
+        this.debouncedSearch(query);
       }
     });
 
@@ -234,8 +246,8 @@ export class SearchAndSortComponent {
           // Navigate to listings page with search
           window.location.href = `/listings.html?search=${encodeURIComponent(query)}`;
         } else {
-          clearTimeout(this.searchTimeout);
-          this.performSearch(query);
+          // Use debounced search
+          this.debouncedSearch(query);
         }
       }
     });
@@ -452,7 +464,7 @@ export class SearchAndSortComponent {
         }
       }
 
-      const response = await fetch(
+      const response = await safeFetch(
         `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`, // Use API_BASE_URL instead of API_BASE
         { headers },
       );

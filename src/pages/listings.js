@@ -31,6 +31,7 @@ import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
 import { processTags } from "../utils/tagUtils.js";
 import { TimeUtils } from "../utils/timeUtils.js";
+import { safeFetch, createCachedFetch } from "../utils/requestManager.js";
 
 /**
  * APPLICATION CONSTANTS
@@ -836,6 +837,8 @@ class UIManager {
 class APIService {
   constructor() {
     this.baseURL = API_BASE_URL; // Base URL for API requests
+    this.cachedFetch = createCachedFetch(300000); // 5 minute cache
+    this.isInitialized = false; // Prevent duplicate initialization
   }
 
   /**
@@ -846,11 +849,9 @@ class APIService {
   async fetchListings() {
     try {
       const headers = this.buildHeaders();
+      const url = `${this.baseURL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`;
 
-      const response = await fetch(
-        `${this.baseURL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`,
-        { headers },
-      );
+      const response = await safeFetch(url, { headers });
 
       if (!response.ok) {
         await this.handleErrorResponse(response);
@@ -1379,6 +1380,7 @@ class ListingsPageController {
       this.state,
       this.apiService,
     );
+    this.isInitialized = false; // Prevent duplicate initialization
   }
 
   /**
@@ -1386,8 +1388,16 @@ class ListingsPageController {
    * Sets up all components, loads data, and configures event handlers
    */
   async init() {
+    // Prevent duplicate initialization
+    if (this.isInitialized) {
+      console.warn("ListingsPageController already initialized");
+      return;
+    }
+
     const listingsContainer = this.elementManager.get("listingsContainer");
     if (!listingsContainer) return;
+
+    this.isInitialized = true;
 
     // Initialize search and sort component
     searchAndSortComponent.init();
@@ -1511,10 +1521,18 @@ export function createListingCard(listing) {
 // Export the main controller class
 export { ListingsPageController };
 
+// Singleton instance to prevent multiple initializations
+let controllerInstance = null;
+
 // Initialize the controller when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  const controller = new ListingsPageController();
-  controller.init();
+  if (controllerInstance) {
+    console.warn("Controller already exists, skipping initialization");
+    return;
+  }
+
+  controllerInstance = new ListingsPageController();
+  controllerInstance.init();
 });
 
 /**
