@@ -132,6 +132,8 @@ export class NewListingModalManager {
   setupFormSubmissionListener() {
     const form = document.getElementById("addListingForm");
     if (form) {
+      // Mark so listings page doesn't attach a second listener
+      form.dataset.managed = "newListingModalManager";
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         await this.handleFormSubmission();
@@ -376,20 +378,14 @@ export class NewListingModalManager {
       .getElementById("listingDescription")
       ?.value.trim();
     const endsAt = document.getElementById("listingEndDate")?.value;
-    const tagsInput = document.getElementById("listingTags")?.value.trim();
+    const tagsRaw = document.getElementById("listingTags")?.value.trim() || "";
 
-    const tags = tagsInput
-      ? tagsInput
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag)
-      : [];
-
+    // Pass tags as the original string; processTags (in createListing) will handle splitting & sanitizing
     return {
       title,
       description,
       endsAt: new Date(endsAt).toISOString(),
-      tags,
+      tags: tagsRaw,
     };
   }
 
@@ -450,7 +446,7 @@ export class NewListingModalManager {
                 type="datetime-local"
                 id="listingEndDate"
                 name="endsAt"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
                 required
               />
             </div>
