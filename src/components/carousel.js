@@ -7,16 +7,18 @@ export function createCarouselCard(listing) {
   const now = new Date();
   const timeLeftMs = endDate.getTime() - now.getTime();
 
-  let timeLeftString;
+  // Create timeInfo object for displaying time
+  const timeInfo = { text: "Ended" };
+
   if (timeLeftMs < 0) {
-    timeLeftString = "Ended";
+    timeInfo.text = "Ended";
   } else {
     const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor(
       (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
     );
     const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
-    timeLeftString = `Ends: ${days}d ${hours}h ${minutes}m`;
+    timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
   }
 
   const imageUrl =
@@ -33,7 +35,7 @@ export function createCarouselCard(listing) {
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-80 min-w-[320px] max-w-[320px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[420px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
+    "flex-none w-full sm:w-64 md:w-72 lg:w-80 min-w-[260px] sm:min-w-[280px] md:min-w-[300px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
   // Remove scale and translate on hover to prevent overflow
 
   card.innerHTML = `
@@ -91,7 +93,7 @@ export function renderCarousel(listings, carouselContainer) {
 
   // Update carousel container classes for proper scrolling
   carouselContainer.className =
-    "flex gap-6 overflow-x-auto pb- scroll-smooth scrollbar-hide max-w-full";
+    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide max-w-full px-2";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);
@@ -116,17 +118,26 @@ export function setupCarouselScrollButtons(
     scrollRightBtn.textContent = "Scroll Right";
     scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
 
+    const getScrollDistance = () => {
+      // Responsive scroll distance based on viewport width
+      return window.innerWidth < 640
+        ? 280
+        : window.innerWidth < 768
+          ? 350
+          : 400;
+    };
+
     scrollLeftBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: -400, behavior: "smooth" });
+        carousel.scrollBy({ left: -getScrollDistance(), behavior: "smooth" });
       }
     });
 
     scrollRightBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: 400, behavior: "smooth" });
+        carousel.scrollBy({ left: getScrollDistance(), behavior: "smooth" });
       }
     });
   }
