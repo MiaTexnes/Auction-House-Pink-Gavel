@@ -24,6 +24,7 @@
 
 import { isAuthenticated, getAuthHeader } from "../library/auth.js";
 import { NewListingModalManager } from "../components/modalManager.js";
+import { createListing } from "../library/newListing.js";
 import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
