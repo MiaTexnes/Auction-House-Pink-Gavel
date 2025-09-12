@@ -94,7 +94,7 @@ export function renderCarousel(listings, carouselContainer) {
 
   // Update carousel container classes for proper scrolling
   carouselContainer.className =
-    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide max-w-full px-2";
+    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth  max-w-full px-2";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);

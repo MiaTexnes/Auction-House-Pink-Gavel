@@ -310,7 +310,7 @@ class CarouselComponent {
     // Thumbnail scroll bar
     const scrollBarContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-4xl mx-auto mt-6 px-4",
+      "hidden md:block w-full max-w-4xl mx-auto mt-6 px-4",
     );
     this.elements.scrollBar = DOMUtils.createElement(
       "div",
