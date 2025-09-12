@@ -122,10 +122,10 @@ export function setupCarouselScrollButtons(
     const getScrollDistance = () => {
       // Responsive scroll distance based on viewport width
       return window.innerWidth < 640
-        ? 280
+        ? 260 // Match the smallest card width
         : window.innerWidth < 768
-          ? 350
-          : 400;
+          ? 280 // Match xs breakpoint width
+          : 400; // Keep existing
     };
 
     scrollLeftBtn.addEventListener("click", () => {
