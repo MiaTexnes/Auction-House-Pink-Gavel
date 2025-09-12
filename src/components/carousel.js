@@ -36,7 +36,7 @@ export function createCarouselCard(listing) {
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-[calc(100vw-2rem)] xs:w-[calc(100vw-3rem)] sm:w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
+    "flex-none w-[280px] xs:w-[320px] sm:w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
   // Remove scale and translate on hover to prevent overflow
 
   card.innerHTML = `
