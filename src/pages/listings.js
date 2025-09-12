@@ -1408,14 +1408,12 @@ class ListingsPageController {
 
     // Show informational message for non-authenticated users
     if (!isAuthenticated()) {
-      const allAuctionsHeader = document.querySelector(".all-auctions-header");
-      if (allAuctionsHeader) {
-        const infoMsg = document.createElement("div");
-        infoMsg.textContent =
+      const authMessage = document.querySelector(".auth-message");
+      if (authMessage) {
+        authMessage.textContent =
           "Log in or create user to bid and see user profiles";
-        infoMsg.className =
+        authMessage.className =
           "w-full mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-900 rounded text-center font-semibold";
-        allAuctionsHeader.parentNode.insertBefore(infoMsg, allAuctionsHeader);
       }
     }
 
