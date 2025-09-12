@@ -1450,7 +1450,12 @@ class ListingsPageController {
         return;
       }
 
-      this.ui.displayInitialListings(listings, this.state);
+      // Apply "newest" sort filter before displaying
+      const sortedListings = searchAndSortComponent.sortListings(
+        listings,
+        "newest",
+      );
+      this.ui.displayInitialListings(sortedListings, this.state);
     } catch (error) {
       this.ui.showMessage(`Error: ${error.message}`, "error");
     } finally {

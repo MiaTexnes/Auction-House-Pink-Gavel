@@ -54,7 +54,7 @@ export function createLoadMoreButton(
   const btn = document.createElement("button");
   if (id) btn.id = id;
   btn.textContent = text;
-  btn.className = `bg-pink-400 hover:bg-pink-600 text-gray-800 font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105 ${additionalClasses}`;
+  btn.className = ` bg-pink-400 hover:bg-pink-600 text-gray-800 font-semibold py-3 px-8 rounded-lg transition-all shadow-md transform hover:scale-105 ${additionalClasses}`;
   btn.addEventListener("click", onClick);
   return btn;
 }
