@@ -157,8 +157,7 @@ export class SearchAndSortComponent {
     const sortMapping = {
       newest: "newest",
       oldest: "oldest",
-      "most-bids": "most-bids",
-      "active-auctions": "active-auctions", // Changed from "shortest-time": "ending-soon"
+      "won-auctions": "won-auctions",
     };
 
     this.currentSort = sortMapping[sortType] || sortType;
@@ -521,38 +520,30 @@ export class SearchAndSortComponent {
    */
   sortListings(listings, sortBy) {
     let sorted = [...listings]; // Create a copy to avoid mutating original
+    const now = new Date();
 
     switch (sortBy) {
-      case "newest":
-        return sorted.sort((a, b) => new Date(b.created) - new Date(a.created));
+      case "newest": {
+        // Only active (not ended) listings, newest first by created date
+        const active = sorted.filter((l) => new Date(l.endsAt) > now);
+        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
+      }
 
       case "oldest":
         return sorted.sort((a, b) => new Date(a.created) - new Date(b.created));
 
-      case "active-auctions":
-        // First filter to only active auctions, then sort by ending soon
-        const activeAuctions = this.filterActiveAuctions(sorted);
-        return activeAuctions.sort(
-          (a, b) => new Date(a.endsAt) - new Date(b.endsAt),
+      case "won-auctions": {
+        // Ended listings that have at least one bid, sorted by most recently ended
+        const won = sorted.filter(
+          (l) => new Date(l.endsAt) <= now && (l._count?.bids || 0) > 0,
         );
-
-      case "most-bids":
-        return sorted.sort(
-          (a, b) => (b._count?.bids || 0) - (a._count?.bids || 0),
-        );
-
-      case "title-az":
-        return sorted.sort((a, b) =>
-          (a.title || "").localeCompare(b.title || ""),
-        );
-
-      case "title-za":
-        return sorted.sort((a, b) =>
-          (b.title || "").localeCompare(a.title || ""),
-        );
+        return won.sort((a, b) => new Date(b.endsAt) - new Date(a.endsAt));
+      }
 
       default:
-        return sorted.sort((a, b) => new Date(b.created) - new Date(a.created));
+        // Fallback: treat as newest active
+        const active = sorted.filter((l) => new Date(l.endsAt) > now);
+        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
     }
   }
 

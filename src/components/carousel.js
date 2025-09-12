@@ -207,7 +207,7 @@ export function createCarouselCard(listing) {
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0">
+        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;"">
         <span class="text-gray-800 dark:text-gray-200 font-medium truncate transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400">${sellerName}</span>
       </div>
     </div>
@@ -608,7 +608,16 @@ export const CarouselAPIService = {
     }
 
     const responseData = await response.json();
-    return responseData.data || [];
+    const now = Date.now();
+
+    // Only keep active (not ended) listings
+    const activeListings = (responseData.data || []).filter((listing) => {
+      if (!listing.endsAt) return true; // treat missing endsAt as active
+      const endTime = Date.parse(listing.endsAt);
+      return !isNaN(endTime) && endTime > now;
+    });
+
+    return activeListings;
   },
 };
 

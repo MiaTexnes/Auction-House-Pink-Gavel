@@ -1103,7 +1103,16 @@ class EventHandler {
    */
   setupFormEvents() {
     const form = this.elements.get("addListingForm");
-    if (form && isAuthenticated()) {
+    if (!form) return;
+
+    // If the shared modal manager already owns this form, skip attaching legacy listener
+    if (form.dataset.managed === "newListingModalManager") {
+      return;
+    }
+
+    // Legacy fallback (only if not already bound)
+    if (isAuthenticated() && !form.dataset.legacyBound) {
+      form.dataset.legacyBound = "true";
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         await this.handleFormSubmission();
@@ -1219,10 +1228,10 @@ class EventHandler {
    * @returns {string} Appropriate empty results message
    */
   getEmptyResultsMessage(query, sortBy) {
-    if (sortBy === "active-auctions") {
+    if (sortBy === "won-auctions") {
       return query.trim() === ""
-        ? "No active auctions available at the moment."
-        : `No active auctions found for "${query}".`;
+        ? "No won auctions yet."
+        : `No won auctions found for "${query}".`;
     }
 
     return query.trim() === ""

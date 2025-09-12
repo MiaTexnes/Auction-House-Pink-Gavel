@@ -563,7 +563,7 @@ class APIService {
 
   static async fetchProfile(name) {
     const response = await fetch(
-      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_seller=true&_bids=true&_count=true`,
+      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_tags=true&_seller=true&_bids=true&_count=true`,
       { headers: this.getHeaders() },
     );
     if (!response.ok) {
