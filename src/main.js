@@ -36,10 +36,24 @@ const pageConfig = {
   "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
 };
 
+// ...existing code...
+
 // Get current page name from URL
 const getCurrentPage = () => {
   const path = window.location.pathname;
-  return path.substring(path.lastIndexOf("/") + 1) || "index.html";
+  const filename = path.substring(path.lastIndexOf("/") + 1);
+
+  // Handle root path and empty filename
+  if (!filename || filename === "/" || path === "/") {
+    return "index.html";
+  }
+
+  // Handle paths without extension
+  if (!filename.includes(".")) {
+    return "index.html";
+  }
+
+  return filename;
 };
 
 // FAQ page enhancements
