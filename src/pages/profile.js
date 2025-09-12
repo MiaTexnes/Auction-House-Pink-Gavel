@@ -636,7 +636,7 @@ class ProfileController {
     const user = getCurrentUser();
     if (!user || !user.name) {
       container.innerHTML =
-        '<div class="text-center text-red-600">User data incomplete. Please log in again. <a href="/login.html" class="underline text-blue-500 hover:text-blue-700">Login here</a>.</div>';
+        '<div class="text-center  text-red-600">User data incomplete. Please log in again. <a href="/login.html" class="underline text-blue-500 hover:text-blue-700">Login here</a>.</div>';
       logoutUser();
       return;
     }
