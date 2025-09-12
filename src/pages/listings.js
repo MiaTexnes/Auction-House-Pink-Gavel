@@ -1510,11 +1510,17 @@ export function createListingCard(listing) {
 // Export the main controller class
 export { ListingsPageController };
 
+// Initialize the controller when the DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  const controller = new ListingsPageController();
+  controller.init();
+});
+
 /**
  * LISTING NORMALIZATION UTILITY
  * Ensures all listing objects have consistent bid count data structure
  * @param {Object} listing - Raw listing object from API
- * @returns {Object} Normalized listing object with consistent _count.bids
+ * @returns {Object} Normalized listing object with consistent structure
  */
 function normalizeListing(listing) {
   if (!listing._count) listing._count = {};
