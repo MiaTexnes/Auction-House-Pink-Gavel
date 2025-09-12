@@ -253,11 +253,72 @@ class LoginController {
   }
 }
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
-  const loginController = new LoginController();
-  loginController.init();
-});
+// Move this from main.js to login.js
+const loginForm = document.getElementById("login-form");
+const alertContainer = document.getElementById("login-error");
 
-// Export for testing purposes
+function showAlert(type, message) {
+  if (!alertContainer) return;
+
+  const baseClasses = "mt-4 border p-3 rounded-md";
+  const typeClasses =
+    type === "success"
+      ? "bg-green-50 border-green-200 text-green-700"
+      : "bg-red-50 border-red-200 text-red-700";
+
+  alertContainer.className = `${baseClasses} ${typeClasses}`;
+  alertContainer.textContent = message;
+}
+
+function toggleLoadingState(button, isLoading) {
+  if (!button) return;
+
+  if (isLoading) {
+    button.disabled = true;
+    button.innerHTML = `
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Logging in...
+    `;
+  } else {
+    button.disabled = false;
+    button.textContent = "Login";
+  }
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const emailField = document.getElementById("email");
+  const passwordField = document.getElementById("password");
+  const submitButton = event.target.querySelector('button[type="submit"]');
+
+  if (!emailField || !passwordField) return;
+
+  const email = emailField.value.trim();
+  const password = passwordField.value.trim();
+
+  if (!email || !password) {
+    showAlert("error", "Please fill in all fields.");
+    return;
+  }
+
+  toggleLoadingState(submitButton, true);
+
+  try {
+    await loginUser({ email, password });
+    showAlert("success", "Login successful! Redirecting...");
+    setTimeout(() => {
+      window.location.href = "/index.html";
+    }, 1500);
+  } catch (error) {
+    showAlert("error", error.message || "Login failed. Please try again.");
+  } finally {
+    toggleLoadingState(submitButton, false);
+  }
+}
+
+// Export the main controller class
 export { LoginController, ValidationManager, ErrorHandler };

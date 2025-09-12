@@ -11,6 +11,7 @@
     <div id="search-results" class="mt-4"></div>
 
     <main class="container mx-auto px-4 py-8">
+      <p class="auth-message"></p>
       <div
         class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
       >
@@ -23,25 +24,25 @@
             >Sort by:</span
           >
           <button
-            class="sort-btn bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-pink-600"
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
             data-sort="newest"
           >
             Newest
           </button>
           <button
-            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
             data-sort="oldest"
           >
             Oldest
           </button>
           <button
-            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
             data-sort="most-bids"
           >
             Most Bids
           </button>
           <button
-            class="sort-btn bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+            class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
             data-sort="active-auctions"
           >
             Active Auctions
@@ -51,7 +52,7 @@
         <!-- Add Listing Button (only if authenticated) -->
         <button
           id="addListingBtn"
-          class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          class="bg-green-300 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
         >
           + Add Listing
         </button>
@@ -72,7 +73,7 @@
       <!-- Listings Container -->
       <div
         id="listings-container"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <!-- Listings will be dynamically inserted here -->
       </div>
@@ -80,10 +81,10 @@
       <!-- Add Media Modal -->
       <div
         id="addMediaModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-96 overflow-y-auto"
+          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
         >
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
             Upload Media
@@ -91,20 +92,25 @@
           <form id="addMediaForm" class="space-y-4">
             <div>
               <label
+                for="mediaUrl1"
                 class="block mb-2 font-semibold text-gray-900 dark:text-white"
                 >Media URLs</label
               >
               <div id="mediaUrlInputs" class="space-y-2">
                 <input
                   type="url"
+                  id="mediaUrl1"
                   name="mediaUrl"
                   placeholder="Image URL 1"
+                  aria-label="Upload Media URL 1"
                   class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
                 />
                 <input
                   type="url"
+                  id="mediaUrl2"
                   name="mediaUrl"
                   placeholder="Image URL 2"
+                  aria-label="Upload Media URL 2"
                   class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
                 />
               </div>
@@ -138,10 +144,10 @@
       <!-- Create New Listing Modal -->
       <div
         id="addListingModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-96 overflow-y-auto"
+          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
         >
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
             Create New Listing
@@ -179,13 +185,12 @@
                 type="datetime-local"
                 id="listingEndDate"
                 name="endsAt"
-                class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
                 required
-                min=""
               />
             </div>
             <div>
-              <label class="block mb-1 font-semibold">Media</label>
+              <span class="block mb-1 font-semibold">Media</span>
               <div
                 id="selectedMediaPreview"
                 class="mb-2 text-sm text-gray-600 dark:text-gray-400"
@@ -237,9 +242,6 @@
         </div>
       </div>
     </main>
-
-    <script type="module" src="src/components/header.js"></script>
-    <script type="module" src="src/pages/listings.js"></script>
     <script type="module" src="src/main.js"></script>
   </body>
 </html>

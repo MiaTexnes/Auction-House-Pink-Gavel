@@ -64,18 +64,28 @@ export async function registerUser(userData) {
   }
 
   try {
+    // Prepare the request body
+    const requestBody = {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    };
+
+    // Only include avatar if provided, and format it as an object
+    if (userData.avatar && userData.avatar.trim()) {
+      requestBody.avatar = {
+        url: userData.avatar,
+        alt: "User avatar",
+      };
+    }
+
     const response = await fetch(`${AUTH_ENDPOINTS.register}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Noroff-API-Key": config.X_NOROFF_API_KEY, // Fixed: use config.X_NOROFF_API_KEY
+        "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
       },
-      body: JSON.stringify({
-        name: userData.name,
-        email: userData.email,
-        password: userData.password,
-        avatar: userData.avatar || undefined,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();

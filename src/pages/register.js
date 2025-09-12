@@ -1,3 +1,25 @@
+/**
+ * USER REGISTRATION PAGE CONTROLLER
+ * =================================
+ *
+ * This file manages the user registration page functionality including form validation,
+ * submission handling, UI feedback, and integration with the authentication system.
+ *
+ * Key Features:
+ * - Real-time form validation with field-specific feedback
+ * - Secure user registration with avatar URL support
+ * - Dynamic UI state management (loading, success, error states)
+ * - Responsive form styling with visual feedback
+ * - Integration with authentication system and automatic login
+ * - Cross-page navigation with login button integration
+ *
+ * Architecture:
+ * - Modular class-based design with clear separation of concerns
+ * - DOM element caching for performance optimization
+ * - Event-driven form handling with comprehensive validation
+ * - UI state management with loading indicators and messaging
+ */
+
 import { registerUser } from "../library/auth.js";
 import { createGradientButton } from "../components/buttons.js";
 
@@ -8,17 +30,25 @@ const REDIRECT_URL = "login.html";
 // DOM Elements Manager
 class DOMElements {
   constructor() {
+    // Core form elements
     this.form = document.getElementById("register-form");
     this.errorDiv = document.getElementById("register-error");
     this.successDiv = document.getElementById("register-success");
     this.submitButton = this.form?.querySelector('button[type="submit"]');
     this.loginContainer = document.getElementById("login-button-container");
+
+    // Input field references for validation and data collection
     this.nameField = document.getElementById("name");
     this.emailField = document.getElementById("email");
     this.passwordField = document.getElementById("password");
     this.avatarField = document.getElementById("avatar");
   }
 
+  /**
+   * Collects and normalizes form data from all input fields
+   * Trims whitespace and provides fallbacks for optional fields
+   * @returns {Object} Form data object with user registration information
+   */
   getFormData() {
     return {
       name: this.nameField?.value.trim() || "",
@@ -28,17 +58,30 @@ class DOMElements {
     };
   }
 
+  /**
+   * Validates that all required form fields contain data
+   * Checks for presence of name, email, and password
+   * @returns {boolean} True if all required fields are filled
+   */
   isFormValid() {
     const { name, email, password } = this.getFormData();
     return name && email && password;
   }
 
+  /**
+   * Sets focus to the name field if it's empty
+   * Used for improving user experience after form submission
+   */
   focusNameField() {
     if (this.nameField && this.nameField.value === "") {
       this.nameField.focus();
     }
   }
 
+  /**
+   * Resets all form fields to their default state
+   * Clears user input and prepares form for new registration
+   */
   resetForm() {
     if (this.form) {
       this.form.reset();
@@ -46,12 +89,24 @@ class DOMElements {
   }
 }
 
-// UI Manager
+/**
+ * UI MANAGER
+ * ==========
+ *
+ * Handles all user interface operations for the registration page including
+ * message display, loading states, form styling, and visual feedback.
+ * Manages the complete UI lifecycle from initial load to post-registration.
+ */
 class UIManager {
   constructor(elements) {
-    this.elements = elements;
+    this.elements = elements; // Reference to DOM elements manager
   }
 
+  /**
+   * Displays error messages to the user with appropriate styling
+   * Hides success messages and shows error container with red styling
+   * @param {string} message - Error message to display to user
+   */
   showError(message) {
     if (!this.elements.errorDiv) return;
 
@@ -60,11 +115,17 @@ class UIManager {
     this.elements.errorDiv.textContent = message;
     this.elements.errorDiv.classList.remove("hidden");
 
+    // Hide success message if visible
     if (this.elements.successDiv) {
       this.elements.successDiv.classList.add("hidden");
     }
   }
 
+  /**
+   * Displays success messages to the user with appropriate styling
+   * Hides error messages and shows success container with green styling
+   * @param {string} message - Success message to display to user
+   */
   showSuccess(message) {
     if (!this.elements.successDiv) return;
 
@@ -73,19 +134,35 @@ class UIManager {
     this.elements.successDiv.textContent = message;
     this.elements.successDiv.classList.remove("hidden");
 
+    // Hide error message if visible
     if (this.elements.errorDiv) {
       this.elements.errorDiv.classList.add("hidden");
     }
   }
 
+  /**
+   * Returns CSS classes for error message styling
+   * Provides consistent red-themed error appearance
+   * @returns {string} CSS classes for error styling
+   */
   getErrorClasses() {
     return "mt-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-md";
   }
 
+  /**
+   * Returns CSS classes for success message styling
+   * Provides consistent green-themed success appearance
+   * @returns {string} CSS classes for success styling
+   */
   getSuccessClasses() {
     return "mt-4 bg-green-50 border border-green-200 text-green-700 p-3 rounded-md";
   }
 
+  /**
+   * Toggles the submit button loading state
+   * Shows loading spinner during registration process
+   * @param {boolean} isLoading - Whether to show loading state
+   */
   toggleLoadingState(isLoading) {
     if (!this.elements.submitButton) return;
 
@@ -94,10 +171,15 @@ class UIManager {
       this.elements.submitButton.innerHTML = this.getLoadingHTML();
     } else {
       this.elements.submitButton.disabled = false;
-      this.elements.submitButton.textContent = "Register";
+      this.elements.submitButton.innerHTML = "Register";
     }
   }
 
+  /**
+   * Returns HTML for loading spinner and text
+   * Creates animated loading indicator for button
+   * @returns {string} HTML for loading state
+   */
   getLoadingHTML() {
     return `
       <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -108,6 +190,10 @@ class UIManager {
     `;
   }
 
+  /**
+   * Clears all displayed messages (both error and success)
+   * Hides message containers and resets UI to clean state
+   */
   clearMessages() {
     if (this.elements.errorDiv) {
       this.elements.errorDiv.classList.add("hidden");
@@ -117,10 +203,18 @@ class UIManager {
     }
   }
 
+  /**
+   * Initializes form styling and additional UI components
+   * Sets up login button and other visual enhancements
+   */
   initializeFormStyling() {
     this.addLoginButton();
   }
 
+  /**
+   * Adds a login button to the login container
+   * Provides navigation to login page for existing users
+   */
   addLoginButton() {
     if (!this.elements.loginContainer) return;
 
@@ -224,23 +318,41 @@ class AuthService {
   }
 }
 
-// Main Registration Controller
+/**
+ * MAIN REGISTRATION PAGE CONTROLLER
+ * =================================
+ *
+ * The primary controller class that orchestrates all registration page functionality.
+ * Manages initialization, coordinates between managers, and sets up event handling
+ * for the complete registration user experience.
+ */
 class RegistrationController {
   constructor() {
+    // Initialize all manager classes with proper dependencies
     this.elements = new DOMElements();
     this.ui = new UIManager(this.elements);
   }
 
+  /**
+   * Initializes the registration page application
+   * Sets up form styling, event listeners, and initial UI state
+   */
   init() {
     if (!this.elements.form) {
       return;
     }
 
     this.ui.initializeFormStyling();
+
+    // Set up form submission handling
     this.setupEventListeners();
     this.elements.focusNameField();
   }
 
+  /**
+   * Sets up all event listeners for the registration page
+   * Handles form submission and any additional user interactions
+   */
   setupEventListeners() {
     this.elements.form.addEventListener("submit", (event) => {
       this.handleRegistration(event);
@@ -350,11 +462,5 @@ class RegistrationController {
   }
 }
 
-// Initialize the application
-document.addEventListener("DOMContentLoaded", () => {
-  const registrationController = new RegistrationController();
-  registrationController.init();
-});
-
-// Export for testing purposes
+// Export the main controller classes
 export { RegistrationController, ValidationManager, ErrorHandler };

@@ -1,159 +1,145 @@
 import "./css/style.css";
-import { initDarkMode, toggleDarkMode } from "./components/darkLight.js";
+import { initDarkMode } from "./components/darkLight.js";
 import { initializeHeader } from "./components/header.js";
-import { isAuthenticated, logoutUser } from "./library/auth.js";
-import { createGradientButton } from "./components/buttons.js";
-import { loginUser } from "./library/auth.js";
 import { initializeFooter } from "./components/footer.js";
+import { initializeInactivityTracking } from "./services/inactivityService.js";
+import { initializeTheme } from "./services/themeService.js";
+import { addFavicons } from "./services/faviconService.js";
 
-// Initialize dark mode for the whole page
+// Page-specific imports
+import { CarouselComponent } from "./components/carousel.js";
+import { LoginController } from "./pages/login.js";
+import { RegistrationController } from "./pages/register.js";
+import { FAQController } from "./pages/faq.js";
+import { initializeContactPage } from "./pages/contact.js";
+import { ProfileController } from "./pages/profile.js";
+import { ListingsPageController } from "./pages/listings.js";
+import { ItemPageController } from "./pages/item.js";
+import { SellerProfileController } from "./pages/sellerProfile.js";
+
+// Initialize core functionality
 initDarkMode();
+initializeTheme();
+initializeInactivityTracking();
 
-// Make toggleDarkMode globally available for event listeners
-window.toggleDarkMode = toggleDarkMode;
+// Page configuration mapping
+const pageConfig = {
+  "index.html": { handler: initializeHomepage },
+  "": { handler: initializeHomepage },
+  "login.html": { controller: LoginController },
+  "register.html": { controller: RegistrationController },
+  "listings.html": { controller: ListingsPageController },
+  "item.html": { controller: ItemPageController },
+  "profile.html": { controller: ProfileController },
+  "sellerProfile.html": { controller: SellerProfileController },
+  "contact.html": { handler: initializeContactPage },
+  "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
+};
 
-// --- Inactivity auto-logout logic ---
-const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes in ms
-let inactivityTimer = null;
+// ...existing code...
 
-function resetInactivityTimer() {
-  if (inactivityTimer) clearTimeout(inactivityTimer);
-  if (isAuthenticated()) {
-    inactivityTimer = setTimeout(() => {
-      logoutUser();
-    }, INACTIVITY_LIMIT);
+// Get current page name from URL
+const getCurrentPage = () => {
+  const path = window.location.pathname;
+  const filename = path.substring(path.lastIndexOf("/") + 1);
+
+  // Handle root path and empty filename
+  if (!filename || filename === "/" || path === "/") {
+    return "index.html";
+  }
+
+  // Handle paths without extension
+  if (!filename.includes(".")) {
+    return "index.html";
+  }
+
+  return filename;
+};
+
+// FAQ page enhancements
+function enhanceFAQPage() {
+  if (typeof FAQEnhancements !== "undefined") {
+    FAQEnhancements.addKeyboardNavigation();
+    FAQEnhancements.addScrollToTop();
+    FAQEnhancements.addShareFunctionality();
+  }
+
+  const searchInput = document.getElementById("faq-search");
+  searchInput?.setAttribute("placeholder", "Search FAQs... (Press / to focus)");
+
+  // Staggered animation for FAQ items
+  document.querySelectorAll(".faq-item").forEach((item, index) => {
+    Object.assign(item.style, { opacity: "0", transform: "translateY(20px)" });
+    setTimeout(() => {
+      Object.assign(item.style, {
+        opacity: "1",
+        transform: "translateY(0)",
+        transition: "all 0.4s ease",
+      });
+    }, index * 100);
+  });
+}
+
+// Homepage initialization
+async function initializeHomepage() {
+  const elements = {
+    homeAuthButtons: document.getElementById("home-auth-buttons"),
+    homeLoading: document.getElementById("home-loading"),
+    homeError: document.getElementById("home-error"),
+    listingsCarousel: document.getElementById("listings-carousel"),
+    noListings: document.getElementById("no-listings"),
+    mainContent: document.getElementById("main-content"),
+  };
+
+  if (!elements.mainContent) return;
+
+  // Import dynamically to avoid circular dependencies
+  try {
+    const { PageInitializer } = await import("./pages/index.js");
+    PageInitializer.init();
+  } catch (error) {
+    console.error("Failed to initialize homepage:", error);
+    if (elements.homeError) {
+      elements.homeError.classList.remove("hidden");
+    }
+    if (elements.homeLoading) {
+      elements.homeLoading.classList.add("hidden");
+    }
   }
 }
 
-["mousemove", "keydown", "scroll", "click", "touchstart"].forEach((event) => {
-  window.addEventListener(event, resetInactivityTimer, true);
-});
+// Page initialization
+function initializePageSpecific() {
+  const currentPage = getCurrentPage();
+  const config = pageConfig[currentPage];
 
-resetInactivityTimer();
-// --- End inactivity auto-logout logic ---
-
-// --- Login page logic (moved from login.js) ---
-const loginForm = document.getElementById("login-form");
-const alertContainer = document.getElementById("login-error");
-
-function showAlert(type, message) {
-  if (!alertContainer) return;
-  alertContainer.innerHTML = "";
-  alertContainer.className =
-    type === "success"
-      ? "mt-4 bg-green-50 border border-green-200 text-green-700 p-3 rounded-sm"
-      : "mt-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-sm";
-  alertContainer.textContent = message;
-}
-
-function toggleLoadingState(button, isLoading) {
-  if (isLoading) {
-    button.disabled = true;
-    button.innerHTML = `
-      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      Logging in...`;
-  } else {
-    button.disabled = false;
-    button.textContent = "Login";
-  }
-}
-
-async function handleLogin(event) {
-  event.preventDefault();
-  if (!alertContainer) return;
-  alertContainer.innerHTML = "";
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const submitButton = loginForm.querySelector('button[type="submit"]');
-
-  if (!email || !password) {
-    showAlert("error", "Please fill in all fields");
+  if (!config) {
+    console.log(`No specific initialization for ${currentPage}`);
     return;
   }
 
   try {
-    toggleLoadingState(submitButton, true);
-    const userData = { email, password };
-    await loginUser(userData);
+    if (config.controller) {
+      const controller = new config.controller();
+      controller.init();
+    } else if (config.handler) {
+      config.handler();
+    }
 
-    showAlert("success", "Login successful! Redirecting...");
-    setTimeout(() => {
-      window.location.href = "/index.html";
-    }, 1500);
+    // Run any page enhancers
+    config.enhancer?.();
   } catch (error) {
-    console.error("Login error:", error);
-    if (!navigator.onLine) {
-      showAlert(
-        "error",
-        "Network error. Please check your internet connection.",
-      );
-    } else if (
-      error.message.includes("401") ||
-      error.message.includes("credentials")
-    ) {
-      showAlert("error", "Invalid email or password. Please try again.");
-    } else {
-      showAlert(
-        "error",
-        error.message || "Failed to log in. Please try again later.",
-      );
-    }
-  } finally {
-    toggleLoadingState(submitButton, false);
+    console.error(`Failed to initialize ${currentPage}:`, error);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (loginForm) {
-    loginForm.addEventListener("submit", handleLogin);
-    const emailField = document.getElementById("email");
-    if (emailField && emailField.value === "") {
-      emailField.focus();
-    }
-  }
-
-  // Custom Register button for login page
-  const homeAuthButtons = document.getElementById("home-auth-buttons");
-  if (homeAuthButtons) {
-    const registerBtn = createGradientButton("Register", "register.html");
-    // Make this button transparent with a border
-    registerBtn.className =
-      "w-full text-center py-2 px-4 rounded-full border-2 border-black text-primary font-semibold bg-transparent hover:bg-primary hover:text-white transition-all duration-200 shadow-md";
-    homeAuthButtons.replaceWith(registerBtn);
-  }
-});
-// --- End login page logic ---
-
-// Function to initialize the page
+// Main initialization
 function initializePage() {
-  // Initialize header using the named export function
+  addFavicons();
   initializeHeader();
-
   initializeFooter();
-
-  const homeAuthButtons = document.getElementById("home-auth-buttons");
-  if (homeAuthButtons) {
-    const registerBtn = createGradientButton("Register", "register.html");
-    // Optionally add aria-label for accessibility
-    registerBtn.setAttribute("aria-label", "Go to registration page");
-    homeAuthButtons.appendChild(registerBtn);
-  }
+  initializePageSpecific();
 }
 
-// Run initialization when DOM is loaded
+// Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", initializePage);
-
-// Add this temporarily to debug
-console.log("=== DEBUG INFO ===");
-console.log("Mode:", import.meta.env.MODE);
-console.log("API Key exists:", !!import.meta.env.VITE_X_NOROFF_API_KEY);
-console.log("API Key length:", import.meta.env.VITE_X_NOROFF_API_KEY?.length);
-console.log(
-  "All VITE_ vars:",
-  Object.keys(import.meta.env).filter((key) => key.startsWith("VITE_")),
-);
-console.log("==================");

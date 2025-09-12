@@ -33,6 +33,14 @@ dist-ssr
 # Testing
 coverage
 *.lcov
+# Test files
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+**/tests/
+**/test/
+**/__tests__/
 
 # Cache directories
 .cache
@@ -68,4 +76,9 @@ temp/
 Thumbs.db
 .DS_Store
 Desktop.ini
+
+# Debug files (should not be deployed)
+debug-*.html
+test-*.html
+temp-*.html
 
