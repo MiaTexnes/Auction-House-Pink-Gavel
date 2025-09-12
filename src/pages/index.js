@@ -53,46 +53,15 @@ const DOMUtils = {
 /**
  * Responsive design utilities
  * Calculates optimal number of cards to display based on screen size
- * Enhanced for mobile compatibility, particularly Samsung Internet
  */
 const ResponsiveUtils = {
   getCardsPerView() {
-    // Use CSS media query check for more reliable device detection
     const width = window.innerWidth;
-    const isSmallMobile = width <= 360; // Extra check for small mobile devices like older Samsung
-
-    // Force single card for narrow screens
-    if (isSmallMobile || width < 640) return 1;
+    if (width < 640) return 1;
     if (width < 768) return 1;
     if (width < 1024) return 2;
     if (width < 1280) return 3;
     return 4;
-  },
-
-  // Check if the browser is Samsung Internet
-  // Samsung Internet has known issues with overflow handling
-  isSamsungBrowser() {
-    const userAgent = navigator.userAgent;
-    return /SamsungBrowser/i.test(userAgent);
-  },
-
-  // Apply Samsung-specific fixes if needed
-  applyBrowserSpecificFixes() {
-    if (this.isSamsungBrowser()) {
-      // Add a small stylesheet for Samsung-specific fixes
-      const style = document.createElement("style");
-      style.textContent = `
-        .carousel-container * {
-          max-width: 100% !important;
-          overflow-wrap: break-word !important;
-        }
-        .carousel-container img {
-          max-width: 100% !important;
-          height: auto !important;
-        }
-      `;
-      document.head.appendChild(style);
-    }
   },
 };
 
@@ -202,7 +171,6 @@ const ImageHandler = {
   /**
    * Optimizes card images for carousel display
    * Adjusts image sizing and aspect ratios
-   * Enhanced for mobile compatibility, especially Samsung Internet
    * @param {HTMLElement} card - Card element containing images
    */
   optimizeCardImages(card) {
@@ -212,30 +180,14 @@ const ImageHandler = {
       img.classList.remove("object-cover");
       img.classList.add("object-contain");
 
-      // Mobile-friendly image constraints
-      img.style.height = "auto";
-      img.style.maxHeight = MAX_THUMBNAIL_HEIGHT;
-      img.style.maxWidth = "100%"; // Ensure image doesn't overflow container
-      img.style.objectFit = "contain"; // Fallback for browsers that don't support object-contain class
-
-      // Fix for Samsung Internet browser
-      img.setAttribute("width", "auto");
-      img.setAttribute("height", "auto");
+      // Set maximum height if not already constrained
+      if (!img.style.height && !img.classList.contains("w-full")) {
+        img.style.height = "auto";
+        img.style.maxHeight = MAX_THUMBNAIL_HEIGHT;
+      }
     });
 
     this.removeAspectRatioConstraints(card);
-
-    // Additional fix for mobile view containers
-    const containers = card.querySelectorAll(
-      ".card-content, .card-body, .card-image",
-    );
-    containers.forEach((container) => {
-      if (container) {
-        container.style.maxWidth = "100%";
-        container.style.boxSizing = "border-box";
-        container.style.overflowWrap = "break-word"; // Ensure text wraps instead of overflowing
-      }
-    });
   },
 
   /**
@@ -303,22 +255,22 @@ class CarouselComponent {
    * @param {HTMLElement} container - Parent container element
    */
   createCarouselStructure(container) {
-    // Main carousel wrapper - enhanced overflow control
+    // Main carousel wrapper
     const carouselWrapper = DOMUtils.createElement(
       "div",
       "flex flex-col items-center w-full max-w-full overflow-hidden",
     );
 
-    // Carousel container with responsive padding - adjusted for mobile
+    // Carousel container with responsive padding
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6", // Reduced padding for mobile
+      "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
     );
 
-    // Main area with navigation and cards - improved spacing for mobile
+    // Main area with navigation and cards
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex items-center justify-between gap-2 sm:gap-4 w-full", // Reduced gap for mobile
+      "flex  items-center justify-between gap-4 w-full",
     );
 
     // Create navigation buttons and card area
@@ -326,7 +278,7 @@ class CarouselComponent {
     this.elements.rightBtn = this.createNavigationButton("right");
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "grid gap-2 sm:gap-4 flex-1 min-w-0 overflow-hidden px-1 sm:px-2", // Reduced gaps and padding for mobile
+      "grid gap-4 flex-1 min-w-0 overflow-hidden px-2",
     );
 
     mainArea.append(
@@ -421,10 +373,6 @@ class CarouselComponent {
     this.elements.cardArea.style.gridTemplateColumns = `repeat(${this.cardsPerView}, 1fr)`;
     this.elements.cardArea.innerHTML = "";
 
-    // Add mobile-specific CSS to prevent overflow
-    this.elements.cardArea.style.maxWidth = "100%";
-    this.elements.cardArea.style.overflowX = "hidden";
-
     for (
       let i = 0;
       i < Math.min(this.cardsPerView, this.total - this.currentIndex);
@@ -433,17 +381,16 @@ class CarouselComponent {
       const idx = this.currentIndex + i;
       const card = createListingCard(this.listings[idx]);
 
-      // Mobile-friendly card sizing
-      card.style.width = "100%";
-      card.style.minWidth = "0"; // Allow shrinking if needed
-      card.style.maxWidth = "100%"; // Prevent overflow
-      card.style.boxSizing = "border-box"; // Include padding in width calculation
+      // Reset card sizing for carousel
+      card.style.width = "auto";
+      card.style.minWidth = "auto";
+      card.style.maxWidth = "none";
 
-      // Create wrapper to contain hover effects with overflow protection
+      // Create wrapper to contain hover effects
       const cardWrapper = document.createElement("div");
       cardWrapper.className = "relative overflow-hidden";
       cardWrapper.style.cssText =
-        "transform-style: preserve-3d; contain: layout style paint; max-width: 100%; width: 100%;";
+        "transform-style: preserve-3d; contain: layout style paint;";
 
       // Remove original hover animations for carousel context
       card.className = card.className
@@ -615,9 +562,6 @@ const CarouselController = {
 const PageInitializer = {
   init() {
     if (!elements.mainContent) return;
-
-    // Apply browser-specific fixes (e.g., Samsung Internet)
-    ResponsiveUtils.applyBrowserSpecificFixes();
 
     AuthButtonRenderer.render();
     CarouselController.load();
