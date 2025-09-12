@@ -35,16 +35,16 @@ export function createCarouselCard(listing) {
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-full sm:w-64 md:w-72 lg:w-80 min-w-[260px] sm:min-w-[280px] md:min-w-[300px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
-  // Remove scale and translate on hover to prevent overflow
+    "flex-none w-[85vw] xs:w-[75vw] sm:w-64 md:w-72 lg:w-80 min-w-[220px] xs:min-w-[240px] sm:min-w-[280px] md:min-w-[300px] bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[350px] xs:h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0 snap-center snap-always";
+  // Mobile-first approach with xs breakpoint for small phones and snap scrolling
 
   card.innerHTML = `
     ${
       imageUrl
-        ? `<div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+        ? `<div class="w-full h-36 xs:h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
             <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
            </div>`
-        : `<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
+        : `<div class="w-full h-36 xs:h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
             No image on this listing
            </div>`
     }
@@ -93,7 +93,7 @@ export function renderCarousel(listings, carouselContainer) {
 
   // Update carousel container classes for proper scrolling
   carouselContainer.className =
-    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide max-w-full px-2";
+    "flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-hide max-w-full px-2 sm:px-3 snap-x snap-mandatory";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);
@@ -111,20 +111,27 @@ export function setupCarouselScrollButtons(
   const scrollRightBtn = document.getElementById(scrollRightId);
 
   if (scrollLeftBtn && scrollRightBtn) {
+    // Enhanced buttons for better mobile experience
+    scrollLeftBtn.className =
+      "bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 xs:px-4 xs:py-2 sm:px-5 sm:py-3 rounded-full shadow-lg hover:shadow-xl transition-all touch-manipulation";
+    scrollRightBtn.className =
+      "bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 xs:px-4 xs:py-2 sm:px-5 sm:py-3 rounded-full shadow-lg hover:shadow-xl transition-all touch-manipulation";
+
     // Set text labels for accessibility and clarity (visible and aria)
-    // WCAG-compliant visible text labels
-    scrollLeftBtn.textContent = "Scroll Left";
+    scrollLeftBtn.textContent = "←";
     scrollLeftBtn.setAttribute("aria-label", "Scroll carousel left");
-    scrollRightBtn.textContent = "Scroll Right";
+    scrollRightBtn.textContent = "→";
     scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
 
     const getScrollDistance = () => {
-      // Responsive scroll distance based on viewport width
-      return window.innerWidth < 640
-        ? 280
-        : window.innerWidth < 768
-          ? 350
-          : 400;
+      // Responsive scroll distance based on viewport width with improved small screen support
+      const width = window.innerWidth;
+
+      if (width < 480) return 230; // Extra small devices
+      if (width < 640) return 250; // Small mobile devices
+      if (width < 768) return 300; // Larger mobile devices
+      if (width < 1024) return 350; // Tablets
+      return 400; // Desktops
     };
 
     scrollLeftBtn.addEventListener("click", () => {

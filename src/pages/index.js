@@ -57,11 +57,12 @@ const DOMUtils = {
 const ResponsiveUtils = {
   getCardsPerView() {
     const width = window.innerWidth;
-    if (width < 640) return 1;
-    if (width < 768) return 1;
-    if (width < 1024) return 2;
-    if (width < 1280) return 3;
-    return 4;
+    if (width < 480) return 1; // Extra small devices
+    if (width < 640) return 1; // Small mobile devices
+    if (width < 768) return 1.5; // Larger mobile devices (show partial second card)
+    if (width < 1024) return 2; // Tablets
+    if (width < 1280) return 3; // Small desktops
+    return 4; // Large desktops
   },
 };
 
@@ -175,19 +176,36 @@ const ImageHandler = {
    */
   optimizeCardImages(card) {
     const images = card.querySelectorAll("img");
-    images.forEach((img) => {
-      // Switch from cover to contain for better fit
-      img.classList.remove("object-cover");
-      img.classList.add("object-contain");
+    const isMobile = window.innerWidth < 480;
 
-      // Set maximum height if not already constrained
-      if (!img.style.height && !img.classList.contains("w-full")) {
-        img.style.height = "auto";
-        img.style.maxHeight = MAX_THUMBNAIL_HEIGHT;
+    images.forEach((img) => {
+      // Use different image handling based on device size
+      if (isMobile) {
+        // On small screens, prioritize visibility of full image
+        img.classList.remove("object-cover");
+        img.classList.add("object-contain");
+
+        // Smaller height on mobile
+        img.style.maxHeight = "150px";
+      } else {
+        // Switch from cover to contain for better fit on larger screens
+        img.classList.remove("object-cover");
+        img.classList.add("object-contain");
+
+        // Set maximum height if not already constrained
+        if (!img.style.height && !img.classList.contains("w-full")) {
+          img.style.height = "auto";
+          img.style.maxHeight = MAX_THUMBNAIL_HEIGHT;
+        }
       }
     });
 
     this.removeAspectRatioConstraints(card);
+
+    // Add touch optimization for mobile
+    if (isMobile) {
+      card.style.touchAction = "pan-x";
+    }
   },
 
   /**
