@@ -450,7 +450,7 @@ export class NewListingModalManager {
                 type="datetime-local"
                 id="listingEndDate"
                 name="endsAt"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
                 required
               />
             </div>

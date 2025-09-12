@@ -7,7 +7,7 @@ import { initializeTheme } from "./services/themeService.js";
 import { addFavicons } from "./services/faviconService.js";
 
 // Page-specific imports
-import { CarouselComponent } from "./pages/index.js";
+import { CarouselComponent } from "./components/carousel.js";
 import { LoginController } from "./pages/login.js";
 import { RegistrationController } from "./pages/register.js";
 import { FAQController } from "./pages/faq.js";
@@ -78,7 +78,20 @@ async function initializeHomepage() {
   };
 
   if (!elements.mainContent) return;
-  // Initialize homepage-specific functionality here
+
+  // Import dynamically to avoid circular dependencies
+  try {
+    const { PageInitializer } = await import("./pages/index.js");
+    PageInitializer.init();
+  } catch (error) {
+    console.error("Failed to initialize homepage:", error);
+    if (elements.homeError) {
+      elements.homeError.classList.remove("hidden");
+    }
+    if (elements.homeLoading) {
+      elements.homeLoading.classList.add("hidden");
+    }
+  }
 }
 
 // Page initialization
