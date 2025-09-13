@@ -147,7 +147,7 @@ export function initializeFooter() {
 
     </div>
 
-    
+
   `;
 
   document.body.appendChild(footer);
