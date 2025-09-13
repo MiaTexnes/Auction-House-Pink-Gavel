@@ -61,7 +61,7 @@ function renderHeader() {
               </a>
             </div>
             <div class="hidden md:flex items-center space-x-6">
-              <a href="/listings.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+              <a href="/listings.html" class="text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/listings.html"
                   ? "font-bold text-pink-600"
                   : ""
@@ -106,7 +106,7 @@ function renderHeader() {
               </div>
             `
                 : `
-              <a href="/login.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+              <a href="/login.html" class="text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/login.html" ? "font-bold text-pink-600" : ""
               }">Login</a>
                 <a href="/register.html" class="text-center py-1 px-4 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 hover:scale-105 transition-all duration-200 ${

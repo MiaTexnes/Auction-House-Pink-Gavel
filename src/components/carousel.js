@@ -248,27 +248,61 @@ export function setupCarouselScrollButtons(
     scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
 
     const getScrollDistance = () => {
-      // Responsive scroll distance based on viewport width for smooth scrolling
+      // Responsive scroll distance for smooth incremental scrolling
       return window.innerWidth < 640
-        ? 320 // One card width for mobile
+        ? 160 // Half card width for mobile - smoother scrolling
         : window.innerWidth < 768
-          ? 340 // Slightly larger for tablets
-          : 360; // Larger for desktop
+          ? 180 // Half card width for tablets
+          : 200; // Half card width for desktop - much smoother
     };
 
-    // Add smooth scrolling with easing
+    // Enhanced smooth scrolling with custom easing
     const smoothScrollTo = (carousel, targetPosition) => {
-      carousel.scrollTo({
-        left: targetPosition,
-        behavior: "smooth",
-      });
+      const startPosition = carousel.scrollLeft;
+      const distance = targetPosition - startPosition;
+      const duration = 400; // 400ms for smooth animation
+      let startTime = null;
+
+      const easeInOutCubic = (t) => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
+
+      const animateScroll = (currentTime) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        carousel.scrollLeft = startPosition + distance * easedProgress;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        }
+      };
+
+      requestAnimationFrame(animateScroll);
     };
 
     scrollLeftBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
+        // Add visual feedback
+        scrollLeftBtn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          scrollLeftBtn.style.transform = "scale(1)";
+        }, 150);
+
         const currentScroll = carousel.scrollLeft;
-        const targetScroll = Math.max(0, currentScroll - getScrollDistance());
+        const scrollDistance = getScrollDistance();
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        let targetScroll = currentScroll - scrollDistance;
+
+        // Implement looping: if we would go past the beginning, loop to the end
+        if (targetScroll <= 0) {
+          targetScroll = maxScroll - scrollDistance / 2; // Go to near the end
+        }
+
         smoothScrollTo(carousel, targetScroll);
       }
     });
@@ -276,12 +310,23 @@ export function setupCarouselScrollButtons(
     scrollRightBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
+        // Add visual feedback
+        scrollRightBtn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          scrollRightBtn.style.transform = "scale(1)";
+        }, 150);
+
         const currentScroll = carousel.scrollLeft;
+        const scrollDistance = getScrollDistance();
         const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-        const targetScroll = Math.min(
-          maxScroll,
-          currentScroll + getScrollDistance(),
-        );
+
+        let targetScroll = currentScroll + scrollDistance;
+
+        // Implement looping: if we would go past the end, loop to the beginning
+        if (targetScroll >= maxScroll) {
+          targetScroll = scrollDistance / 2; // Go to near the beginning
+        }
+
         smoothScrollTo(carousel, targetScroll);
       }
     });
@@ -376,20 +421,20 @@ export class CarouselComponent {
     );
     carouselContainer.appendChild(mainArea);
 
-    // Progress scroll bar
+    // Progress scroll bar (bigger and simpler)
     const scrollBarContainer = DOMUtils.createElement(
       "div",
       "w-full max-w-4xl mx-auto mt-6 px-4",
     );
     this.elements.scrollBar = DOMUtils.createElement(
       "div",
-      "relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer",
+      "relative w-full h-8 bg-gray-300 dark:bg-gray-700 overflow-hidden cursor-pointer",
     );
 
-    // Create progress bar fill
+    // Create progress bar fill (solid color, no rounded, no gradient)
     this.elements.progressFill = DOMUtils.createElement(
       "div",
-      "h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500 ease-out",
+      "h-full bg-pink-500 transition-none",
     );
     this.elements.scrollBar.appendChild(this.elements.progressFill);
 
@@ -440,28 +485,14 @@ export class CarouselComponent {
       // Prevent navigation during transitions
       if (this.isTransitioning) return;
 
-      // Don't navigate if we have fewer items than cards per view
-      if (this.total <= this.cardsPerView) return;
+      // Add visual feedback
+      button.style.transform = "scale(0.95)";
+      setTimeout(() => {
+        button.style.transform = "scale(1)";
+      }, 150);
 
-      let targetIndex;
-      if (isLeft) {
-        // Loop to end when going left from beginning
-        if (this.currentIndex <= 0) {
-          targetIndex = Math.max(0, this.total - this.cardsPerView);
-        } else {
-          targetIndex = this.currentIndex - 1;
-        }
-      } else {
-        // Loop to beginning when going right from end
-        const maxIndex = Math.max(0, this.total - this.cardsPerView);
-        if (this.currentIndex >= maxIndex) {
-          targetIndex = 0;
-        } else {
-          targetIndex = this.currentIndex + 1;
-        }
-      }
-
-      this.smoothTransitionTo(targetIndex);
+      // Use smooth incremental scrolling with looping
+      this.smoothIncrementalScroll(isLeft);
     });
 
     return button;
@@ -517,6 +548,97 @@ export class CarouselComponent {
     setTimeout(() => {
       this.isTransitioning = false;
     }, transitionDuration);
+  }
+
+  /**
+   * Performs smooth incremental scrolling instead of jumping by whole cards
+   * @param {boolean} isLeft - Whether to scroll left or right
+   */
+  smoothIncrementalScroll(isLeft) {
+    if (this.isTransitioning) return;
+
+    this.isTransitioning = true;
+
+    const cardWidth = 320; // Fixed card width including wrapper
+    const gapWidth = 8; // Gap between cards
+    const cardPlusGap = cardWidth + gapWidth;
+
+    // Calculate incremental scroll distance (about 1/3 of a card)
+    const scrollIncrement = Math.floor(cardPlusGap / 3);
+
+    // Calculate new scroll position
+    const currentScroll = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
+
+    let newScrollPosition = isLeft
+      ? currentScroll + scrollIncrement
+      : currentScroll - scrollIncrement;
+
+    // Calculate total width of all cards
+    const totalWidth = this.total * cardPlusGap;
+    const maxScroll = totalWidth - this.cardsPerView * cardPlusGap;
+
+    // Implement looping behavior
+    if (isLeft) {
+      // If scrolling left and would go past the beginning, loop to the end
+      if (newScrollPosition > 0) {
+        newScrollPosition = -(
+          totalWidth -
+          this.cardsPerView * cardPlusGap -
+          scrollIncrement
+        );
+      }
+    } else {
+      // If scrolling right and would go past the end, loop to the beginning
+      if (newScrollPosition < -maxScroll) {
+        newScrollPosition = scrollIncrement;
+      }
+    }
+
+    // Apply smooth scroll with easing
+    this.animateScrollTo(newScrollPosition);
+  }
+
+  /**
+   * Animates scroll to a specific position with smooth easing
+   * @param {number} targetPosition - Target scroll position in pixels
+   */
+  animateScrollTo(targetPosition) {
+    const startPosition = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
+
+    const distance = targetPosition - startPosition;
+    const duration = 300; // 300ms for smooth animation
+    let startTime = null;
+
+    const easeInOutCubic = (t) => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const animateScroll = (currentTime) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      const easedProgress = easeInOutCubic(progress);
+
+      const currentPosition = startPosition + distance * easedProgress;
+      this.elements.carouselTrack.style.transform = `translateX(${currentPosition}px)`;
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      } else {
+        this.isTransitioning = false;
+        this.updateProgressBar();
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
   }
 
   /**
@@ -583,13 +705,12 @@ export class CarouselComponent {
 
   /**
    * Updates navigation button states
-   * Keeps buttons always enabled for endless looping (unless fewer items than cards per view)
+   * Keeps buttons always enabled for endless looping
    */
   updateNavigationButtons() {
-    // Only disable buttons if we have fewer items than cards per view
-    const shouldDisable = this.total <= this.cardsPerView;
-    this.updateButtonState(this.elements.leftBtn, shouldDisable);
-    this.updateButtonState(this.elements.rightBtn, shouldDisable);
+    // Always enable buttons for infinite looping
+    this.updateButtonState(this.elements.leftBtn, false);
+    this.updateButtonState(this.elements.rightBtn, false);
   }
 
   /**
@@ -628,19 +749,31 @@ export class CarouselComponent {
   updateProgressBar() {
     if (!this.elements.progressFill) return;
 
-    // Calculate progress percentage
-    const maxIndex = Math.max(0, this.total - this.cardsPerView);
-    const progress = maxIndex > 0 ? (this.currentIndex / maxIndex) * 100 : 0;
+    // Calculate current scroll position
+    const currentScroll = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
+
+    // Calculate total scrollable width
+    const cardWidth = 320;
+    const gapWidth = 8;
+    const cardPlusGap = cardWidth + gapWidth;
+    const totalWidth = this.total * cardPlusGap;
+    const maxScroll = totalWidth - this.cardsPerView * cardPlusGap;
+
+    // Calculate progress percentage based on scroll position
+    const progress =
+      maxScroll > 0 ? (Math.abs(currentScroll) / maxScroll) * 100 : 0;
+    const clampedProgress = Math.min(progress, 100);
 
     // Update progress bar width with smooth transition
-    this.elements.progressFill.style.width = `${progress}%`;
+    this.elements.progressFill.style.width = `${clampedProgress}%`;
 
     // Add some visual feedback for the current position
-    const progressText = `${this.currentIndex + 1}-${Math.min(this.currentIndex + this.cardsPerView, this.total)} of ${this.total}`;
-    this.elements.scrollBar.setAttribute(
-      "title",
-      `Showing items ${progressText}`,
-    );
+    const progressText = `Showing ${this.total} items`;
+    this.elements.scrollBar.setAttribute("title", progressText);
   }
 }
 
