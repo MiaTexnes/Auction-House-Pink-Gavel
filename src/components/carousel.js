@@ -368,7 +368,7 @@ export class CarouselComponent {
     if (!container) return;
 
     container.innerHTML = "";
-    this.createCarouselStructure(container);
+    this.createCarouselStructure(container); // Ensure proper structure
     this.setupEventListeners();
     this.updateCarousel();
   }
@@ -456,6 +456,7 @@ export class CarouselComponent {
     carouselWrapper.append(carouselContainer, scrollBarContainer);
     container.appendChild(carouselWrapper);
   }
+  // ...existing code...
 
   /**
    * Creates navigation button (left or right)
