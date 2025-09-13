@@ -36,14 +36,6 @@ export function createPinkGreenGradientSubmitButton(text) {
   return btn;
 }
 
-export function getPinkGreenGradientButtonClasses() {
-  return "w-full text-center py-3 px-4 rounded-full bg-gradient-to-br from-pink-500 to-green-500 text-white font-semibold shadow-md hover:from-pink-600 hover:to-green-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
-}
-
-export function getGradientButtonClasses() {
-  return "text-center py-3 px-4 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
-}
-
 // Load More Button Component
 export function createLoadMoreButton(
   text = "Load More",
@@ -128,37 +120,6 @@ export function createPaginationButtons(options = {}) {
 
   if (showLoadMore) {
     buttons.push(createLoadMoreButton(loadMoreText, onLoadMore, loadMoreId));
-  }
-
-  return buttons.length > 0
-    ? createButtonContainer(buttons, containerClasses)
-    : null;
-}
-
-// Profile View More/Less Buttons Helper
-export function createProfileViewButtons(options = {}) {
-  const {
-    showViewMore = false,
-    showViewLess = false,
-    viewMoreText = "View More",
-    viewLessText = "View Less",
-    onViewMore = () => {},
-    onViewLess = () => {},
-    viewMoreId = null,
-    viewLessId = null,
-    containerClasses = "flex justify-center space-x-4 mt-4",
-  } = options;
-
-  const buttons = [];
-
-  if (showViewMore) {
-    buttons.push(createViewMoreButton(viewMoreText, onViewMore, viewMoreId));
-  }
-
-  if (showViewLess) {
-    buttons.push(
-      createViewMoreButton(viewLessText, onViewLess, viewLessId, "hidden"),
-    );
   }
 
   return buttons.length > 0

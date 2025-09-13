@@ -14,7 +14,6 @@ export class NewListingModalManager {
     this.mediaUrls = [];
     this.onSuccess = options.onSuccess || null; // Callback for successful listing creation
     this.onError = options.onError || null; // Callback for errors
-    this.profile = options.profile || null; // For profile page context
 
     // Add modals to DOM if they don't exist yet
     this.ensureModalsExist();

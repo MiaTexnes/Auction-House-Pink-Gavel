@@ -38,31 +38,4 @@ export const faviconConfig = {
 
   // Background color for favicons and app icons
   backgroundColor: "#ffffff",
-
-  // Manifest data (for generating the manifest file if needed)
-  manifestData: {
-    name: "Pink Gavel Auctions",
-    short_name: "Pink Gavel",
-    description:
-      "Discover amazing deals and rare finds! Bid on treasures or sell your items to collectors worldwide.",
-    icons: [
-      {
-        src: "/favicon/web-app-manifest-192x192.png",
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "maskable",
-      },
-      {
-        src: "/favicon/web-app-manifest-512x512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
-    ],
-    theme_color: "#ec4899",
-    background_color: "#ffffff",
-    display: "standalone",
-    start_url: "/",
-    scope: "/",
-  },
 };

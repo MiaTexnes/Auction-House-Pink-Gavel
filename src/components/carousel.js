@@ -2,12 +2,13 @@
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { safeFetch } from "../utils/requestManager.js";
-import logoImage from "/assets/images/logo.png";
+import { createListingCard } from "../pages/listings.js"; // Import if you want to use it
 
 // Configuration constants
 const DEFAULT_LISTINGS_LIMIT = 15;
 const CAROUSEL_UPDATE_DELAY = 100;
-const DEFAULT_IMAGE = logoImage;
+const DEFAULT_IMAGE = "https://placehold.co/600x400?text=No+Image";
+const DEFAULT_SELLER_AVATAR = "https://placehold.co/40x40?text=S";
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
 /**
@@ -171,65 +172,43 @@ export function createCarouselCard(listing) {
     timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
   }
 
-  const imageUrl =
-    listing.media && listing.media.length > 0 && listing.media[0].url
-      ? listing.media[0].url
-      : null;
-  const sellerAvatar =
-    listing.seller && listing.seller.avatar && listing.seller.avatar.url
-      ? listing.seller.avatar.url
-      : "https://placehold.co/40x40?text=S";
-  const sellerName =
-    listing.seller && listing.seller.name ? listing.seller.name : "Unknown";
+  const imageUrl = ImageHandler.getImageUrl(listing);
+  const sellerAvatar = listing.seller?.avatar?.url || DEFAULT_SELLER_AVATAR;
+  const sellerName = listing.seller?.name || "Unknown";
 
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
+    "flex-none w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
   // Fixed width (w-80 = 320px) and height (h-[400px]) for consistent sizing
 
   card.innerHTML = `
-    ${
-      imageUrl
-        ? `<div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
-           </div>`
-        : `<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
-            No image on this listing
-           </div>`
-    }
+    <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+      <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
+    </div>
     <div class="p-4 flex-1 flex flex-col min-h-0 relative">
-      <div class="absolute inset-0 bg-gradient-to-t from-transparent to-transparent opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none bg-pink-500 rounded-b-lg"></div>
-      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-200">${
-        listing.title
-      }</h3>
-      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${
-        listing.description || "No description provided."
-      }</p>
+      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">${listing.title}</h3>
+      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${listing.description || "No description provided."}</p>
       <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
-        <span class="font-medium text-green-600 dark:text-green-400">${
-          timeInfo.text
-        }</span>
+        <span class="font-medium text-green-600 dark:text-green-400">${timeInfo.text}</span>
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium">
           Bids: ${listing._count?.bids || 0}
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;"">
-        <span class="text-gray-800 dark:text-gray-200 font-medium truncate transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400">${sellerName}</span>
+        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 flex-shrink-0" style="width: 32px; height: 32px;">
+        <span class="text-gray-800 dark:text-gray-200 font-medium truncate">${sellerName}</span>
       </div>
     </div>
   `;
 
   // Handle image error
-  if (imageUrl) {
-    const img = card.querySelector(".carousel-image");
-    if (img) {
-      img.addEventListener("error", function () {
-        this.parentElement.outerHTML =
-          '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">No image on this listing</div>';
-      });
-    }
+  const img = card.querySelector(".carousel-image");
+  if (img) {
+    img.addEventListener("error", function () {
+      this.parentElement.outerHTML =
+        '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
+    });
   }
 
   return card;

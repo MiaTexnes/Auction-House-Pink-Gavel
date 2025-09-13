@@ -277,34 +277,32 @@ class UIManager {
     this.setupEndedListingsToggle(profile);
   }
   generateProfileHTML(profile) {
-    return `
-      <div class="seller-profile max-w-6xl mx-auto p-6">
-        ${this.generateProfileHeader(profile)}
-        ${this.generateBioSection(profile)}
-        ${this.generateStatsSection(profile)}
-        ${this.generateListingsSection(profile)}
-        ${this.generateEndedListingsSection(profile)}
-        ${this.generateWinsSection(profile)}
-      </div>
-    `;
+    return [
+      this.generateProfileHeader(profile),
+      this.generateUserBio(profile),
+      this.generateStatsSection(profile),
+      this.generateListingsSection(profile),
+      this.generateEndedListingsSection(profile),
+      this.generateWinsSection(profile),
+    ].join("");
   }
   generateProfileHeader(profile) {
     return generateProfileHeader(profile);
   }
-  generateBioSection(profile) {
+  generateUserBio(profile) {
     return `
-      <div class="mb-6 text-center">
-        <h3 class="text-xl font-semibold mb-2">Bio</h3>
+      <div class="mb-6 text-center px-4 md:px-8">
+        <h3 class="text-xl font-semibold mb-2">User Bio</h3>
         <p class="text-gray-700 dark:text-gray-300">${profile.bio || "No bio provided."}</p>
       </div>
     `;
   }
   generateStatsSection(profile) {
     return `
-      <div class="flex justify-center mb-8">
+      <div class="flex justify-center mb-8 px-4 md:px-8">
         <div class="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 border border-purple-300 dark:border-purple-600 p-6 rounded-xl text-center max-w-sm">
           <div class="text-purple-600 dark:text-purple-300 text-4xl mb-3">💰</div>
-          <h4 class="text-xl font-semibold text-purple-800 dark:text-purple-200 mb-2">User Credits</h4>
+          <h4 class="text-xl font-semibold text-purple-800 dark:text-purple-200 mb-2">Seller Credits</h4>
           <p class="text-4xl font-bold text-purple-900 dark:text-purple-100">${profile.credits || 0}</p>
         </div>
       </div>
@@ -316,20 +314,25 @@ class UIManager {
         (listing) => new Date(listing.endsAt) > new Date(),
       ) || [];
     return `
-      <div class="mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">Active Listings</h3>
-          <button
-            id="toggleSellerActiveListingsBtn"
-            class="bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
-          >
-            ${activeListings.length > 0 ? `Show Active (${activeListings.length})` : "No Active Listings"}
-          </button>
-        </div>
-        <div id="seller-active-listings-section" class="hidden">
-          <div id="seller-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-          <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
-            <!-- Buttons will be created dynamically -->
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-green-500">🎯</span>
+              Seller Active Listings
+            </h3>
+            <button
+              id="toggleSellerActiveListingsBtn"
+              class="bg-gradient-to-r from-green-200 to-green-300 hover:from-green-300 hover:to-green-400 dark:from-green-700 dark:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 text-green-800 dark:text-green-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${activeListings.length > 0 ? `Show Active (${activeListings.length})` : "No Active Listings"}
+            </button>
+          </div>
+          <div id="seller-active-listings-section" class="hidden">
+            <div id="seller-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
           </div>
         </div>
       </div>
@@ -343,20 +346,25 @@ class UIManager {
       ) || [];
 
     return `
-      <div class="mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">Ended Listings</h3>
-          <button
-            id="toggleSellerEndedListingsBtn"
-            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
-          >
-            ${endedListings.length > 0 ? `Show Ended (${endedListings.length})` : "No Ended Listings"}
-          </button>
-        </div>
-        <div id="seller-ended-listings-section" class="hidden">
-          <div id="seller-ended-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-          <div id="seller-ended-listings-buttons-container" class="flex justify-center space-x-4 mt-4">
-            <!-- Buttons will be created dynamically -->
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-red-500">🔚</span>
+              Seller Ended Listings
+            </h3>
+            <button
+              id="toggleSellerEndedListingsBtn"
+              class="bg-gradient-to-r from-red-200 to-red-300 hover:from-red-300 hover:to-red-400 dark:from-red-700 dark:to-red-800 dark:hover:from-red-600 dark:hover:to-red-700 text-red-800 dark:text-red-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${endedListings.length > 0 ? `Show Ended (${endedListings.length})` : "No Ended Listings"}
+            </button>
+          </div>
+          <div id="seller-ended-listings-section" class="hidden">
+            <div id="seller-ended-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="seller-ended-listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
           </div>
         </div>
       </div>
@@ -365,32 +373,31 @@ class UIManager {
   generateWinsSection(profile) {
     const wins = profile.wins || [];
     return `
-      <div class="mb-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">🏆 User Wins 🏆</h3>
-          <button
-            id="toggleSellerWinsBtn"
-            class="bg-yellow-200 hover:bg-yellow-300 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
-          >
-            ${wins.length > 0 ? `Show Wins (${wins.length})` : "No Wins Yet"}
-          </button>
-        </div>
-        <div id="seller-wins-section" class="hidden">
-          <div id="seller-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-          <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
-            <!-- Buttons will be created dynamically -->
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-yellow-500">🏆</span>
+              Seller Wins
+            </h3>
+            <button
+              id="toggleSellerWinsBtn"
+              class="bg-gradient-to-r from-yellow-200 to-yellow-300 hover:from-yellow-300 hover:to-yellow-400 dark:from-yellow-700 dark:to-yellow-800 dark:hover:from-yellow-600 dark:hover:to-yellow-700 text-yellow-800 dark:text-yellow-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${wins.length > 0 ? `Show Wins (${wins.length})` : "No Wins Yet"}
+            </button>
+          </div>
+          <div id="seller-wins-section" class="hidden">
+            <div id="seller-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
           </div>
         </div>
       </div>
     `;
   }
-  setupListingsButtons() {
-    // This method is now handled by ListingsManager
-  }
-
-  setupWinsButtons() {
-    // This method is now handled by WinsManager
-  }
+  // ...existing code...
 
   setupEndedListingsToggle(profile) {
     const toggleBtn = document.getElementById("toggleSellerEndedListingsBtn");

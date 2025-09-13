@@ -12,7 +12,7 @@ let userCredits = null;
 
 // Function to update credits display
 async function updateCreditsDisplay() {
-  const creditsElements = document.querySelectorAll("#user-credits"); // Select all instances of #user-credits
+  const creditsElements = document.querySelectorAll("#user-credits");
   if (!creditsElements.length) return;
 
   if (isAuthenticated()) {
@@ -22,29 +22,24 @@ async function updateCreditsDisplay() {
         const profile = await getUserProfile(currentUser.name);
         if (profile && typeof profile.credits === "number") {
           userCredits = profile.credits;
-
-          // Update all #user-credits elements
           creditsElements.forEach((element) => {
-            element.textContent = `${profile.credits} credits`; // Display as plain text
+            element.textContent = `${profile.credits} credits`;
             element.classList.remove("hidden");
           });
         }
       } catch (error) {
-        // Hide all #user-credits elements on error
         creditsElements.forEach((element) => {
           element.classList.add("hidden");
         });
       }
     }
   } else {
-    // Hide all #user-credits elements if not authenticated
     creditsElements.forEach((element) => {
       element.classList.add("hidden");
     });
   }
 }
 
-// Export this function so other modules can call it
 export async function updateUserCredits() {
   await updateCreditsDisplay();
 }
@@ -52,25 +47,19 @@ export async function updateUserCredits() {
 function renderHeader() {
   const authenticated = isAuthenticated();
   const currentUser = authenticated ? getCurrentUser() : null;
-
-  // Get the current page URL
   const currentPath = window.location.pathname;
 
   return `
-    <nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-500 dark:border-gray-700">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-300 dark:border-gray-700">
       <div class="mx-2 px-4">
         <div class="flex justify-between items-center py-4">
-          <!-- Left Side: Logo and Navigation -->
           <div class="flex items-center space-x-6">
-            <!-- Logo -->
             <div class="flex items-center space-x-3">
               <a href="/index.html" class="flex items-center space-x-2 hover:scale-105 transition-transform duration-300 ease-in-out group">
                 <img src="${logoImage}" alt="Pink Gavel Auctions Logo" class="h-14 w-14 group-hover:rotate-3 transition-transform duration-300">
                 <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">Pink Gavel Auctions</span>
               </a>
             </div>
-
-            <!-- Navigation Links -->
             <div class="hidden md:flex items-center space-x-6">
               <a href="/listings.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/listings.html"
@@ -86,10 +75,7 @@ function renderHeader() {
               }
             </div>
           </div>
-
-          <!-- Right Side Actions (Desktop View) -->
           <div class="hidden md:flex items-center space-x-4">
-            <!-- Search Field -->
             <div class="ml-5 relative">
               <label for="header-search" class="sr-only">Search Site</label>
               <input
@@ -128,7 +114,6 @@ function renderHeader() {
                 }">Register</a>
             `
             }
-            <!-- Dark mode toggle always visible -->
             <button
               onclick="window.toggleDarkMode()"
               class="p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-black dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
@@ -140,8 +125,6 @@ function renderHeader() {
               </svg>
             </button>
           </div>
-
-          <!-- Mobile Menu Button -->
           <div class="flex items-center space-x-4 md:hidden">
             <button
               id="mobile-menu-btn"
@@ -150,22 +133,17 @@ function renderHeader() {
               aria-expanded="false"
               aria-controls="mobile-menu"
             >
-              <!-- Hamburger icon (shown when menu is closed) -->
               <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
-              <!-- X icon (shown when menu is open) -->
               <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
         </div>
-
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
           <div class="flex flex-col space-y-3">
-            <!-- Mobile Search -->
             <div class="relative mb-3">
               <label for="mobile-search" class="sr-only">Search Site</label>
               <input
@@ -176,8 +154,6 @@ function renderHeader() {
                 aria-label="Search Site"
               >
             </div>
-
-            <!-- Mobile Top Section: Hello, Credits, and Dark Mode -->
             <div class="flex justify-center items-center space-x-4">
               ${
                 authenticated
@@ -193,7 +169,6 @@ function renderHeader() {
                 `
                   : ""
               }
-              <!-- Dark mode toggle always visible in mobile menu -->
               <button
                 onclick="window.toggleDarkMode()"
                 class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
@@ -205,7 +180,6 @@ function renderHeader() {
                 </svg>
               </button>
             </div>
-
             <a href="/index.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
               currentPath === "/index.html" ? "font-bold text-pink-600" : ""
             }">Home</a>
@@ -215,7 +189,6 @@ function renderHeader() {
             ${
               authenticated
                 ? `
-
               <a href="/profile.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
                 currentPath === "/profile.html" ? "font-bold text-pink-600" : ""
               }">Profile</a>
@@ -242,7 +215,6 @@ function renderHeader() {
 }
 
 function setupEventListeners() {
-  // Mobile menu toggle
   const mobileMenuBtn = document.getElementById("mobile-menu-btn");
   const mobileMenu = document.getElementById("mobile-menu");
 
@@ -251,19 +223,12 @@ function setupEventListeners() {
       e.preventDefault();
       e.stopPropagation();
       const isHidden = mobileMenu.classList.contains("hidden");
-
       mobileMenu.classList.toggle("hidden");
-
-      // Update aria-expanded attribute
       mobileMenuBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
-
-      // Toggle between hamburger and X icons
       const hamburgerIcon = document.getElementById("hamburger-icon");
       const closeIcon = document.getElementById("close-icon");
-
       if (hamburgerIcon && closeIcon) {
         if (isHidden) {
-          // Menu is being opened - show X icon
           hamburgerIcon.classList.add("hidden");
           closeIcon.classList.remove("hidden");
           mobileMenuBtn.setAttribute(
@@ -271,7 +236,6 @@ function setupEventListeners() {
             "Close mobile navigation menu",
           );
         } else {
-          // Menu is being closed - show hamburger icon
           hamburgerIcon.classList.remove("hidden");
           closeIcon.classList.add("hidden");
           mobileMenuBtn.setAttribute(
@@ -280,15 +244,12 @@ function setupEventListeners() {
           );
         }
       }
-
-      // Update credits display when the mobile menu is opened
       if (!mobileMenu.classList.contains("hidden")) {
         await updateCreditsDisplay();
       }
     });
   }
 
-  // Header search button functionality
   const headerSearchBtn = document.getElementById("header-search-btn");
   if (headerSearchBtn) {
     headerSearchBtn.addEventListener("click", (e) => {
@@ -303,7 +264,6 @@ function setupEventListeners() {
     });
   }
 
-  // Add Enter key functionality for header search
   const headerSearch = document.getElementById("header-search");
   if (headerSearch) {
     headerSearch.addEventListener("keypress", (e) => {
@@ -317,7 +277,6 @@ function setupEventListeners() {
     });
   }
 
-  // Add Enter key functionality for mobile search (no button needed)
   const mobileSearch = document.getElementById("mobile-search");
   if (mobileSearch) {
     mobileSearch.addEventListener("keypress", (e) => {
@@ -331,7 +290,6 @@ function setupEventListeners() {
     });
   }
 
-  // Logout functionality
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", (e) => {
@@ -340,7 +298,6 @@ function setupEventListeners() {
     });
   }
 
-  // Mobile logout functionality
   const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
   if (mobileLogoutBtn) {
     mobileLogoutBtn.addEventListener("click", (e) => {
@@ -349,56 +306,38 @@ function setupEventListeners() {
     });
   }
 
-  // Initialize search and sort component
   try {
     searchAndSortComponent.init();
-  } catch (error) {
-    // Component initialization failed, but don't log to console
-  }
+  } catch (error) {}
 }
 
-// Initialize header
 export function initializeHeader() {
   const headerElement = document.querySelector("header");
   if (headerElement) {
     headerElement.innerHTML = renderHeader();
-
-    // Setup event listeners immediately after rendering
     setupEventListeners();
-
-    // Clear search fields after header is initialized
     clearSearchFields();
-
-    // Update credits display if user is logged in
     if (isAuthenticated()) {
       updateCreditsDisplay();
     }
   }
 }
 
-// Clear search fields when header initializes
 function clearSearchFields() {
   const headerSearch = document.getElementById("header-search");
   const mobileSearch = document.getElementById("mobile-search");
-  const clearButton = document.getElementById("clear-search");
-
   if (headerSearch) {
     headerSearch.value = "";
   }
   if (mobileSearch) {
     mobileSearch.value = "";
   }
-  if (clearButton) {
-    clearButton.classList.add("hidden");
-  }
 }
 
-// Auto-initialize when the script loads
 document.addEventListener("DOMContentLoaded", () => {
   initializeHeader();
 });
 
-// Listen for storage changes to update header when login state changes
 window.addEventListener("storage", (e) => {
   if (e.key === "accessToken" || e.key === "user") {
     initializeHeader();
