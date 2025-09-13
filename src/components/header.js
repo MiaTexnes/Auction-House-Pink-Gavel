@@ -55,15 +55,19 @@ function renderHeader() {
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-3">
-              <a href="/index.html" class="flex items-center space-x-2 hover:scale-105 transition-transform duration-300 ease-in-out group">
+              <a href="/index.html" class="flex items-center space-x-2 hover:scale-105 transition-transform duration-300 ease-in-out group ${
+                currentPath === "/index.html"
+                  ? "font-bold text-pink-600 dark:text-gray-100"
+                  : ""
+              }">
                 <img src="${logoImage}" alt="Pink Gavel Auctions Logo" class="h-14 w-14 group-hover:rotate-3 transition-transform duration-300">
                 <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">Pink Gavel Auctions</span>
               </a>
             </div>
             <div class="hidden lg:flex items-center space-x-6">
-              <a href="/listings.html" class="text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+              <a href="/listings.html" class="text-lg text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/listings.html"
-                  ? "font-bold text-pink-600"
+                  ? "font-bold underline underline-2 text-pink-600 dark:text-gray-100 dark:decoration-gray-100 decoration-pink-600"
                   : ""
               }">Auctions</a>
               ${
@@ -180,17 +184,19 @@ function renderHeader() {
                 </svg>
               </button>
             </div>
-            <a href="/index.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
-              currentPath === "/index.html" ? "font-bold text-pink-600" : ""
-            }">Home</a>
-            <a href="/listings.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
-              currentPath === "/listings.html" ? "font-bold text-pink-600" : ""
+
+            <a href="/listings.html" class="text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+              currentPath === "/listings.html"
+                ? "font-bold underline text-pink-600"
+                : ""
             }">Auctions</a>
             ${
               authenticated
                 ? `
-              <a href="/profile.html" class="text-gray-700 dark:text-gray-200 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 py-2 ${
-                currentPath === "/profile.html" ? "font-bold text-pink-600" : ""
+              <a href="/profile.html" class="text-lg text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
+                currentPath === "/profile.html"
+                  ? "font-bold underline underline-2 text-pink-600 dark:text-gray-100 dark:decoration-gray-100 decoration-pink-600"
+                  : ""
               }">Profile</a>
               <button id="mobile-logout-btn" class="text-center py-1 px-4 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold shadow-md hover:from-purple-700 hover:to-pink-700 hover:scale-105 transition-all duration-200">
                 Logout
