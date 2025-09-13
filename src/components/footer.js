@@ -147,14 +147,7 @@ export function initializeFooter() {
 
     </div>
 
-    <style>
-      .light-wave-start { stop-color: #fce7f3; }
-      .light-wave-middle { stop-color: #f3e8ff; }
-      .light-wave-end { stop-color: #fce7f3; }
-      .dark:dark-wave-start { stop-color: #111827; }
-      .dark:dark-wave-middle { stop-color: #1f2937; }
-      .dark:dark-wave-end { stop-color: #111827; }
-    </style>
+    
   `;
 
   document.body.appendChild(footer);

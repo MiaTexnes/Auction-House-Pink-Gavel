@@ -1799,6 +1799,118 @@ body {
   animation: pulse-gold 2s infinite;
 }
 
+/* Carousel Fixed Sizing Styles */
+.carousel-container {
+  min-height: 520px;
+  max-height: 520px;
+  height: 520px;
+}
+
+.carousel-card-area {
+  min-height: 480px;
+  max-height: 480px;
+  height: 480px;
+}
+
+.carousel-card {
+  width: 290px !important;
+  min-width: 290px !important;
+  max-width: 290px !important;
+  height: 480px !important;
+  min-height: 480px !important;
+  max-height: 480px !important;
+  flex-shrink: 0 !important;
+}
+
+.carousel-card-wrapper {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+  height: 480px !important;
+  min-height: 480px !important;
+  max-height: 480px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Enhanced Smooth Scrolling Styles */
+.carousel-track {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carousel-track.transitioning {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-track.no-transition {
+  transition: none !important;
+}
+
+/* Smooth scroll behavior for carousel containers */
+.scroll-smooth-enhanced {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 72, 153, 0.3) transparent;
+}
+
+.scroll-smooth-enhanced::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll-smooth-enhanced::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-smooth-enhanced::-webkit-scrollbar-thumb {
+  background: rgba(236, 72, 153, 0.3);
+  border-radius: 3px;
+}
+
+.scroll-smooth-enhanced::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.5);
+}
+
+/* Fade in animation for carousel cards */
+.fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Carousel navigation button styles */
+.carousel-nav-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1);
+}
+
+.carousel-nav-button:hover {
+  transform: scale(1.05);
+}
+
+.carousel-nav-button:active {
+  transform: scale(0.95);
+}
+
+.carousel-nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+.carousel-nav-button:disabled:hover {
+  transform: scale(1);
+}
+
 .last\:border-b-0:last-child {
   border-bottom-width: 0px;
 }

@@ -13,12 +13,12 @@
     <main class="container mx-auto px-4 py-8">
       <p class="auth-message"></p>
       <div
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
+        class="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-6 gap-4"
       >
         <h1 class="text-3xl font-bold">All Auctions</h1>
 
         <!-- Sort Buttons -->
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
           <span
             class="text-sm text-gray-600 dark:text-gray-400 self-center mr-2"
             >Sort by:</span
@@ -37,22 +37,16 @@
           </button>
           <button
             class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
-            data-sort="most-bids"
+            data-sort="won-auctions"
           >
-            Most Bids
-          </button>
-          <button
-            class="sort-btn bg-gray-200 dark:bg-gray-700 text-black dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
-            data-sort="active-auctions"
-          >
-            Active Auctions
+            Won Auctions
           </button>
         </div>
 
         <!-- Add Listing Button (only if authenticated) -->
         <button
           id="addListingBtn"
-          class="bg-green-300 hover:bg-green-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
+          class="bg-green-200 hover:bg-green-600 text-black font-semibold py-1.5 px-3 sm:py-2 sm:px-4 text-sm sm:text-base rounded-lg transition-colors"
         >
           + Add Listing
         </button>
@@ -81,7 +75,7 @@
       <!-- Add Media Modal -->
       <div
         id="addMediaModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4"
       >
         <div
           class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
@@ -185,7 +179,7 @@
                 type="datetime-local"
                 id="listingEndDate"
                 name="endsAt"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
+                class="w-full px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-400 dark:border-gray-700 dark:text-black"
                 required
               />
             </div>
@@ -200,7 +194,7 @@
               <button
                 type="button"
                 id="openMediaModalBtn"
-                class="text-pink-500 hover:text-pink-600 underline font-medium"
+                class="text-pink-700 hover:text-pink-600 dark:text-pink-300 underline font-medium"
               >
                 Upload Media
               </button>

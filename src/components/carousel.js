@@ -2,12 +2,13 @@
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { safeFetch } from "../utils/requestManager.js";
-import logoImage from "/assets/images/logo.png";
+import { createListingCard } from "../pages/listings.js"; // Import if you want to use it
 
 // Configuration constants
 const DEFAULT_LISTINGS_LIMIT = 15;
 const CAROUSEL_UPDATE_DELAY = 100;
-const DEFAULT_IMAGE = logoImage;
+const DEFAULT_IMAGE = "https://placehold.co/600x400?text=No+Image";
+const DEFAULT_SELLER_AVATAR = "https://placehold.co/40x40?text=S";
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
 /**
@@ -33,17 +34,25 @@ const DOMUtils = {
 
 /**
  * Responsive design utilities
- * Calculates optimal number of cards to display based on screen size
+ * Calculates optimal number of cards to display based on available width with fixed card sizes
  */
 const ResponsiveUtils = {
   getCardsPerView() {
     const width = window.innerWidth;
-    if (width < 480) return 1; // Extra small devices
-    if (width < 640) return 1; // Small mobile devices
-    if (width < 768) return 1; // Larger mobile devices
-    if (width < 1024) return 2; // Tablets
-    if (width < 1280) return 3; // Small desktops
-    return 4; // Large desktops
+    const cardWidth = 320; // Fixed card width
+    const gapWidth = 8; // Gap between cards (gap-2 = 0.5rem = 8px)
+    const sideMargin = 160; // Space for navigation buttons and padding
+
+    const availableWidth = width - sideMargin;
+    const maxCards = Math.floor(availableWidth / (cardWidth + gapWidth));
+
+    // Ensure we always show at least 1 card and don't exceed reasonable limits
+    if (width < 480) return 1; // Very small screens
+    if (width < 768) return 1; // Mobile devices
+    if (maxCards < 1) return 1;
+    if (maxCards > 4) return 4; // Max 4 cards for large screens
+
+    return Math.max(1, maxCards);
   },
 };
 
@@ -163,65 +172,44 @@ export function createCarouselCard(listing) {
     timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
   }
 
-  const imageUrl =
-    listing.media && listing.media.length > 0 && listing.media[0].url
-      ? listing.media[0].url
-      : null;
-  const sellerAvatar =
-    listing.seller && listing.seller.avatar && listing.seller.avatar.url
-      ? listing.seller.avatar.url
-      : "https://placehold.co/40x40?text=S";
-  const sellerName =
-    listing.seller && listing.seller.name ? listing.seller.name : "Unknown";
+  const imageUrl = ImageHandler.getImageUrl(listing);
+  const sellerAvatar = listing.seller?.avatar?.url || DEFAULT_SELLER_AVATAR;
+  const sellerName = listing.seller?.name || "Unknown";
 
   const card = document.createElement("a");
+  // Ensure relative URL for test compatibility
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-[calc(100vw-2rem)] xs:w-[calc(100vw-3rem)] sm:w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
-  // Remove scale and translate on hover to prevent overflow
+    "flex-none w-72 sm:w-80 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
+  // Responsive width: w-72 (18rem) for mobile, w-80 (20rem) for sm+, max-w-full prevents overflow
 
   card.innerHTML = `
-    ${
-      imageUrl
-        ? `<div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
-           </div>`
-        : `<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
-            No image on this listing
-           </div>`
-    }
-    <div class="p-4 flex-1 flex flex-col min-h-0 relative">
-      <div class="absolute inset-0 bg-gradient-to-t from-transparent to-transparent opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none bg-pink-500 rounded-b-lg"></div>
-      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-200">${
-        listing.title
-      }</h3>
-      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${
-        listing.description || "No description provided."
-      }</p>
+    <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+      ${imageUrl ? `<img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">` : '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>'}
+    </div>
+    <div class="p-3 sm:p-4 flex-1 flex flex-col min-h-0 relative">
+      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">${listing.title}</h3>
+      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${listing.description || "No description provided."}</p>
       <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
-        <span class="font-medium text-green-600 dark:text-green-400">${
-          timeInfo.text
-        }</span>
+        <span class="font-medium text-green-600 dark:text-green-400">${timeInfo.text}</span>
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium">
           Bids: ${listing._count?.bids || 0}
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0">
-        <span class="text-gray-800 dark:text-gray-200 font-medium truncate transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400">${sellerName}</span>
+        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 flex-shrink-0" style="width: 32px; height: 32px;">
+        <span class="text-gray-800 dark:text-gray-200 font-medium truncate">${sellerName}</span>
       </div>
     </div>
   `;
 
   // Handle image error
-  if (imageUrl) {
-    const img = card.querySelector(".carousel-image");
-    if (img) {
-      img.addEventListener("error", function () {
-        this.parentElement.outerHTML =
-          '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">No image on this listing</div>';
-      });
-    }
+  const img = card.querySelector(".carousel-image");
+  if (img) {
+    img.addEventListener("error", function () {
+      this.parentElement.innerHTML =
+        '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
+    });
   }
 
   return card;
@@ -233,9 +221,9 @@ export function renderCarousel(listings, carouselContainer) {
 
   carouselContainer.innerHTML = "";
 
-  // Update carousel container classes for proper scrolling
+  // Update carousel container classes for smoother scrolling with enhanced snap
   carouselContainer.className =
-    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth max-w-full px-2";
+    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth-enhanced max-w-full px-2";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);
@@ -261,25 +249,86 @@ export function setupCarouselScrollButtons(
     scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
 
     const getScrollDistance = () => {
-      // Responsive scroll distance based on viewport width
+      // Responsive scroll distance for smooth incremental scrolling
       return window.innerWidth < 640
-        ? 280
+        ? 160 // Half card width for mobile - smoother scrolling
         : window.innerWidth < 768
-          ? 350
-          : 400;
+          ? 180 // Half card width for tablets
+          : 200; // Half card width for desktop - much smoother
+    };
+
+    // Enhanced smooth scrolling with custom easing
+    const smoothScrollTo = (carousel, targetPosition) => {
+      const startPosition = carousel.scrollLeft;
+      const distance = targetPosition - startPosition;
+      const duration = 400; // 400ms for smooth animation
+      let startTime = null;
+
+      const easeInOutCubic = (t) => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
+
+      const animateScroll = (currentTime) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+
+        carousel.scrollLeft = startPosition + distance * easedProgress;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll);
+        }
+      };
+
+      requestAnimationFrame(animateScroll);
     };
 
     scrollLeftBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: -getScrollDistance(), behavior: "smooth" });
+        // Add visual feedback
+        scrollLeftBtn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          scrollLeftBtn.style.transform = "scale(1)";
+        }, 150);
+
+        const currentScroll = carousel.scrollLeft;
+        const scrollDistance = getScrollDistance();
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        let targetScroll = currentScroll - scrollDistance;
+
+        // Implement looping: if we would go past the beginning, loop to the end
+        if (targetScroll <= 0) {
+          targetScroll = maxScroll - scrollDistance / 2; // Go to near the end
+        }
+
+        smoothScrollTo(carousel, targetScroll);
       }
     });
 
     scrollRightBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: getScrollDistance(), behavior: "smooth" });
+        // Add visual feedback
+        scrollRightBtn.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          scrollRightBtn.style.transform = "scale(1)";
+        }, 150);
+
+        const currentScroll = carousel.scrollLeft;
+        const scrollDistance = getScrollDistance();
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+        let targetScroll = currentScroll + scrollDistance;
+
+        // Implement looping: if we would go past the end, loop to the beginning
+        if (targetScroll >= maxScroll) {
+          targetScroll = scrollDistance / 2; // Go to near the beginning
+        }
+
+        smoothScrollTo(carousel, targetScroll);
       }
     });
   }
@@ -287,7 +336,7 @@ export function setupCarouselScrollButtons(
 
 /**
  * Advanced Carousel Component class
- * Creates an interactive carousel with navigation buttons and thumbnails
+ * Creates an interactive carousel with navigation buttons and progress bar
  */
 export class CarouselComponent {
   constructor(listings) {
@@ -296,6 +345,7 @@ export class CarouselComponent {
     this.cardsPerView = ResponsiveUtils.getCardsPerView();
     this.total = listings.length;
     this.resizeTimeout = null;
+    this.isTransitioning = false;
 
     // DOM element references
     this.elements = {
@@ -304,6 +354,8 @@ export class CarouselComponent {
       rightBtn: null,
       cardArea: null,
       scrollBar: null,
+      progressFill: null,
+      carouselTrack: null,
     };
   }
 
@@ -316,41 +368,52 @@ export class CarouselComponent {
     if (!container) return;
 
     container.innerHTML = "";
-    this.createCarouselStructure(container);
+    this.createCarouselStructure(container); // Ensure proper structure
     this.setupEventListeners();
     this.updateCarousel();
   }
 
   /**
-   * Creates the main carousel HTML structure
+   * Creates the main carousel HTML structure with fixed dimensions
    * @param {HTMLElement} container - Parent container element
    */
   createCarouselStructure(container) {
-    // Main carousel wrapper with improved mobile handling
+    // Main carousel wrapper with improved mobile handling and fixed height
     const carouselWrapper = DOMUtils.createElement(
       "div",
-      "flex flex-col items-center w-full max-w-full overflow-hidden",
+      "flex flex-col items-center w-full max-w-full overflow-hidden carousel-container h-[480px]",
     );
 
-    // Carousel container with responsive padding
+    // Carousel container with responsive padding and dimensions
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
+      "w-full max-w-7xl mx-auto px-1 sm:px-4 md:px-6 lg:px-8 carousel-card-area h-[480px] overflow-y-hidden",
     );
 
-    // Main area with navigation and cards - adjust gap for mobile
+    // Main area with navigation and cards - responsive width and overflow handling
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex items-center justify-between gap-2 xs:gap-3 sm:gap-4 w-full",
+      "flex items-center justify-between gap-2 sm:gap-4 w-full h-full",
     );
 
-    // Create navigation buttons and card area
+    // Create navigation buttons
     this.elements.leftBtn = this.createNavigationButton("left");
     this.elements.rightBtn = this.createNavigationButton("right");
+
+    // Create card area container with overflow-x-auto and responsive width
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "grid gap-4 flex-1 min-w-0 overflow-hidden px-2",
+      "flex-1 min-w-0 overflow-x-auto overflow-y-hidden px-1 sm:px-2 carousel-card-area h-[480px]",
     );
+
+    // Create the carousel track that will slide smoothly
+    this.elements.carouselTrack = DOMUtils.createElement(
+      "div",
+      "carousel-track flex gap-2 sm:gap-4 w-full",
+    );
+
+    // Add track to card area
+    this.elements.cardArea.appendChild(this.elements.carouselTrack);
 
     mainArea.append(
       this.elements.leftBtn,
@@ -359,20 +422,11 @@ export class CarouselComponent {
     );
     carouselContainer.appendChild(mainArea);
 
-    // Thumbnail scroll bar
-    const scrollBarContainer = DOMUtils.createElement(
-      "div",
-      "hidden md:block w-full max-w-4xl mx-auto mt-6 px-4",
-    );
-    this.elements.scrollBar = DOMUtils.createElement(
-      "div",
-      "flex justify-center gap-2 pb-2 scrollbar-hide",
-    );
-    scrollBarContainer.appendChild(this.elements.scrollBar);
-
-    carouselWrapper.append(carouselContainer, scrollBarContainer);
+    // Only append carouselContainer, no custom scrollbar
+    carouselWrapper.appendChild(carouselContainer);
     container.appendChild(carouselWrapper);
   }
+  // ...existing code...
 
   /**
    * Creates navigation button (left or right)
@@ -391,24 +445,27 @@ export class CarouselComponent {
       : "Scroll carousel right";
     const visibleText = isLeft ? "Scroll Left" : "Scroll Right";
 
+    // Add responsive classes: hidden on mobile, visible on sm+
     const button = DOMUtils.createElement(
       "button",
-      "p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10",
+      "carousel-nav-button p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10 hidden sm:inline-block",
       `<span class="sr-only">${accessibleLabel}</span><span aria-hidden="true"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg></span>`,
     );
     button.setAttribute("aria-label", accessibleLabel);
     button.title = visibleText;
 
     button.addEventListener("click", () => {
-      if (isLeft) {
-        this.currentIndex = Math.max(0, this.currentIndex - 1);
-      } else {
-        this.currentIndex = Math.min(
-          this.total - this.cardsPerView,
-          this.currentIndex + 1,
-        );
-      }
-      this.updateCarousel();
+      // Prevent navigation during transitions
+      if (this.isTransitioning) return;
+
+      // Add visual feedback
+      button.style.transform = "scale(0.95)";
+      setTimeout(() => {
+        button.style.transform = "scale(1)";
+      }, 150);
+
+      // Use smooth incremental scrolling with looping
+      this.smoothIncrementalScroll(isLeft);
     });
 
     return button;
@@ -422,79 +479,219 @@ export class CarouselComponent {
     // Handle responsive resize
     window.addEventListener("resize", () => {
       clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(
-        () => this.updateCarousel(),
-        CAROUSEL_UPDATE_DELAY,
-      );
+      this.resizeTimeout = setTimeout(() => {
+        // Temporarily disable transitions during resize
+        this.elements.carouselTrack.classList.add("no-transition");
+        this.updateCarousel();
+
+        // Re-enable transitions after layout update
+        setTimeout(() => {
+          this.elements.carouselTrack.classList.remove("no-transition");
+        }, 50);
+      }, CAROUSEL_UPDATE_DELAY);
     });
   }
 
   updateCarousel() {
     this.cardsPerView = ResponsiveUtils.getCardsPerView();
-    this.updateCardArea();
+    this.populateAllCards(); // Create all cards first
+    this.updateCardAreaPosition(); // Then position the track
     this.updateNavigationButtons();
-    this.updateThumbnails();
+    this.updateProgressBar();
   }
 
   /**
-   * Updates the main card display area
-   * Shows current batch of listing cards
+   * Smoothly transitions to a target index
+   * @param {number} targetIndex - Index to transition to
    */
-  updateCardArea() {
-    // Use integer for grid template columns
-    const columnCount = Math.floor(this.cardsPerView);
-    this.elements.cardArea.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
-    this.elements.cardArea.innerHTML = "";
+  smoothTransitionTo(targetIndex) {
+    if (this.isTransitioning || targetIndex === this.currentIndex) return;
 
-    // Check if we're on a small screen and force only 1 card per view
-    const isMobileView = window.innerWidth < 768;
-    const cardsToShow = isMobileView
-      ? 1
-      : Math.min(this.cardsPerView, this.total - this.currentIndex);
+    this.isTransitioning = true;
+    this.currentIndex = targetIndex;
 
-    for (let i = 0; i < cardsToShow; i++) {
-      const idx = this.currentIndex + i;
-      // If a createListingCard function is available from listings.js, use that
-      // otherwise use the createCarouselCard function from this file
+    // Add transition class and update position
+    this.elements.carouselTrack.classList.add("transitioning");
+    this.updateCardAreaPosition();
+    this.updateProgressBar();
+
+    // Reset transition flag after animation completes
+    // Use different timing for mobile vs desktop
+    const transitionDuration = window.innerWidth < 768 ? 300 : 400;
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, transitionDuration);
+  }
+
+  /**
+   * Performs smooth incremental scrolling instead of jumping by whole cards
+   * @param {boolean} isLeft - Whether to scroll left or right
+   */
+  smoothIncrementalScroll(isLeft) {
+    if (this.isTransitioning) return;
+
+    this.isTransitioning = true;
+
+    const cardWidth = 320; // Fixed card width including wrapper
+    const gapWidth = 8; // Gap between cards
+    const cardPlusGap = cardWidth + gapWidth;
+
+    // Calculate incremental scroll distance (about 1/3 of a card)
+    const scrollIncrement = Math.floor(cardPlusGap / 3);
+
+    // Calculate new scroll position
+    const currentScroll = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
+
+    let newScrollPosition = isLeft
+      ? currentScroll + scrollIncrement
+      : currentScroll - scrollIncrement;
+
+    // Calculate total width of all cards
+    const totalWidth = this.total * cardPlusGap;
+    const maxScroll = totalWidth - this.cardsPerView * cardPlusGap;
+
+    // Implement looping behavior
+    if (isLeft) {
+      // If scrolling left and would go past the beginning, loop to the end
+      if (newScrollPosition > 0) {
+        newScrollPosition = -(
+          totalWidth -
+          this.cardsPerView * cardPlusGap -
+          scrollIncrement
+        );
+      }
+    } else {
+      // If scrolling right and would go past the end, loop to the beginning
+      if (newScrollPosition < -maxScroll) {
+        newScrollPosition = scrollIncrement;
+      }
+    }
+
+    // Apply smooth scroll with easing
+    this.animateScrollTo(newScrollPosition);
+  }
+
+  /**
+   * Animates scroll to a specific position with smooth easing
+   * @param {number} targetPosition - Target scroll position in pixels
+   */
+  animateScrollTo(targetPosition) {
+    const startPosition = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
+
+    const distance = targetPosition - startPosition;
+    const duration = 300; // 300ms for smooth animation
+    let startTime = null;
+
+    const easeInOutCubic = (t) => {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    };
+
+    const animateScroll = (currentTime) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      const easedProgress = easeInOutCubic(progress);
+
+      const currentPosition = startPosition + distance * easedProgress;
+      this.elements.carouselTrack.style.transform = `translateX(${currentPosition}px)`;
+
+      if (progress < 1) {
+        requestAnimationFrame(animateScroll);
+      } else {
+        this.isTransitioning = false;
+        this.updateProgressBar();
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
+  }
+
+  /**
+   * Populates the carousel track with all listing cards
+   * Creates all cards once for smooth sliding
+   */
+  populateAllCards() {
+    // Clear existing cards
+    this.elements.carouselTrack.innerHTML = "";
+
+    // Create all cards and add them to the track
+    this.listings.forEach((listing, index) => {
       const card =
         typeof createListingCard !== "undefined"
-          ? createListingCard(this.listings[idx])
-          : createCarouselCard(this.listings[idx]);
+          ? createListingCard(listing)
+          : createCarouselCard(listing);
 
-      // Reset card sizing for carousel
-      card.style.width = "auto";
-      card.style.minWidth = "auto";
-      card.style.maxWidth = "none";
-
-      // Create wrapper to contain hover effects
+      // Create wrapper for consistent sizing
       const cardWrapper = document.createElement("div");
-      cardWrapper.className = "relative overflow-hidden";
-      cardWrapper.style.cssText =
-        "transform-style: preserve-3d; contain: layout style paint;";
+      cardWrapper.className = "carousel-card-wrapper fade-in";
 
-      // Remove original hover animations for carousel context
-      card.className = card.className
-        .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
-        .replace("hover:scale-[1.02]", "")
-        .replace("hover:-translate-y-1", "")
-        .replace("transform", "");
+      // Defensive: only append class if card exists and has className property
+      if (card && typeof card.className === "string") {
+        card.className += " carousel-card";
+        card.className = card.className
+          .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
+          .replace("hover:scale-[1.02]", "")
+          .replace("hover:-translate-y-1", "")
+          .replace("transform", "");
+      }
 
-      cardWrapper.appendChild(card);
-      ImageHandler.optimizeCardImages(card);
-      this.elements.cardArea.appendChild(cardWrapper);
-    }
+      // Only append if card is a valid Node
+      if (card instanceof Node) {
+        cardWrapper.appendChild(card);
+        ImageHandler.optimizeCardImages(card);
+      } else {
+        // Fallback: create a div with error info
+        const errorDiv = document.createElement("div");
+        errorDiv.textContent = "Invalid carousel card";
+        cardWrapper.appendChild(errorDiv);
+      }
+      this.elements.carouselTrack.appendChild(cardWrapper);
+    });
+  }
+
+  /**
+   * Updates the carousel track position using CSS transforms
+   * Creates smooth sliding animation between cards
+   */
+  updateCardAreaPosition() {
+    if (!this.elements.carouselTrack) return;
+
+    const cardWidth = 320; // Fixed card width including wrapper
+    const gapWidth = 8; // Gap between cards (gap-2 = 0.5rem = 8px)
+    const cardPlusGap = cardWidth + gapWidth;
+
+    // Calculate transform offset
+    const translateX = -(this.currentIndex * cardPlusGap);
+
+    // Apply smooth transform
+    this.elements.carouselTrack.style.transform = `translateX(${translateX}px)`;
+
+    // Update container width to fit visible cards
+    const isMobileView = window.innerWidth < 768;
+    const finalCardsToShow = isMobileView ? 1 : this.cardsPerView;
+    const containerWidth =
+      cardWidth * finalCardsToShow +
+      gapWidth * Math.max(0, finalCardsToShow - 1);
+
+    this.elements.cardArea.style.width = `${containerWidth}px`;
   }
 
   /**
    * Updates navigation button states
-   * Disables buttons when at start/end of carousel
+   * Keeps buttons always enabled for endless looping
    */
   updateNavigationButtons() {
-    this.updateButtonState(this.elements.leftBtn, this.currentIndex === 0);
-    this.updateButtonState(
-      this.elements.rightBtn,
-      this.currentIndex >= this.total - this.cardsPerView,
-    );
+    // Always enable buttons for infinite looping
+    this.updateButtonState(this.elements.leftBtn, false);
+    this.updateButtonState(this.elements.rightBtn, false);
   }
 
   /**
@@ -527,63 +724,37 @@ export class CarouselComponent {
   }
 
   /**
-   * Updates thumbnail scroll bar
-   * Shows indicators for current position in carousel
+   * Updates progress scroll bar
+   * Shows current position progress in the carousel with smooth transitions
    */
-  updateThumbnails() {
-    this.elements.scrollBar.innerHTML = "";
+  updateProgressBar() {
+    if (!this.elements.progressFill) return;
 
-    for (let i = 0; i < this.total; i++) {
-      const thumbnail = this.createThumbnail(i);
-      this.elements.scrollBar.appendChild(thumbnail);
-    }
-  }
+    // Calculate current scroll position
+    const currentScroll = this.elements.carouselTrack.style.transform
+      ? parseInt(
+          this.elements.carouselTrack.style.transform.match(/-?\d+/)[0],
+        ) || 0
+      : 0;
 
-  /**
-   * Creates individual thumbnail indicator
-   * @param {number} index - Page index for thumbnail
-   * @returns {HTMLElement} Thumbnail element
-   */
-  createThumbnail(index) {
-    const listing = this.listings[index];
-    const thumb = DOMUtils.createElement("img");
+    // Calculate total scrollable width
+    const cardWidth = 320;
+    const gapWidth = 8;
+    const cardPlusGap = cardWidth + gapWidth;
+    const totalWidth = this.total * cardPlusGap;
+    const maxScroll = totalWidth - this.cardsPerView * cardPlusGap;
 
-    thumb.src = ImageHandler.getImageUrl(listing);
-    thumb.alt = `Thumbnail for ${listing.title || "listing"}`;
-    thumb.loading = "lazy";
+    // Calculate progress percentage based on scroll position
+    const progress =
+      maxScroll > 0 ? (Math.abs(currentScroll) / maxScroll) * 100 : 0;
+    const clampedProgress = Math.min(progress, 100);
 
-    const middleIndex = Math.floor(this.cardsPerView / 2);
-    const centerCardIndex = this.currentIndex + middleIndex;
-    const isActive = index === centerCardIndex;
+    // Update progress bar width with smooth transition
+    this.elements.progressFill.style.width = `${clampedProgress}%`;
 
-    thumb.className = `
-        w-8 h-8 rounded-full object-cover border-2 cursor-pointer
-        transition-all duration-200 flex-shrink-0
-        ${
-          isActive
-            ? "border-pink-500 ring-2 ring-pink-400 opacity-100 scale-110"
-            : "border-gray-300 dark:border-gray-600 opacity-60 hover:opacity-100 hover:scale-105"
-        }
-      `
-      .replace(/\s+/g, " ")
-      .trim();
-
-    thumb.addEventListener("error", () => {
-      thumb.src = DEFAULT_IMAGE;
-    });
-
-    thumb.addEventListener("click", () => {
-      const middleIndex = Math.floor(this.cardsPerView / 2);
-      let targetIndex = index - middleIndex;
-      targetIndex = Math.max(
-        0,
-        Math.min(targetIndex, this.total - this.cardsPerView),
-      );
-      this.currentIndex = targetIndex;
-      this.updateCarousel();
-    });
-
-    return thumb;
+    // Add some visual feedback for the current position
+    const progressText = `Showing ${this.total} items`;
+    this.elements.scrollBar.setAttribute("title", progressText);
   }
 }
 
@@ -608,7 +779,16 @@ export const CarouselAPIService = {
     }
 
     const responseData = await response.json();
-    return responseData.data || [];
+    const now = Date.now();
+
+    // Only keep active (not ended) listings
+    const activeListings = (responseData.data || []).filter((listing) => {
+      if (!listing.endsAt) return true; // treat missing endsAt as active
+      const endTime = Date.parse(listing.endsAt);
+      return !isNaN(endTime) && endTime > now;
+    });
+
+    return activeListings;
   },
 };
 

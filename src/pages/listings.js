@@ -393,8 +393,21 @@ class ListingCardBuilder {
     timeInfo,
     bidCount,
   }) {
+    // Show 'Sold' badge if auction is ended and has bids, 'Not Sold' if ended and no bids
+    let wonBadge = "";
+    if (timeInfo.isEnded) {
+      if (bidCount > 0) {
+        wonBadge = `<div class="absolute top-2 left-2 z-10 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Sold</div>`;
+      } else {
+        wonBadge = `<div class="absolute top-2 left-2 z-10 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Not Sold</div>`;
+      }
+    }
+
     return `
-      ${this.generateImageHTML(imageUrl, title)}
+      <div class="relative">
+        ${wonBadge}
+        ${this.generateImageHTML(imageUrl, title)}
+      </div>
       <div class="p-4 flex-1 flex flex-col min-h-0" style="height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT};">
         ${this.generateTitleHTML(title)}
         ${this.generateDescriptionHTML(description)}
@@ -1103,7 +1116,16 @@ class EventHandler {
    */
   setupFormEvents() {
     const form = this.elements.get("addListingForm");
-    if (form && isAuthenticated()) {
+    if (!form) return;
+
+    // If the shared modal manager already owns this form, skip attaching legacy listener
+    if (form.dataset.managed === "newListingModalManager") {
+      return;
+    }
+
+    // Legacy fallback (only if not already bound)
+    if (isAuthenticated() && !form.dataset.legacyBound) {
+      form.dataset.legacyBound = "true";
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         await this.handleFormSubmission();
@@ -1219,10 +1241,10 @@ class EventHandler {
    * @returns {string} Appropriate empty results message
    */
   getEmptyResultsMessage(query, sortBy) {
-    if (sortBy === "active-auctions") {
+    if (sortBy === "won-auctions") {
       return query.trim() === ""
-        ? "No active auctions available at the moment."
-        : `No active auctions found for "${query}".`;
+        ? "No won auctions yet."
+        : `No won auctions found for "${query}".`;
     }
 
     return query.trim() === ""
@@ -1441,6 +1463,7 @@ class ListingsPageController {
         return;
       }
 
+      // Don't apply any automatic sort - use natural order
       this.ui.displayInitialListings(listings, this.state);
     } catch (error) {
       this.ui.showMessage(`Error: ${error.message}`, "error");
@@ -1451,17 +1474,27 @@ class ListingsPageController {
   }
 
   /**
-   * Sets the default sort button to "newest" with proper styling
-   * Provides visual feedback for the default sort state
+   * Sets the default sort button styling (no default sort selected)
+   * Provides clean initial state without forcing any sort
    */
   setDefaultSortButton() {
-    const newestButton = document.querySelector(
-      '.sort-btn[data-sort="newest"]',
-    );
-    if (newestButton) {
-      // Use the search component's method to ensure consistent styling
-      searchAndSortComponent.updateSortButtonStyles(newestButton);
-    }
+    // Don't activate any sort button by default
+    // Let users choose their preferred sorting
+    const sortButtons = document.querySelectorAll(".sort-btn");
+    sortButtons.forEach((btn) => {
+      btn.classList.remove(
+        "bg-pink-500",
+        "text-white",
+        "bg-pink-400",
+        "text-black",
+      );
+      btn.classList.add(
+        "bg-gray-200",
+        "dark:bg-gray-700",
+        "text-gray-700",
+        "dark:text-gray-300",
+      );
+    });
   }
 
   /**

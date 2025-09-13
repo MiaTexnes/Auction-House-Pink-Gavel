@@ -59,8 +59,9 @@ class UIManager {
     if (!container) return;
     container.innerHTML = this.generateProfileHTML(profile);
     this.setupProfileEventListeners(profile);
-    this.renderUserListings(profile);
-    this.renderUserWins(profile);
+    this.setupActiveListingsToggle(profile);
+    this.setupWinsToggle(profile);
+    this.setupEndedListingsToggle(profile);
   }
 
   generateProfileHTML(profile) {
@@ -71,6 +72,7 @@ class UIManager {
       this.generateActionButtons(),
       this.generateWinsSection(profile),
       this.generateListingsSection(profile),
+      this.generateEndedListingsSection(profile),
       this.generateNewListingModal(),
     ].join("");
   }
@@ -90,18 +92,11 @@ class UIManager {
 
   generateStatsSection(profile) {
     return `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 px-4 md:px-8">
-        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">My Listings</h4>
-          <p class="text-2xl font-bold text-black dark:text-white">${profile.listings?.length || 0}</p>
-        </div>
-        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">🏆My Wins🏆</h4>
-          <p class="text-2xl font-bold text-black dark:text-white">${profile.wins?.length || 0}</p>
-        </div>
-        <div class=" dark:bg-gray-600 border border-gray-500 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">My Credits</h4>
-          <p class="text-2xl font-bold text-green-800 dark:text-green-400 ">${profile.credits || 0}</p>
+      <div class="flex justify-center mb-8 px-4 md:px-8">
+        <div class="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 border border-purple-300 dark:border-purple-600 p-6 rounded-xl text-center max-w-sm">
+          <div class="text-purple-600 dark:text-purple-300 text-4xl mb-3">💰</div>
+          <h4 class="text-xl font-semibold text-purple-800 dark:text-purple-200 mb-2">My Credits</h4>
+          <p class="text-4xl font-bold text-purple-900 dark:text-purple-100">${profile.credits || 0}</p>
         </div>
       </div>
     `;
@@ -117,37 +112,92 @@ class UIManager {
   }
 
   generateWinsSection(profile) {
-    if (!profile.wins?.length) {
-      return `
-        <div class="mb-6 px-4 md:px-8">
-          <h3 class="text-xl font-semibold mb-4">Wins</h3>
-          <div class="text-center text-gray-500 dark:text-gray-400">No wins yet.</div>
-        </div>
-      `;
-    }
+    const wins = profile.wins || [];
     return `
-      <div class="mb-6 px-4 md:px-8">
-        <h3 class="text-xl font-semibold mb-4">Wins</h3>
-        <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-        <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
-          <!-- Buttons will be created dynamically -->
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-yellow-500">🏆</span>
+              Your Wins
+            </h3>
+            <button
+              id="toggleWinsBtn"
+              class="bg-gradient-to-r from-yellow-200 to-yellow-300 hover:from-yellow-300 hover:to-yellow-400 dark:from-yellow-700 dark:to-yellow-800 dark:hover:from-yellow-600 dark:hover:to-yellow-700 text-yellow-800 dark:text-yellow-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${wins.length > 0 ? `Show Wins (${wins.length})` : "No Wins Yet"}
+            </button>
+          </div>
+          <div id="wins-section" class="hidden">
+            <div id="user-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
+          </div>
         </div>
       </div>
     `;
   }
 
   generateListingsSection(profile) {
-    if (!profile.listings?.length) {
-      return `
-        <div class="mb-6 text-center text-gray-500 dark:text-gray-400 px-4 md:px-8">No listings created yet.</div>
-      `;
-    }
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+
     return `
-      <div class="mb-6 px-4 md:px-8">
-        <h3 class="text-xl font-semibold mb-4">Your Listings</h3>
-        <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-        <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
-          <!-- Buttons will be created dynamically -->
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-green-500">🎯</span>
+              Your Active Listings
+            </h3>
+            <button
+              id="toggleActiveListingsBtn"
+              class="bg-gradient-to-r from-green-200 to-green-300 hover:from-green-300 hover:to-green-400 dark:from-green-700 dark:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 text-green-800 dark:text-green-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${activeListings.length > 0 ? `Show Active (${activeListings.length})` : "No Active Listings"}
+            </button>
+          </div>
+          <div id="active-listings-section" class="hidden">
+            <div id="user-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  generateEndedListingsSection(profile) {
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    return `
+      <div class="mb-8 px-4 md:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
+              <span class="text-red-500">🔚</span>
+              Your Ended Listings
+            </h3>
+            <button
+              id="toggleEndedListingsBtn"
+              class="bg-gradient-to-r from-red-200 to-red-300 hover:from-red-300 hover:to-red-400 dark:from-red-700 dark:to-red-800 dark:hover:from-red-600 dark:hover:to-red-700 text-red-800 dark:text-red-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              ${endedListings.length > 0 ? `Show Ended (${endedListings.length})` : "No Ended Listings"}
+            </button>
+          </div>
+          <div id="ended-listings-section" class="hidden">
+            <div id="user-ended-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="ended-listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+              <!-- Buttons will be created dynamically -->
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -159,13 +209,22 @@ class UIManager {
   }
 
   renderUserListings(profile) {
-    if (!profile.listings?.length) return;
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+    if (!activeListings.length) return;
     const container = document.getElementById("user-listings-container");
     if (!container) return;
+
+    // Clear existing content to prevent duplicates
+    container.innerHTML = "";
+
     const listingsManager = new ListingsManager(
       container,
-      profile.listings,
+      activeListings,
       profile,
+      "listings-buttons-container",
     );
     listingsManager.render();
     listingsManager.setupEventListeners();
@@ -175,7 +234,16 @@ class UIManager {
     if (!profile.wins?.length) return;
     const container = document.getElementById("user-wins-container");
     if (!container) return;
-    const winsManager = new WinsManager(container, profile.wins, profile);
+
+    // Clear existing content to prevent duplicates
+    container.innerHTML = "";
+
+    const winsManager = new WinsManager(
+      container,
+      profile.wins,
+      profile,
+      "wins-buttons-container",
+    );
     winsManager.render();
     winsManager.setupEventListeners();
   }
@@ -183,6 +251,133 @@ class UIManager {
   setupProfileEventListeners(profile) {
     this.setupEditProfileListener(profile);
     this.setupNewListingModalListeners(profile);
+  }
+
+  setupActiveListingsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleActiveListingsBtn");
+    const activeSection = document.getElementById("active-listings-section");
+
+    if (!toggleBtn || !activeSection) return;
+
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+
+    if (activeListings.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        activeSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Active (${activeListings.length})`;
+        isExpanded = false;
+      } else {
+        activeSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Active (${activeListings.length})`;
+        this.renderUserListings(profile);
+        isExpanded = true;
+      }
+    });
+  }
+
+  setupWinsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleWinsBtn");
+    const winsSection = document.getElementById("wins-section");
+
+    if (!toggleBtn || !winsSection) return;
+
+    const wins = profile.wins || [];
+
+    if (wins.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        winsSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Wins (${wins.length})`;
+        isExpanded = false;
+      } else {
+        winsSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Wins (${wins.length})`;
+        this.renderUserWins(profile);
+        isExpanded = true;
+      }
+    });
+  }
+
+  setupEndedListingsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleEndedListingsBtn");
+    const endedSection = document.getElementById("ended-listings-section");
+
+    if (!toggleBtn || !endedSection) return;
+
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    if (endedListings.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+    let isInitialized = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        endedSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Ended (${endedListings.length})`;
+        isExpanded = false;
+      } else {
+        endedSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Ended (${endedListings.length})`;
+
+        // Only render if not yet initialized
+        if (!isInitialized) {
+          this.renderUserEndedListings(profile);
+          isInitialized = true;
+        }
+
+        isExpanded = true;
+      }
+    });
+  }
+
+  renderUserEndedListings(profile) {
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    if (!endedListings.length) return;
+
+    const container = document.getElementById("user-ended-listings-container");
+    if (!container) return;
+
+    // Clear existing content
+    container.innerHTML = "";
+
+    const endedListingsManager = new ListingsManager(
+      container,
+      endedListings,
+      profile,
+      "ended-listings-buttons-container",
+    );
+    endedListingsManager.render();
+    endedListingsManager.setupEventListeners();
   }
 
   setupEditProfileListener(profile) {
@@ -210,12 +405,18 @@ class UIManager {
 
 // Listings Manager
 class ListingsManager {
-  constructor(container, listings, profile) {
+  constructor(
+    container,
+    listings,
+    profile,
+    buttonsContainerId = "listings-buttons-container",
+  ) {
     this.container = container;
     this.listings = listings;
     this.profile = profile;
     this.currentIndex = LISTING_DISPLAY_LIMIT;
     this.buttonsContainer = null;
+    this.buttonsContainerId = buttonsContainerId;
   }
 
   render() {
@@ -254,20 +455,18 @@ class ListingsManager {
   createButtons() {
     if (this.listings.length <= LISTING_DISPLAY_LIMIT) return;
 
-    this.buttonsContainer = document.getElementById(
-      "listings-buttons-container",
-    );
+    this.buttonsContainer = document.getElementById(this.buttonsContainerId);
     if (!this.buttonsContainer) return;
 
     const viewMoreBtn = createViewMoreButton(
       "View More",
       () => this.handleViewMore(),
-      "viewMoreBtn",
+      `viewMoreBtn-${this.buttonsContainerId}`,
     );
     const viewLessBtn = createViewLessButton(
       "View Less",
       () => this.handleViewLess(),
-      "viewLessBtn",
+      `viewLessBtn-${this.buttonsContainerId}`,
       "hidden",
     );
 
@@ -292,8 +491,12 @@ class ListingsManager {
   toggleButtons(showMore) {
     if (!this.buttonsContainer) return;
 
-    const viewMoreBtn = this.buttonsContainer.querySelector("#viewMoreBtn");
-    const viewLessBtn = this.buttonsContainer.querySelector("#viewLessBtn");
+    const viewMoreBtn = this.buttonsContainer.querySelector(
+      `#viewMoreBtn-${this.buttonsContainerId}`,
+    );
+    const viewLessBtn = this.buttonsContainer.querySelector(
+      `#viewLessBtn-${this.buttonsContainerId}`,
+    );
 
     if (viewMoreBtn && viewLessBtn) {
       if (showMore) {
@@ -313,8 +516,13 @@ class ListingsManager {
 
 // Wins Manager
 class WinsManager extends ListingsManager {
-  constructor(container, wins, profile) {
-    super(container, wins, profile);
+  constructor(
+    container,
+    wins,
+    profile,
+    buttonsContainerId = "wins-buttons-container",
+  ) {
+    super(container, wins, profile, buttonsContainerId);
   }
 
   createButtons() {
@@ -563,7 +771,7 @@ class APIService {
 
   static async fetchProfile(name) {
     const response = await fetch(
-      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_seller=true&_bids=true&_count=true`,
+      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true&_tags=true&_seller=true&_bids=true&_count=true`,
       { headers: this.getHeaders() },
     );
     if (!response.ok) {
@@ -636,7 +844,7 @@ class ProfileController {
     const user = getCurrentUser();
     if (!user || !user.name) {
       container.innerHTML =
-        '<div class="text-center text-red-600">User data incomplete. Please log in again. <a href="/login.html" class="underline text-blue-500 hover:text-blue-700">Login here</a>.</div>';
+        '<div class="text-center  text-red-600">User data incomplete. Please log in again. <a href="/login.html" class="underline text-blue-500 hover:text-blue-700">Login here</a>.</div>';
       logoutUser();
       return;
     }
