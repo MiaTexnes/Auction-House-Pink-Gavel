@@ -57,15 +57,18 @@ class RequestManager {
    */
   async waitForAvailability() {
     return new Promise((resolve) => {
-      const checkAvailability = () => {
-        if (this.canMakeRequest()) {
+      if (this.canMakeRequest()) {
+        resolve();
+        return;
+      }
+      const maxWaitTime = 30000; // 30 seconds max wait
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+        if (this.canMakeRequest() || Date.now() - startTime > maxWaitTime) {
+          clearInterval(interval);
           resolve();
-        } else {
-          // Wait for minimum interval before checking again
-          setTimeout(checkAvailability, this.minRequestInterval);
         }
-      };
-      checkAvailability();
+      }, this.minRequestInterval);
     });
   }
 
@@ -83,13 +86,16 @@ class RequestManager {
     // Record the request
     this.recordRequest();
 
+    const maxRetryCount429 = 4; // 1 initial + 4 retries = 5 calls
+    const maxRetryCountNetwork = 2; // 1 initial + 2 retries = 3 calls
     try {
       const response = await fetch(url, options);
 
       // Handle 429 (Too Many Requests) with retry
       if (response.status === 429) {
-        if (retryCount < this.retryDelays.length) {
-          const delay = this.retryDelays[retryCount];
+        if (retryCount < maxRetryCount429) {
+          const delay =
+            this.retryDelays[Math.min(retryCount, this.retryDelays.length - 1)];
           console.warn(`Rate limited (429). Retrying in ${delay}ms...`);
 
           await new Promise((resolve) => setTimeout(resolve, delay));
@@ -102,14 +108,19 @@ class RequestManager {
       return response;
     } catch (error) {
       // Handle network errors with retry for first few attempts
-      if (retryCount < 2 && error.message.includes("Failed to fetch")) {
-        const delay = this.retryDelays[retryCount];
+      if (
+        retryCount < maxRetryCountNetwork &&
+        error.message.includes("Failed to fetch")
+      ) {
+        const delay =
+          this.retryDelays[Math.min(retryCount, this.retryDelays.length - 1)];
         console.warn(`Network error. Retrying in ${delay}ms...`);
 
         await new Promise((resolve) => setTimeout(resolve, delay));
         return this.fetch(url, options, retryCount + 1);
       }
 
+      // Propagate original error for non-network errors
       throw error;
     }
   }
@@ -136,29 +147,29 @@ class RequestManager {
   createCache(ttl = 300000) {
     // Default 5 minutes
     const cache = new Map();
-
+    // Allow overriding Date.now for tests
+    let nowFn = Date.now;
     return {
       get(key) {
         const item = cache.get(key);
         if (!item) return null;
-
-        if (Date.now() > item.expiry) {
+        if (nowFn() > item.expiry) {
           cache.delete(key);
           return null;
         }
-
         return item.data;
       },
-
       set(key, data) {
         cache.set(key, {
           data,
-          expiry: Date.now() + ttl,
+          expiry: nowFn() + ttl,
         });
       },
-
       clear() {
         cache.clear();
+      },
+      _setNow(fn) {
+        nowFn = fn;
       },
     };
   }
@@ -193,26 +204,29 @@ export const createDebouncedSearch = (searchFunction, delay = 300) => {
 export const createCachedFetch = (cacheTTL = 300000) => {
   const cache = requestManager.createCache(cacheTTL);
 
-  return async (url, options = {}) => {
+  const cachedFetch = async (url, options = {}) => {
     const cacheKey = `${url}${JSON.stringify(options)}`;
 
     // Try to get from cache first
     const cached = cache.get(cacheKey);
     if (cached) {
-      return new Response(JSON.stringify(cached), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      // Return the cached Response instance directly
+      return cached;
     }
 
     // Make request if not cached
     const response = await safeFetch(url, options);
 
     if (response.ok) {
-      const data = await response.clone().json();
-      cache.set(cacheKey, data);
+      // Clone the response and cache the clone
+      const cloned = response.clone();
+      cache.set(cacheKey, cloned);
     }
 
     return response;
   };
+
+  // Expose cache for testing TTL
+  cachedFetch._cache = cache;
+  return cachedFetch;
 };

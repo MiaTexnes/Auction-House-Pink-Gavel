@@ -1,11 +1,16 @@
 export function setDarkMode(enabled) {
   const html = document.documentElement;
-  if (enabled) {
-    html.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    html.classList.remove("dark");
-    localStorage.setItem("theme", "light");
+  try {
+    if (enabled) {
+      html.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      html.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  } catch (err) {
+    console.error("setDarkMode caught error:", err);
+    throw new Error("DOM error");
   }
 }
 

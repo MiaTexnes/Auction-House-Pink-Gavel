@@ -177,6 +177,7 @@ export function createCarouselCard(listing) {
   const sellerName = listing.seller?.name || "Unknown";
 
   const card = document.createElement("a");
+  // Ensure relative URL for test compatibility
   card.href = `/item.html?id=${listing.id}`;
   card.className =
     "flex-none w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
@@ -184,7 +185,7 @@ export function createCarouselCard(listing) {
 
   card.innerHTML = `
     <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-      <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
+      ${imageUrl ? `<img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">` : '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>'}
     </div>
     <div class="p-4 flex-1 flex flex-col min-h-0 relative">
       <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">${listing.title}</h3>
@@ -206,7 +207,7 @@ export function createCarouselCard(listing) {
   const img = card.querySelector(".carousel-image");
   if (img) {
     img.addEventListener("error", function () {
-      this.parentElement.outerHTML =
+      this.parentElement.innerHTML =
         '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
     });
   }
@@ -660,18 +661,26 @@ export class CarouselComponent {
       const cardWrapper = document.createElement("div");
       cardWrapper.className = "carousel-card-wrapper fade-in";
 
-      // Apply carousel card styling
-      card.className += " carousel-card";
+      // Defensive: only append class if card exists and has className property
+      if (card && typeof card.className === "string") {
+        card.className += " carousel-card";
+        card.className = card.className
+          .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
+          .replace("hover:scale-[1.02]", "")
+          .replace("hover:-translate-y-1", "")
+          .replace("transform", "");
+      }
 
-      // Remove original hover animations for carousel context
-      card.className = card.className
-        .replace("transform hover:scale-[1.02] hover:-translate-y-1", "")
-        .replace("hover:scale-[1.02]", "")
-        .replace("hover:-translate-y-1", "")
-        .replace("transform", "");
-
-      cardWrapper.appendChild(card);
-      ImageHandler.optimizeCardImages(card);
+      // Only append if card is a valid Node
+      if (card instanceof Node) {
+        cardWrapper.appendChild(card);
+        ImageHandler.optimizeCardImages(card);
+      } else {
+        // Fallback: create a div with error info
+        const errorDiv = document.createElement("div");
+        errorDiv.textContent = "Invalid carousel card";
+        cardWrapper.appendChild(errorDiv);
+      }
       this.elements.carouselTrack.appendChild(cardWrapper);
     });
   }
