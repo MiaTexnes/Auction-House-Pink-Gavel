@@ -60,7 +60,7 @@ function renderHeader() {
                 <span class="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-pink-500 transition-all duration-300">Pink Gavel Auctions</span>
               </a>
             </div>
-            <div class="hidden md:flex items-center space-x-6">
+            <div class="hidden lg:flex items-center space-x-6">
               <a href="/listings.html" class="text-gray-700 dark:text-gray-100 hover:text-pink-600 dark:hover:text-pink-400 hover:scale-105 transition-all duration-300 ${
                 currentPath === "/listings.html"
                   ? "font-bold text-pink-600"
@@ -75,7 +75,7 @@ function renderHeader() {
               }
             </div>
           </div>
-          <div class="hidden md:flex items-center space-x-4">
+          <div class="hidden lg:flex items-center space-x-4">
             <div class="ml-5 relative">
               <label for="header-search" class="sr-only">Search Site</label>
               <input
@@ -125,7 +125,7 @@ function renderHeader() {
               </svg>
             </button>
           </div>
-          <div class="flex items-center space-x-4 md:hidden">
+          <div class="flex items-center space-x-4 lg:hidden">
             <button
               id="mobile-menu-btn"
               class="p-2 rounded-lg text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -142,7 +142,7 @@ function renderHeader() {
             </button>
           </div>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+  <div id="mobile-menu" class="hidden lg:hidden py-4 border-t border-gray-200 dark:border-gray-700">
           <div class="flex flex-col space-y-3">
             <div class="relative mb-3">
               <label for="mobile-search" class="sr-only">Search Site</label>
