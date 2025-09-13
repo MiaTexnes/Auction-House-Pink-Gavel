@@ -121,7 +121,16 @@ export function isAuthenticated() {
 
 export function getCurrentUser() {
   const userData = localStorage.getItem("user");
-  return userData ? JSON.parse(userData) : null;
+  if (!userData) return null;
+
+  try {
+    return JSON.parse(userData);
+  } catch (error) {
+    console.error("Invalid user data in localStorage:", error);
+    // Clear invalid data
+    localStorage.removeItem("user");
+    return null;
+  }
 }
 
 export function updateUserData(newData) {

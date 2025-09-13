@@ -572,15 +572,11 @@ class UIManager {
 
     // Show the banner with animation
     this.elements.winner.banner.classList.remove("hidden");
-    this.elements.winner.banner.classList.add(
-      "winner-bounce-in",
-      "winner-shimmer",
-    );
+    this.elements.winner.banner.classList.add("winner-bounce-in");
 
     // Add celebration animation after initial bounce
     setTimeout(() => {
       if (this.elements.winner.banner) {
-        this.elements.winner.banner.classList.remove("winner-shimmer");
         this.elements.winner.banner.classList.add("winner-celebration");
       }
     }, 1000);
