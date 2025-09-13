@@ -393,10 +393,15 @@ class ListingCardBuilder {
     timeInfo,
     bidCount,
   }) {
-    // Sjekk om auksjonen er vunnet (avsluttet)
-    const wonBadge = timeInfo.isEnded
-      ? `<div class="absolute top-2 left-2 z-10 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Sold</div>`
-      : "";
+    // Show 'Sold' badge if auction is ended and has bids, 'Not Sold' if ended and no bids
+    let wonBadge = "";
+    if (timeInfo.isEnded) {
+      if (bidCount > 0) {
+        wonBadge = `<div class="absolute top-2 left-2 z-10 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Sold</div>`;
+      } else {
+        wonBadge = `<div class="absolute top-2 left-2 z-10 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Not Sold</div>`;
+      }
+    }
 
     return `
       <div class="relative">
