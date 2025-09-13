@@ -1450,12 +1450,8 @@ class ListingsPageController {
         return;
       }
 
-      // Apply "newest" sort filter before displaying
-      const sortedListings = searchAndSortComponent.sortListings(
-        listings,
-        "newest",
-      );
-      this.ui.displayInitialListings(sortedListings, this.state);
+      // Don't apply any automatic sort - use natural order
+      this.ui.displayInitialListings(listings, this.state);
     } catch (error) {
       this.ui.showMessage(`Error: ${error.message}`, "error");
     } finally {
@@ -1465,17 +1461,27 @@ class ListingsPageController {
   }
 
   /**
-   * Sets the default sort button to "newest" with proper styling
-   * Provides visual feedback for the default sort state
+   * Sets the default sort button styling (no default sort selected)
+   * Provides clean initial state without forcing any sort
    */
   setDefaultSortButton() {
-    const newestButton = document.querySelector(
-      '.sort-btn[data-sort="newest"]',
-    );
-    if (newestButton) {
-      // Use the search component's method to ensure consistent styling
-      searchAndSortComponent.updateSortButtonStyles(newestButton);
-    }
+    // Don't activate any sort button by default
+    // Let users choose their preferred sorting
+    const sortButtons = document.querySelectorAll(".sort-btn");
+    sortButtons.forEach((btn) => {
+      btn.classList.remove(
+        "bg-pink-500",
+        "text-white",
+        "bg-pink-400",
+        "text-black",
+      );
+      btn.classList.add(
+        "bg-gray-200",
+        "dark:bg-gray-700",
+        "text-gray-700",
+        "dark:text-gray-300",
+      );
+    });
   }
 
   /**

@@ -16,7 +16,7 @@ export class SearchAndSortComponent {
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.searchTimeout = null;
     this.isSearching = false;
-    this.currentSort = "newest"; // Default sort
+    this.currentSort = "relevance"; // Default sort - no automatic sorting
     this.dropdownVisible = false;
     this.cachedFetch = createCachedFetch(300000); // 5 minute cache
 
@@ -268,8 +268,8 @@ export class SearchAndSortComponent {
   async performDropdownSearch(query, searchInput) {
     try {
       const results = await this.searchAPI(query);
-      const sortedResults = this.sortListings(results, "newest");
-      const limitedResults = sortedResults.slice(0, 3); // Show only 5 results
+      const sortedResults = this.sortListings(results, this.currentSort);
+      const limitedResults = sortedResults.slice(0, 3); // Show only 3 results
 
       this.showDropdown(searchInput, query, limitedResults, results.length);
     } catch (error) {
@@ -296,8 +296,18 @@ export class SearchAndSortComponent {
 
     if (results.length === 0) {
       dropdown.innerHTML = `
-        <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-          No results found for "${query}"
+        <div class="p-2">
+          <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+            No results found for "${query}"
+          </div>
+          <div class="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
+            <button
+              onclick="window.searchAndSortComponent.clearSearch();"
+              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium"
+            >
+              Clear search
+            </button>
+          </div>
         </div>
       `;
     } else {
@@ -524,12 +534,23 @@ export class SearchAndSortComponent {
 
     switch (sortBy) {
       case "newest": {
-        // Only active (not ended) listings, newest first by created date
+        // Show both active and ended listings, newest first by created date
+        // Active listings first, then ended listings
         const active = sorted.filter((l) => new Date(l.endsAt) > now);
-        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
+        const ended = sorted.filter((l) => new Date(l.endsAt) <= now);
+
+        const sortedActive = active.sort(
+          (a, b) => new Date(b.created) - new Date(a.created),
+        );
+        const sortedEnded = ended.sort(
+          (a, b) => new Date(b.created) - new Date(a.created),
+        );
+
+        return [...sortedActive, ...sortedEnded];
       }
 
       case "oldest":
+        // Show both active and ended listings, oldest first by created date
         return sorted.sort((a, b) => new Date(a.created) - new Date(b.created));
 
       case "won-auctions": {
@@ -540,10 +561,11 @@ export class SearchAndSortComponent {
         return won.sort((a, b) => new Date(b.endsAt) - new Date(a.endsAt));
       }
 
+      case "relevance":
       default:
-        // Fallback: treat as newest active
-        const active = sorted.filter((l) => new Date(l.endsAt) > now);
-        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
+        // No automatic sorting - return as-is from API (natural relevance order)
+        // Show both active and ended listings in their original order
+        return sorted;
     }
   }
 
@@ -607,3 +629,6 @@ export class SearchAndSortComponent {
 
 // Create and export singleton instance
 export const searchAndSortComponent = new SearchAndSortComponent();
+
+// Make the component available globally for onclick handlers
+window.searchAndSortComponent = searchAndSortComponent;

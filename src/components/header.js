@@ -366,10 +366,30 @@ export function initializeHeader() {
     // Setup event listeners immediately after rendering
     setupEventListeners();
 
+    // Clear search fields after header is initialized
+    clearSearchFields();
+
     // Update credits display if user is logged in
     if (isAuthenticated()) {
       updateCreditsDisplay();
     }
+  }
+}
+
+// Clear search fields when header initializes
+function clearSearchFields() {
+  const headerSearch = document.getElementById("header-search");
+  const mobileSearch = document.getElementById("mobile-search");
+  const clearButton = document.getElementById("clear-search");
+
+  if (headerSearch) {
+    headerSearch.value = "";
+  }
+  if (mobileSearch) {
+    mobileSearch.value = "";
+  }
+  if (clearButton) {
+    clearButton.classList.add("hidden");
   }
 }
 

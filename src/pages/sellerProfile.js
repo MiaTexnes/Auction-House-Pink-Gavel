@@ -11,6 +11,124 @@ import { generateProfileHeader } from "../utils/profileUtils.js";
 
 const ITEMS_PER_PAGE = 4;
 
+// Base Listings Manager
+class ListingsManager {
+  constructor(
+    container,
+    listings,
+    profile,
+    buttonsContainerId = "listings-buttons-container",
+  ) {
+    this.container = container;
+    this.listings = listings;
+    this.profile = profile;
+    this.buttonsContainerId = buttonsContainerId;
+    this.currentIndex = ITEMS_PER_PAGE;
+  }
+
+  renderItems(items) {
+    items.forEach((item) => {
+      fetchListingWithBids(item.id).then((itemWithBids) => {
+        this.container.appendChild(
+          createListingCard(
+            normalizeListing(itemWithBids || item, this.profile),
+          ),
+        );
+      });
+    });
+  }
+
+  renderInitial() {
+    this.container.innerHTML = "";
+    const initialItems = this.listings.slice(0, ITEMS_PER_PAGE);
+    this.renderItems(initialItems);
+    this.setupButtons();
+  }
+
+  setupButtons() {
+    if (this.listings.length <= ITEMS_PER_PAGE) return;
+
+    const buttonsContainer = document.getElementById(this.buttonsContainerId);
+    if (!buttonsContainer) return;
+
+    buttonsContainer.innerHTML = ""; // Clear existing buttons
+
+    const viewMoreBtn = createViewMoreButton(
+      "View More",
+      () => this.handleViewMore(),
+      `viewMore${this.getPrefix()}Btn`,
+    );
+    const viewLessBtn = createViewLessButton(
+      "View Less",
+      () => this.handleViewLess(),
+      `viewLess${this.getPrefix()}Btn`,
+      "hidden",
+    );
+
+    buttonsContainer.appendChild(viewMoreBtn);
+    buttonsContainer.appendChild(viewLessBtn);
+  }
+
+  handleViewMore() {
+    const nextItems = this.listings.slice(
+      this.currentIndex,
+      this.currentIndex + ITEMS_PER_PAGE,
+    );
+    this.renderItems(nextItems);
+    this.currentIndex += ITEMS_PER_PAGE;
+
+    this.toggleButtons(false);
+  }
+
+  handleViewLess() {
+    this.renderInitial();
+    this.currentIndex = ITEMS_PER_PAGE;
+    this.toggleButtons(true);
+  }
+
+  toggleButtons(showMore) {
+    const buttonsContainer = document.getElementById(this.buttonsContainerId);
+    if (!buttonsContainer) return;
+
+    const viewMoreBtn = buttonsContainer.querySelector(
+      `#viewMore${this.getPrefix()}Btn`,
+    );
+    const viewLessBtn = buttonsContainer.querySelector(
+      `#viewLess${this.getPrefix()}Btn`,
+    );
+
+    if (viewMoreBtn && viewLessBtn) {
+      if (showMore) {
+        viewMoreBtn.classList.remove("hidden");
+        viewLessBtn.classList.add("hidden");
+      } else {
+        viewMoreBtn.classList.add("hidden");
+        viewLessBtn.classList.remove("hidden");
+      }
+    }
+  }
+
+  getPrefix() {
+    return "Listings";
+  }
+}
+
+// Wins Manager
+class WinsManager extends ListingsManager {
+  constructor(
+    container,
+    wins,
+    profile,
+    buttonsContainerId = "wins-buttons-container",
+  ) {
+    super(container, wins, profile, buttonsContainerId);
+  }
+
+  getPrefix() {
+    return "Wins";
+  }
+}
+
 class DOMElements {
   constructor() {
     this.profileContainer = document.getElementById("profiles-container");
@@ -54,11 +172,13 @@ class StateManager {
     this.currentWinsIndex += ITEMS_PER_PAGE;
   }
   getNextListings() {
-    return (
-      this.profile?.listings?.slice(
-        this.currentListingsIndex,
-        this.currentListingsIndex + ITEMS_PER_PAGE,
-      ) || []
+    const activeListings =
+      this.profile?.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+    return activeListings.slice(
+      this.currentListingsIndex,
+      this.currentListingsIndex + ITEMS_PER_PAGE,
     );
   }
   getNextWins() {
@@ -70,13 +190,21 @@ class StateManager {
     );
   }
   getInitialListings() {
-    return this.profile?.listings?.slice(0, ITEMS_PER_PAGE) || [];
+    const activeListings =
+      this.profile?.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+    return activeListings.slice(0, ITEMS_PER_PAGE);
   }
   getInitialWins() {
     return this.profile?.wins?.slice(0, ITEMS_PER_PAGE) || [];
   }
   hasMoreListings() {
-    return this.currentListingsIndex < (this.profile?.listings?.length || 0);
+    const activeListings =
+      this.profile?.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+    return this.currentListingsIndex < activeListings.length;
   }
   hasMoreWins() {
     return this.currentWinsIndex < (this.profile?.wins?.length || 0);
@@ -144,9 +272,9 @@ class UIManager {
     }
     document.title = `${profile.name} - Seller Profile | Pink Gavel Auctions`;
     container.innerHTML = this.generateProfileHTML(profile);
-    this.renderInitialItems();
-    this.setupListingsButtons();
-    this.setupWinsButtons();
+    this.setupActiveListingsToggle(profile);
+    this.setupWinsToggle(profile);
+    this.setupEndedListingsToggle(profile);
   }
   generateProfileHTML(profile) {
     return `
@@ -155,6 +283,7 @@ class UIManager {
         ${this.generateBioSection(profile)}
         ${this.generateStatsSection(profile)}
         ${this.generateListingsSection(profile)}
+        ${this.generateEndedListingsSection(profile)}
         ${this.generateWinsSection(profile)}
       </div>
     `;
@@ -172,205 +301,291 @@ class UIManager {
   }
   generateStatsSection(profile) {
     return `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class=" dark:bg-gray-600 border border-gray-300 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">User Listings</h4>
-          <p class="text-2xl font-bold ">${profile.listings?.length || 0}</p>
-        </div>
-        <div class=" dark:bg-gray-600 border border-gray-300 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">🏆User Wins🏆</h4>
-          <p class="text-2xl font-bold ">${profile.wins?.length || 0}</p>
-        </div>
-        <div class=" dark:bg-gray-600 border border-gray-300 p-4 rounded-lg text-center">
-          <h4 class="text-lg font-semibold">User Credits</h4>
-          <p class="text-2xl font-bold text-green-600">${profile.credits || 0}</p>
+      <div class="flex justify-center mb-8">
+        <div class="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-700 border border-purple-300 dark:border-purple-600 p-6 rounded-xl text-center max-w-sm">
+          <div class="text-purple-600 dark:text-purple-300 text-4xl mb-3">💰</div>
+          <h4 class="text-xl font-semibold text-purple-800 dark:text-purple-200 mb-2">User Credits</h4>
+          <p class="text-4xl font-bold text-purple-900 dark:text-purple-100">${profile.credits || 0}</p>
         </div>
       </div>
     `;
   }
   generateListingsSection(profile) {
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
     return `
       <div class="mb-6">
-        <h3 class="text-xl font-semibold mb-4">Listings</h3>
-        <div id="seller-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-        <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
-          <!-- Buttons will be created dynamically -->
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Active Listings</h3>
+          <button
+            id="toggleSellerActiveListingsBtn"
+            class="bg-green-200 hover:bg-green-300 dark:bg-green-700 dark:hover:bg-green-600 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            ${activeListings.length > 0 ? `Show Active (${activeListings.length})` : "No Active Listings"}
+          </button>
+        </div>
+        <div id="seller-active-listings-section" class="hidden">
+          <div id="seller-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+          <div id="listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+            <!-- Buttons will be created dynamically -->
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  generateEndedListingsSection(profile) {
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    return `
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Ended Listings</h3>
+          <button
+            id="toggleSellerEndedListingsBtn"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            ${endedListings.length > 0 ? `Show Ended (${endedListings.length})` : "No Ended Listings"}
+          </button>
+        </div>
+        <div id="seller-ended-listings-section" class="hidden">
+          <div id="seller-ended-listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+          <div id="seller-ended-listings-buttons-container" class="flex justify-center space-x-4 mt-4">
+            <!-- Buttons will be created dynamically -->
+          </div>
         </div>
       </div>
     `;
   }
   generateWinsSection(profile) {
+    const wins = profile.wins || [];
     return `
       <div class="mb-6">
-        <h3 class="text-xl font-semibold mb-4">Wins</h3>
-        <div id="seller-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-        <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
-          <!-- Buttons will be created dynamically -->
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">🏆 User Wins 🏆</h3>
+          <button
+            id="toggleSellerWinsBtn"
+            class="bg-yellow-200 hover:bg-yellow-300 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-black dark:text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            ${wins.length > 0 ? `Show Wins (${wins.length})` : "No Wins Yet"}
+          </button>
+        </div>
+        <div id="seller-wins-section" class="hidden">
+          <div id="seller-wins-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+          <div id="wins-buttons-container" class="flex justify-center space-x-4 mt-4">
+            <!-- Buttons will be created dynamically -->
+          </div>
         </div>
       </div>
     `;
   }
   setupListingsButtons() {
-    if ((this.state.profile?.listings?.length || 0) <= ITEMS_PER_PAGE) return;
-
-    const buttonsContainer = document.getElementById(
-      "listings-buttons-container",
-    );
-    if (!buttonsContainer) return;
-
-    const viewMoreBtn = createViewMoreButton(
-      "View More",
-      () => this.handleViewMoreListings(),
-      "viewMoreListingsBtn",
-    );
-    const viewLessBtn = createViewLessButton(
-      "View Less",
-      () => this.handleViewLessListings(),
-      "viewLessListingsBtn",
-      "hidden",
-    );
-
-    buttonsContainer.appendChild(viewMoreBtn);
-    buttonsContainer.appendChild(viewLessBtn);
+    // This method is now handled by ListingsManager
   }
 
   setupWinsButtons() {
-    if ((this.state.profile?.wins?.length || 0) <= ITEMS_PER_PAGE) return;
+    // This method is now handled by WinsManager
+  }
 
-    const buttonsContainer = document.getElementById("wins-buttons-container");
-    if (!buttonsContainer) return;
-
-    const viewMoreBtn = createViewMoreButton(
-      "View More",
-      () => this.handleViewMoreWins(),
-      "viewMoreWinsBtn",
-    );
-    const viewLessBtn = createViewLessButton(
-      "View Less",
-      () => this.handleViewLessWins(),
-      "viewLessWinsBtn",
-      "hidden",
+  setupEndedListingsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleSellerEndedListingsBtn");
+    const endedSection = document.getElementById(
+      "seller-ended-listings-section",
     );
 
-    buttonsContainer.appendChild(viewMoreBtn);
-    buttonsContainer.appendChild(viewLessBtn);
+    if (!toggleBtn || !endedSection) return;
+
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    if (endedListings.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+    let isInitialized = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        endedSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Ended (${endedListings.length})`;
+        isExpanded = false;
+      } else {
+        endedSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Ended (${endedListings.length})`;
+
+        // Only render if not yet initialized
+        if (!isInitialized) {
+          this.renderEndedListings(profile);
+          isInitialized = true;
+        }
+
+        isExpanded = true;
+      }
+    });
   }
-  renderInitialItems() {
-    this.renderInitialListings();
-    this.renderInitialWins();
+
+  renderEndedListings(profile) {
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    if (!endedListings.length) return;
+
+    const container = document.getElementById(
+      "seller-ended-listings-container",
+    );
+    if (!container) return;
+
+    const endedListingsManager = new ListingsManager(
+      container,
+      endedListings,
+      profile,
+      "seller-ended-listings-buttons-container",
+    );
+    endedListingsManager.renderInitial();
   }
-  renderInitialListings() {
+
+  setupActiveListingsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleSellerActiveListingsBtn");
+    const activeSection = document.getElementById(
+      "seller-active-listings-section",
+    );
+
+    if (!toggleBtn || !activeSection) return;
+
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
+
+    if (activeListings.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        activeSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Active (${activeListings.length})`;
+        isExpanded = false;
+      } else {
+        activeSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Active (${activeListings.length})`;
+        this.renderSellerListings(profile);
+        isExpanded = true;
+      }
+    });
+  }
+
+  setupWinsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleSellerWinsBtn");
+    const winsSection = document.getElementById("seller-wins-section");
+
+    if (!toggleBtn || !winsSection) return;
+
+    const wins = profile.wins || [];
+
+    if (wins.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
+    }
+
+    let isExpanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        winsSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Wins (${wins.length})`;
+        isExpanded = false;
+      } else {
+        winsSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Wins (${wins.length})`;
+        this.renderSellerWins(profile);
+        isExpanded = true;
+      }
+    });
+  }
+  renderSellerListings(profile) {
     const container = document.getElementById("seller-listings-container");
     if (!container) return;
-    this.state.getInitialListings().forEach((listing) => {
-      fetchListingWithBids(listing.id).then((listingWithBids) => {
-        container.appendChild(
-          createListingCard(
-            normalizeListing(listingWithBids || listing, this.state.profile),
-          ),
-        );
-      });
-    });
-  }
-  renderInitialWins() {
-    const container = document.getElementById("seller-wins-container");
-    if (!container) return;
-    this.state.getInitialWins().forEach((win) => {
-      fetchListingWithBids(win.id).then((winWithBids) => {
-        container.appendChild(
-          createListingCard(
-            normalizeListing(winWithBids || win, this.state.profile),
-          ),
-        );
-      });
-    });
-  }
-  handleViewMoreListings() {
-    const container = document.getElementById("seller-listings-container");
-    if (!container) return;
 
-    this.state.getNextListings().forEach((listing) => {
-      container.appendChild(
-        createListingCard(normalizeListing(listing, this.state.profile)),
-      );
-    });
-    this.state.incrementListingsIndex();
+    const activeListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) > new Date(),
+      ) || [];
 
-    this.toggleListingsButtons(false);
-  }
-
-  handleViewLessListings() {
-    const container = document.getElementById("seller-listings-container");
-    if (!container) return;
-
-    container.innerHTML = "";
-    this.renderInitialListings();
-    this.state.resetListingsIndex();
-
-    this.toggleListingsButtons(true);
-  }
-
-  handleViewMoreWins() {
-    const container = document.getElementById("seller-wins-container");
-    if (!container) return;
-
-    this.state.getNextWins().forEach((win) => {
-      container.appendChild(
-        createListingCard(normalizeListing(win, this.state.profile)),
-      );
-    });
-    this.state.incrementWinsIndex();
-
-    this.toggleWinsButtons(false);
-  }
-
-  handleViewLessWins() {
-    const container = document.getElementById("seller-wins-container");
-    if (!container) return;
-
-    container.innerHTML = "";
-    this.renderInitialWins();
-    this.state.resetWinsIndex();
-
-    this.toggleWinsButtons(true);
-  }
-
-  toggleListingsButtons(showMore) {
-    const buttonsContainer = document.getElementById(
+    const listingsManager = new ListingsManager(
+      container,
+      activeListings,
+      profile,
       "listings-buttons-container",
     );
-    if (!buttonsContainer) return;
-
-    const viewMoreBtn = buttonsContainer.querySelector("#viewMoreListingsBtn");
-    const viewLessBtn = buttonsContainer.querySelector("#viewLessListingsBtn");
-
-    if (viewMoreBtn && viewLessBtn) {
-      if (showMore) {
-        viewMoreBtn.classList.remove("hidden");
-        viewLessBtn.classList.add("hidden");
-      } else {
-        viewMoreBtn.classList.add("hidden");
-        viewLessBtn.classList.remove("hidden");
-      }
-    }
+    listingsManager.renderInitial();
   }
 
-  toggleWinsButtons(showMore) {
-    const buttonsContainer = document.getElementById("wins-buttons-container");
-    if (!buttonsContainer) return;
+  renderSellerWins(profile) {
+    const container = document.getElementById("seller-wins-container");
+    if (!container) return;
 
-    const viewMoreBtn = buttonsContainer.querySelector("#viewMoreWinsBtn");
-    const viewLessBtn = buttonsContainer.querySelector("#viewLessWinsBtn");
+    const wins = profile.wins || [];
 
-    if (viewMoreBtn && viewLessBtn) {
-      if (showMore) {
-        viewMoreBtn.classList.remove("hidden");
-        viewLessBtn.classList.add("hidden");
-      } else {
-        viewMoreBtn.classList.add("hidden");
-        viewLessBtn.classList.remove("hidden");
-      }
+    const winsManager = new WinsManager(
+      container,
+      wins,
+      profile,
+      "wins-buttons-container",
+    );
+    winsManager.renderInitial();
+  }
+
+  setupEndedListingsToggle(profile) {
+    const toggleBtn = document.getElementById("toggleSellerEndedListingsBtn");
+    const endedSection = document.getElementById(
+      "seller-ended-listings-section",
+    );
+
+    if (!toggleBtn || !endedSection) return;
+
+    const endedListings =
+      profile.listings?.filter(
+        (listing) => new Date(listing.endsAt) <= new Date(),
+      ) || [];
+
+    if (endedListings.length === 0) {
+      toggleBtn.disabled = true;
+      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
+      return;
     }
+
+    let isExpanded = false;
+
+    toggleBtn.addEventListener("click", () => {
+      if (isExpanded) {
+        endedSection.classList.add("hidden");
+        toggleBtn.textContent = `Show Ended (${endedListings.length})`;
+        isExpanded = false;
+      } else {
+        endedSection.classList.remove("hidden");
+        toggleBtn.textContent = `Hide Ended (${endedListings.length})`;
+        this.renderEndedListings(profile);
+        isExpanded = true;
+      }
+    });
   }
 }
 
