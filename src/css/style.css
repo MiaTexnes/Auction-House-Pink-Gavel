@@ -1801,52 +1801,24 @@ body {
 
 /* Carousel Fixed Sizing Styles */
 .carousel-container {
+  min-height: 520px;
+  max-height: 520px;
+  height: 520px;
+}
+
+.carousel-card-area {
   min-height: 480px;
   max-height: 480px;
   height: 480px;
 }
 
-.carousel-card-area {
-  min-height: 400px;
-  max-height: 400px;
-  height: 400px;
-  position: relative;
-  overflow: hidden;
-}
-
-.carousel-track {
-  display: flex;
-  gap: 0.5rem;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
-}
-
-.carousel-track.transitioning {
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.carousel-track.no-transition {
-  transition: none;
-}
-
-/* Faster transitions on mobile for better responsiveness */
-@media (max-width: 768px) {
-  .carousel-track {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .carousel-track.transitioning {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-}
-
 .carousel-card {
-  width: 320px !important;
-  min-width: 320px !important;
-  max-width: 320px !important;
-  height: 400px !important;
-  min-height: 400px !important;
-  max-height: 400px !important;
+  width: 290px !important;
+  min-width: 290px !important;
+  max-width: 290px !important;
+  height: 480px !important;
+  min-height: 480px !important;
+  max-height: 480px !important;
   flex-shrink: 0 !important;
 }
 
@@ -1854,48 +1826,10 @@ body {
   width: 320px !important;
   min-width: 320px !important;
   max-width: 320px !important;
-  height: 400px !important;
-  min-height: 400px !important;
-  max-height: 400px !important;
+  height: 480px !important;
+  min-height: 480px !important;
+  max-height: 480px !important;
   flex-shrink: 0 !important;
-  position: relative;
-}
-
-/* Smooth fade transition for card changes */
-.carousel-card-wrapper.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Enhanced smooth scrolling for simpler carousel */
-.scroll-smooth-enhanced {
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
-}
-
-.scroll-smooth-enhanced > * {
-  scroll-snap-align: start;
-}
-
-/* Touch/swipe improvements for mobile */
-.carousel-card-area {
-  touch-action: pan-x; /* Allow horizontal swiping */
-}
-
-/* Improved button hover states with smoother transitions */
-.carousel-nav-button {
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .last\:border-b-0:last-child {
