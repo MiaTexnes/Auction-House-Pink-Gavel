@@ -381,13 +381,13 @@ export class CarouselComponent {
     // Main carousel wrapper with improved mobile handling and fixed height
     const carouselWrapper = DOMUtils.createElement(
       "div",
-      "flex flex-col items-center w-full max-w-full overflow-hidden carousel-container",
+      "flex flex-col items-center w-full max-w-full overflow-hidden carousel-container h-[480px]",
     );
 
     // Carousel container with responsive padding and dimensions
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-1 sm:px-4 md:px-6 lg:px-8 carousel-card-area",
+      "w-full max-w-7xl mx-auto px-1 sm:px-4 md:px-6 lg:px-8 carousel-card-area h-[480px] overflow-y-hidden",
     );
 
     // Main area with navigation and cards - responsive width and overflow handling
@@ -403,7 +403,7 @@ export class CarouselComponent {
     // Create card area container with overflow-x-auto and responsive width
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "flex-1 min-w-0 overflow-x-auto px-1 sm:px-2 carousel-card-area",
+      "flex-1 min-w-0 overflow-x-auto overflow-y-hidden px-1 sm:px-2 carousel-card-area h-[480px]",
     );
 
     // Create the carousel track that will slide smoothly
@@ -422,38 +422,8 @@ export class CarouselComponent {
     );
     carouselContainer.appendChild(mainArea);
 
-    // Progress scroll bar (bigger and simpler)
-    const scrollBarContainer = DOMUtils.createElement(
-      "div",
-      "w-full max-w-4xl mx-auto mt-6 px-4",
-    );
-    this.elements.scrollBar = DOMUtils.createElement(
-      "div",
-      "relative w-full h-8 bg-gray-300 dark:bg-gray-700 overflow-hidden cursor-pointer",
-    );
-
-    // Create progress bar fill (solid color, no rounded, no gradient)
-    this.elements.progressFill = DOMUtils.createElement(
-      "div",
-      "h-full bg-pink-500 transition-none",
-    );
-    this.elements.scrollBar.appendChild(this.elements.progressFill);
-
-    // Add click functionality to progress bar
-    this.elements.scrollBar.addEventListener("click", (e) => {
-      if (this.isTransitioning) return; // Prevent clicks during transition
-
-      const rect = this.elements.scrollBar.getBoundingClientRect();
-      const clickPosition = (e.clientX - rect.left) / rect.width;
-      const maxIndex = Math.max(0, this.total - this.cardsPerView);
-      const targetIndex = Math.round(clickPosition * maxIndex);
-
-      this.smoothTransitionTo(targetIndex);
-    });
-
-    scrollBarContainer.appendChild(this.elements.scrollBar);
-
-    carouselWrapper.append(carouselContainer, scrollBarContainer);
+    // Only append carouselContainer, no custom scrollbar
+    carouselWrapper.appendChild(carouselContainer);
     container.appendChild(carouselWrapper);
   }
   // ...existing code...
