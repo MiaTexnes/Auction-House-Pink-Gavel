@@ -180,14 +180,14 @@ export function createCarouselCard(listing) {
   // Ensure relative URL for test compatibility
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
-  // Fixed width (w-80 = 320px) and height (h-[400px]) for consistent sizing
+    "flex-none w-72 sm:w-80 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
+  // Responsive width: w-72 (18rem) for mobile, w-80 (20rem) for sm+, max-w-full prevents overflow
 
   card.innerHTML = `
     <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
       ${imageUrl ? `<img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">` : '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>'}
     </div>
-    <div class="p-4 flex-1 flex flex-col min-h-0 relative">
+    <div class="p-3 sm:p-4 flex-1 flex flex-col min-h-0 relative">
       <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">${listing.title}</h3>
       <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${listing.description || "No description provided."}</p>
       <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -368,7 +368,7 @@ export class CarouselComponent {
     if (!container) return;
 
     container.innerHTML = "";
-    this.createCarouselStructure(container);
+    this.createCarouselStructure(container); // Ensure proper structure
     this.setupEventListeners();
     this.updateCarousel();
   }
@@ -384,32 +384,32 @@ export class CarouselComponent {
       "flex flex-col items-center w-full max-w-full overflow-hidden carousel-container",
     );
 
-    // Carousel container with responsive padding and fixed dimensions
+    // Carousel container with responsive padding and dimensions
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 carousel-card-area",
+      "w-full max-w-7xl mx-auto px-1 sm:px-4 md:px-6 lg:px-8 carousel-card-area",
     );
 
-    // Main area with navigation and cards - fixed height and overflow handling
+    // Main area with navigation and cards - responsive width and overflow handling
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex items-center justify-between gap-2 xs:gap-3 sm:gap-4 w-full h-full",
+      "flex items-center justify-between gap-2 sm:gap-4 w-full h-full",
     );
 
     // Create navigation buttons
     this.elements.leftBtn = this.createNavigationButton("left");
     this.elements.rightBtn = this.createNavigationButton("right");
 
-    // Create card area container with overflow hidden
+    // Create card area container with overflow-x-auto and responsive width
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "flex-1 min-w-0 overflow-hidden px-2 carousel-card-area",
+      "flex-1 min-w-0 overflow-x-auto px-1 sm:px-2 carousel-card-area",
     );
 
     // Create the carousel track that will slide smoothly
     this.elements.carouselTrack = DOMUtils.createElement(
       "div",
-      "carousel-track flex gap-2",
+      "carousel-track flex gap-2 sm:gap-4 w-full",
     );
 
     // Add track to card area
@@ -456,6 +456,7 @@ export class CarouselComponent {
     carouselWrapper.append(carouselContainer, scrollBarContainer);
     container.appendChild(carouselWrapper);
   }
+  // ...existing code...
 
   /**
    * Creates navigation button (left or right)
