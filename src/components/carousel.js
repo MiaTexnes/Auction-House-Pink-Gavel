@@ -475,9 +475,10 @@ export class CarouselComponent {
       : "Scroll carousel right";
     const visibleText = isLeft ? "Scroll Left" : "Scroll Right";
 
+    // Add responsive classes: hidden on mobile, visible on sm+
     const button = DOMUtils.createElement(
       "button",
-      "carousel-nav-button p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10",
+      "carousel-nav-button p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10 hidden sm:inline-block",
       `<span class="sr-only">${accessibleLabel}</span><span aria-hidden="true"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg></span>`,
     );
     button.setAttribute("aria-label", accessibleLabel);
