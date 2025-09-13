@@ -22,6 +22,7 @@
 
 import { registerUser } from "../library/auth.js";
 import { createGradientButton } from "../components/buttons.js";
+import { loginUser } from "../library/auth.js";
 
 // Constants
 const REDIRECT_DELAY = 1500;
@@ -429,17 +430,33 @@ class RegistrationController {
 
   async performRegistration(userData) {
     this.ui.toggleLoadingState(true);
-
     try {
       // Remove empty avatar field
       if (!userData.avatar) {
         delete userData.avatar;
       }
-
       const result = await AuthService.register(userData);
-
       if (result.success) {
-        this.handleRegistrationSuccess();
+        // Automatically log in after registration
+        try {
+          await loginUser({
+            email: userData.email,
+            password: userData.password,
+          });
+          this.ui.showSuccess(
+            "Registration and login successful! Redirecting to your profile...",
+          );
+          setTimeout(() => {
+            window.location.href = "/profile.html";
+          }, REDIRECT_DELAY);
+        } catch (loginError) {
+          this.ui.showSuccess(
+            "Registration successful, but automatic login failed. Please log in manually.",
+          );
+          setTimeout(() => {
+            window.location.href = REDIRECT_URL;
+          }, REDIRECT_DELAY);
+        }
       } else {
         this.ui.showError(result.error);
       }
