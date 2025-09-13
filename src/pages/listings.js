@@ -393,8 +393,16 @@ class ListingCardBuilder {
     timeInfo,
     bidCount,
   }) {
+    // Sjekk om auksjonen er vunnet (avsluttet)
+    const wonBadge = timeInfo.isEnded
+      ? `<div class="absolute top-2 left-2 z-10 bg-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg" style="pointer-events:none;">Sold</div>`
+      : "";
+
     return `
-      ${this.generateImageHTML(imageUrl, title)}
+      <div class="relative">
+        ${wonBadge}
+        ${this.generateImageHTML(imageUrl, title)}
+      </div>
       <div class="p-4 flex-1 flex flex-col min-h-0" style="height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT}; min-height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT}; max-height: ${CONSTANTS.DIMENSIONS.CONTENT_HEIGHT};">
         ${this.generateTitleHTML(title)}
         ${this.generateDescriptionHTML(description)}
