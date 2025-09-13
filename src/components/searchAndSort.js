@@ -2,8 +2,8 @@
  * Search and Sort Component
  * Handles search functionality and sorting for listings
  */
-import { config } from "../services/config.js"; // Import the config object
-import { API_BASE_URL } from "../services/baseApi.js"; // Add this import
+import { config } from "../services/config.js";
+import { API_BASE_URL } from "../services/baseApi.js";
 import {
   safeFetch,
   createDebouncedSearch,
@@ -16,19 +16,15 @@ export class SearchAndSortComponent {
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
     this.searchTimeout = null;
     this.isSearching = false;
-    this.currentSort = "newest"; // Default sort
+    this.currentSort = "relevance";
     this.dropdownVisible = false;
-    this.cachedFetch = createCachedFetch(300000); // 5 minute cache
+    this.cachedFetch = createCachedFetch(300000);
 
-    // Create debounced search function
     this.debouncedSearch = createDebouncedSearch((query) => {
       this.performSearch(query);
-    }, 500); // 500ms debounce delay
+    }, 500);
   }
 
-  /**
-   * Initialize search and sort functionality
-   */
   init() {
     this.setupSearchListeners();
     this.setupSortListeners();
@@ -36,85 +32,46 @@ export class SearchAndSortComponent {
     this.setupDocumentClickListener();
   }
 
-  /**
-   * Create dropdown containers for search results
-   */
   createDropdownContainers() {
-    // Create dropdown for header search
     const headerSearch = document.getElementById("header-search");
-    if (headerSearch) {
+    if (headerSearch)
       this.createDropdown(headerSearch, "header-search-dropdown");
-    }
-
-    // Create dropdown for mobile search
     const mobileSearch = document.getElementById("mobile-search");
-    if (mobileSearch) {
+    if (mobileSearch)
       this.createDropdown(mobileSearch, "mobile-search-dropdown");
-    }
   }
 
-  /**
-   * Create a dropdown container for a search input
-   */
   createDropdown(searchInput, dropdownId) {
-    // Check if dropdown already exists
-    if (document.getElementById(dropdownId)) {
-      return;
-    }
-
+    if (document.getElementById(dropdownId)) return;
     const dropdown = document.createElement("div");
     dropdown.id = dropdownId;
-
-    // Common dropdown styling
     dropdown.className =
       "absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-[60] hidden max-h-80 overflow-y-auto w-full";
-
-    // Position the dropdown directly under the search input
     const searchContainer = searchInput.parentElement;
     searchContainer.style.position = "relative";
-    dropdown.style.top = `${searchInput.offsetHeight + 4}px`; // Add 4px spacing below the input
+    dropdown.style.top = `${searchInput.offsetHeight + 4}px`;
     searchContainer.appendChild(dropdown);
   }
 
-  /**
-   * Setup document click listener to close dropdowns
-   */
   setupDocumentClickListener() {
     document.addEventListener("click", (e) => {
-      // Check if click is outside search containers
       const headerContainer =
         document.getElementById("header-search")?.parentElement;
       const mobileContainer =
         document.getElementById("mobile-search")?.parentElement;
-
-      if (headerContainer && !headerContainer.contains(e.target)) {
+      if (headerContainer && !headerContainer.contains(e.target))
         this.hideDropdown("header-search-dropdown");
-      }
-      if (mobileContainer && !mobileContainer.contains(e.target)) {
+      if (mobileContainer && !mobileContainer.contains(e.target))
         this.hideDropdown("mobile-search-dropdown");
-      }
     });
   }
 
-  /**
-   * Setup search event listeners
-   */
   setupSearchListeners() {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
     const clearSearch = document.getElementById("clear-search");
-
-    // Setup desktop search
-    if (headerSearch) {
-      this.setupSearchInput(headerSearch, clearSearch);
-    }
-
-    // Setup mobile search
-    if (mobileSearch) {
-      this.setupSearchInput(mobileSearch, null);
-    }
-
-    // Clear search functionality
+    if (headerSearch) this.setupSearchInput(headerSearch, clearSearch);
+    if (mobileSearch) this.setupSearchInput(mobileSearch, null);
     if (clearSearch) {
       clearSearch.addEventListener("click", (e) => {
         e.preventDefault();
@@ -123,13 +80,8 @@ export class SearchAndSortComponent {
     }
   }
 
-  /**
-   * Setup sort event listeners for buttons
-   */
   setupSortListeners() {
-    // Handle sort buttons
     const sortButtons = document.querySelectorAll(".sort-btn");
-
     sortButtons.forEach((button) => {
       button.addEventListener("click", (e) => {
         e.preventDefault();
@@ -139,8 +91,6 @@ export class SearchAndSortComponent {
         this.applySorting();
       });
     });
-
-    // Also handle dropdown if it exists
     const sortSelect = document.getElementById("sort-select");
     if (sortSelect) {
       sortSelect.addEventListener("change", (e) => {
@@ -150,33 +100,20 @@ export class SearchAndSortComponent {
     }
   }
 
-  /**
-   * Set the current sort type
-   */
   setSortType(sortType) {
     const sortMapping = {
       newest: "newest",
       oldest: "oldest",
       "won-auctions": "won-auctions",
     };
-
     this.currentSort = sortMapping[sortType] || sortType;
   }
 
-  /**
-   * Filter active auctions (auctions that haven't ended)
-   */
   filterActiveAuctions(listings) {
     const now = new Date();
-    return listings.filter((listing) => {
-      const endDate = new Date(listing.endsAt);
-      return endDate > now; // Only include auctions that haven't ended
-    });
+    return listings.filter((listing) => new Date(listing.endsAt) > now);
   }
 
-  /**
-   * Update sort button styles to show active state
-   */
   updateSortButtonStyles(activeButton) {
     const sortButtons = document.querySelectorAll(".sort-btn");
     sortButtons.forEach((btn) => {
@@ -188,7 +125,6 @@ export class SearchAndSortComponent {
         "dark:text-gray-300",
       );
     });
-
     activeButton.classList.remove(
       "bg-gray-200",
       "dark:bg-gray-700",
@@ -198,106 +134,75 @@ export class SearchAndSortComponent {
     activeButton.classList.add("bg-pink-400", "text-black");
   }
 
-  /**
-   * Setup individual search input
-   */
   setupSearchInput(searchInput, clearButton) {
-    // Real-time search with debouncing
     searchInput.addEventListener("input", (e) => {
       const query = e.target.value.trim();
-
-      // Show/hide clear button for header search
       if (clearButton && searchInput.id === "header-search") {
-        if (query.length > 0) {
-          clearButton.classList.remove("hidden");
-        } else {
-          clearButton.classList.add("hidden");
-        }
+        if (query.length > 0) clearButton.classList.remove("hidden");
+        else clearButton.classList.add("hidden");
       }
-
-      // Sync search inputs
       this.syncSearchInputs(query, searchInput);
-
-      // Show dropdown and perform search for dropdown
       if (query.length > 0) {
-        // Use debounced search for dropdown
         this.debouncedSearch(query);
-
-        // Also perform dropdown search with longer delay
         clearTimeout(this.searchTimeout);
         this.searchTimeout = setTimeout(() => {
           this.performDropdownSearch(query, searchInput);
         }, 500);
       } else {
         this.hideAllDropdowns();
-        // Still perform main search for empty query (shows all results)
         this.debouncedSearch(query);
       }
     });
-
-    // Search on Enter key
     searchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         const query = e.target.value.trim();
-
         if (query.length > 0) {
-          // Navigate to listings page with search
           window.location.href = `/listings.html?search=${encodeURIComponent(query)}`;
         } else {
-          // Use debounced search
           this.debouncedSearch(query);
         }
       }
     });
-
-    // Simple focus handling - no expansion behavior for header search
     if (searchInput.id === "header-search") {
       searchInput.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (!searchInput.matches(":focus")) {
-          searchInput.focus();
-        }
+        if (!searchInput.matches(":focus")) searchInput.focus();
       });
     }
   }
 
-  /**
-   * Perform search for dropdown results
-   */
   async performDropdownSearch(query, searchInput) {
     try {
       const results = await this.searchAPI(query);
-      const sortedResults = this.sortListings(results, "newest");
-      const limitedResults = sortedResults.slice(0, 3); // Show only 5 results
-
+      const sortedResults = this.sortListings(results, this.currentSort);
+      const limitedResults = sortedResults.slice(0, 3);
       this.showDropdown(searchInput, query, limitedResults, results.length);
-    } catch (error) {
-      // Handle error silently or show user-friendly message
-    }
+    } catch (error) {}
   }
 
-  /**
-   * Show dropdown with search results
-   */
   showDropdown(searchInput, query, results, totalCount) {
     const dropdownId =
       searchInput.id === "header-search"
         ? "header-search-dropdown"
         : "mobile-search-dropdown";
     const dropdown = document.getElementById(dropdownId);
-
     if (!dropdown) return;
-
-    // Update position for fixed positioned dropdowns
-    if (dropdown._updatePosition) {
-      dropdown._updatePosition();
-    }
-
+    if (dropdown._updatePosition) dropdown._updatePosition();
     if (results.length === 0) {
       dropdown.innerHTML = `
-        <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-          No results found for "${query}"
+        <div class="p-2">
+          <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+            No results found for "${query}"
+          </div>
+          <div class="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
+            <button
+              onclick="window.searchAndSortComponent.clearSearch();"
+              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium"
+            >
+              Clear search
+            </button>
+          </div>
         </div>
       `;
     } else {
@@ -318,25 +223,19 @@ export class SearchAndSortComponent {
         </div>
       `;
     }
-
     dropdown.classList.remove("hidden");
     this.dropdownVisible = true;
   }
 
-  /**
-   * Create a dropdown item for a listing
-   */
   createDropdownItem(listing) {
     const imageUrl =
       listing.media && listing.media.length > 0 && listing.media[0].url
         ? listing.media[0].url
         : null;
-
     const endDate = new Date(listing.endsAt);
     const now = new Date();
     const timeLeftMs = endDate.getTime() - now.getTime();
     const isEnded = timeLeftMs <= 0;
-
     return `
       <div
         onclick="window.location.href='/item.html?id=${listing.id}'"
@@ -361,58 +260,37 @@ export class SearchAndSortComponent {
     `;
   }
 
-  /**
-   * Hide dropdown
-   */
   hideDropdown(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
-    if (dropdown) {
-      dropdown.classList.add("hidden");
-    }
+    if (dropdown) dropdown.classList.add("hidden");
     this.dropdownVisible = false;
   }
 
-  /**
-   * Hide all dropdowns
-   */
   hideAllDropdowns() {
     this.hideDropdown("header-search-dropdown");
     this.hideDropdown("mobile-search-dropdown");
   }
 
-  /**
-   * Sync search inputs between desktop and mobile
-   */
   syncSearchInputs(query, excludeInput) {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
-
     if (
       headerSearch &&
       headerSearch !== excludeInput &&
       headerSearch.value !== query
-    ) {
+    )
       headerSearch.value = query;
-    }
     if (
       mobileSearch &&
       mobileSearch !== excludeInput &&
       mobileSearch.value !== query
-    ) {
+    )
       mobileSearch.value = query;
-    }
   }
 
-  /**
-   * Perform search operation (for main search functionality)
-   */
   async performSearch(query) {
-    if (this.isSearching) {
-      return;
-    }
-
+    if (this.isSearching) return;
     this.isSearching = true;
-
     try {
       let results = [];
       if (query.trim() === "") {
@@ -420,15 +298,7 @@ export class SearchAndSortComponent {
       } else {
         results = await this.searchAPI(query);
       }
-
-      // Apply sorting (this will also filter active auctions if needed)
       results = this.sortListings(results, this.currentSort);
-
-      // Add special messaging for active auctions
-      if (this.currentSort === "active-auctions" && results.length === 0) {
-        // Handle no active auctions case
-      }
-
       this.dispatchSearchEvent(query, results);
     } catch (error) {
       this.dispatchSearchEvent(query, [], error.message);
@@ -437,70 +307,42 @@ export class SearchAndSortComponent {
     }
   }
 
-  /**
-   * Search via API
-   */
   async searchAPI(query) {
     const cacheKey = `search_${query.toLowerCase()}`;
     const cached = this.cache.get(cacheKey);
-
-    // Return cached results if available and not expired
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
     }
-
     try {
       const headers = {
         "Content-Type": "application/json",
         "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
       };
-
-      // Add auth header if available
       if (window.isAuthenticated && window.isAuthenticated()) {
         const authHeader = window.getAuthHeader ? window.getAuthHeader() : {};
-        if (authHeader.Authorization) {
+        if (authHeader.Authorization)
           headers["Authorization"] = authHeader.Authorization;
-        }
       }
-
       const response = await safeFetch(
-        `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`, // Use API_BASE_URL instead of API_BASE
+        `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`,
         { headers },
       );
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`API request failed: ${response.status}`);
-      }
-
       const responseData = await response.json();
       const allListings = responseData.data || [];
-
-      // Filter locally for more comprehensive search
       const results = this.filterListings(allListings, query);
-
-      // Cache the results
-      this.cache.set(cacheKey, {
-        data: results,
-        timestamp: Date.now(),
-      });
-
+      this.cache.set(cacheKey, { data: results, timestamp: Date.now() });
       return results;
     } catch (error) {
       throw error;
     }
   }
 
-  /**
-   * Filter listings locally by query
-   */
   filterListings(listings, query) {
-    if (!query || query.trim().length === 0) {
-      return listings;
-    }
-
+    if (!query || query.trim().length === 0) return listings;
     const searchTerm = query.toLowerCase().trim();
     const words = searchTerm.split(" ").filter((word) => word.length > 0);
-
     return listings.filter((listing) => {
       const searchableText = [
         listing.title || "",
@@ -510,58 +352,45 @@ export class SearchAndSortComponent {
       ]
         .join(" ")
         .toLowerCase();
-
       return words.every((word) => searchableText.includes(word));
     });
   }
 
-  /**
-   * Sort listings based on criteria
-   */
   sortListings(listings, sortBy) {
-    let sorted = [...listings]; // Create a copy to avoid mutating original
+    let sorted = [...listings];
     const now = new Date();
-
     switch (sortBy) {
       case "newest": {
-        // Only active (not ended) listings, newest first by created date
         const active = sorted.filter((l) => new Date(l.endsAt) > now);
-        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
+        const ended = sorted.filter((l) => new Date(l.endsAt) <= now);
+        const sortedActive = active.sort(
+          (a, b) => new Date(b.created) - new Date(a.created),
+        );
+        const sortedEnded = ended.sort(
+          (a, b) => new Date(b.created) - new Date(a.created),
+        );
+        return [...sortedActive, ...sortedEnded];
       }
-
       case "oldest":
         return sorted.sort((a, b) => new Date(a.created) - new Date(b.created));
-
       case "won-auctions": {
-        // Ended listings that have at least one bid, sorted by most recently ended
         const won = sorted.filter(
           (l) => new Date(l.endsAt) <= now && (l._count?.bids || 0) > 0,
         );
         return won.sort((a, b) => new Date(b.endsAt) - new Date(a.endsAt));
       }
-
+      case "relevance":
       default:
-        // Fallback: treat as newest active
-        const active = sorted.filter((l) => new Date(l.endsAt) > now);
-        return active.sort((a, b) => new Date(b.created) - new Date(a.created));
+        return sorted;
     }
   }
 
-  /**
-   * Apply sorting to current results
-   */
   applySorting() {
-    // Get current search query
     const headerSearch = document.getElementById("header-search");
     const currentQuery = headerSearch ? headerSearch.value.trim() : "";
-
-    // Re-perform search with new sorting
     this.performSearch(currentQuery);
   }
 
-  /**
-   * Dispatch search event for pages to handle
-   */
   dispatchSearchEvent(query, results, error = null) {
     const searchEvent = new CustomEvent("searchPerformed", {
       detail: {
@@ -575,35 +404,21 @@ export class SearchAndSortComponent {
     window.dispatchEvent(searchEvent);
   }
 
-  /**
-   * Clear search
-   */
   clearSearch() {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
     const clearButton = document.getElementById("clear-search");
-
-    if (headerSearch) {
-      headerSearch.value = "";
-    }
-    if (mobileSearch) {
-      mobileSearch.value = "";
-    }
-    if (clearButton) {
-      clearButton.classList.add("hidden");
-    }
-
+    if (headerSearch) headerSearch.value = "";
+    if (mobileSearch) mobileSearch.value = "";
+    if (clearButton) clearButton.classList.add("hidden");
     this.hideAllDropdowns();
     this.performSearch("");
   }
 
-  /**
-   * Clear search cache
-   */
   clearCache() {
     this.cache.clear();
   }
 }
 
-// Create and export singleton instance
 export const searchAndSortComponent = new SearchAndSortComponent();
+window.searchAndSortComponent = searchAndSortComponent;

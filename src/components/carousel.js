@@ -2,12 +2,13 @@
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { safeFetch } from "../utils/requestManager.js";
-import logoImage from "/assets/images/logo.png";
+import { createListingCard } from "../pages/listings.js"; // Import if you want to use it
 
 // Configuration constants
 const DEFAULT_LISTINGS_LIMIT = 15;
 const CAROUSEL_UPDATE_DELAY = 100;
-const DEFAULT_IMAGE = logoImage;
+const DEFAULT_IMAGE = "https://placehold.co/600x400?text=No+Image";
+const DEFAULT_SELLER_AVATAR = "https://placehold.co/40x40?text=S";
 const MAX_THUMBNAIL_HEIGHT = "200px";
 
 /**
@@ -33,17 +34,25 @@ const DOMUtils = {
 
 /**
  * Responsive design utilities
- * Calculates optimal number of cards to display based on screen size
+ * Calculates optimal number of cards to display based on available width with fixed card sizes
  */
 const ResponsiveUtils = {
   getCardsPerView() {
     const width = window.innerWidth;
-    if (width < 480) return 1; // Extra small devices
-    if (width < 640) return 1; // Small mobile devices
-    if (width < 768) return 1; // Larger mobile devices
-    if (width < 1024) return 2; // Tablets
-    if (width < 1280) return 3; // Small desktops
-    return 4; // Large desktops
+    const cardWidth = 320; // Fixed card width
+    const gapWidth = 8; // Gap between cards (gap-2 = 0.5rem = 8px)
+    const sideMargin = 160; // Space for navigation buttons and padding
+
+    const availableWidth = width - sideMargin;
+    const maxCards = Math.floor(availableWidth / (cardWidth + gapWidth));
+
+    // Ensure we always show at least 1 card and don't exceed reasonable limits
+    if (width < 480) return 1; // Very small screens
+    if (width < 768) return 1; // Mobile devices
+    if (maxCards < 1) return 1;
+    if (maxCards > 4) return 4; // Max 4 cards for large screens
+
+    return Math.max(1, maxCards);
   },
 };
 
@@ -163,65 +172,43 @@ export function createCarouselCard(listing) {
     timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
   }
 
-  const imageUrl =
-    listing.media && listing.media.length > 0 && listing.media[0].url
-      ? listing.media[0].url
-      : null;
-  const sellerAvatar =
-    listing.seller && listing.seller.avatar && listing.seller.avatar.url
-      ? listing.seller.avatar.url
-      : "https://placehold.co/40x40?text=S";
-  const sellerName =
-    listing.seller && listing.seller.name ? listing.seller.name : "Unknown";
+  const imageUrl = ImageHandler.getImageUrl(listing);
+  const sellerAvatar = listing.seller?.avatar?.url || DEFAULT_SELLER_AVATAR;
+  const sellerName = listing.seller?.name || "Unknown";
 
   const card = document.createElement("a");
   card.href = `/item.html?id=${listing.id}`;
   card.className =
-    "flex-none w-[calc(100vw-2rem)] xs:w-[calc(100vw-3rem)] sm:w-64 md:w-72 lg:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[380px] sm:h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700 hover:z-0";
-  // Remove scale and translate on hover to prevent overflow
+    "flex-none w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
+  // Fixed width (w-80 = 320px) and height (h-[400px]) for consistent sizing
 
   card.innerHTML = `
-    ${
-      imageUrl
-        ? `<div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
-           </div>`
-        : `<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">
-            No image on this listing
-           </div>`
-    }
+    <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+      <img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">
+    </div>
     <div class="p-4 flex-1 flex flex-col min-h-0 relative">
-      <div class="absolute inset-0 bg-gradient-to-t from-transparent to-transparent opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none bg-pink-500 rounded-b-lg"></div>
-      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-200">${
-        listing.title
-      }</h3>
-      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${
-        listing.description || "No description provided."
-      }</p>
+      <h3 class="font-bold text-lg mb-2 line-clamp-2 text-gray-900 dark:text-white">${listing.title}</h3>
+      <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 flex-1 line-clamp-3">${listing.description || "No description provided."}</p>
       <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
-        <span class="font-medium text-green-600 dark:text-green-400">${
-          timeInfo.text
-        }</span>
+        <span class="font-medium text-green-600 dark:text-green-400">${timeInfo.text}</span>
         <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full text-xs font-medium">
           Bids: ${listing._count?.bids || 0}
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-pink-400 dark:hover:border-pink-500 hover:shadow-md flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;"">
-        <span class="text-gray-800 dark:text-gray-200 font-medium truncate transition-colors duration-200 hover:text-pink-600 dark:hover:text-pink-400">${sellerName}</span>
+        <img src="${sellerAvatar}" alt="${sellerName}" loading="lazy" class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 flex-shrink-0" style="width: 32px; height: 32px;">
+        <span class="text-gray-800 dark:text-gray-200 font-medium truncate">${sellerName}</span>
       </div>
     </div>
   `;
 
   // Handle image error
-  if (imageUrl) {
-    const img = card.querySelector(".carousel-image");
-    if (img) {
-      img.addEventListener("error", function () {
-        this.parentElement.outerHTML =
-          '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0 transition-all duration-300 hover:from-pink-500 hover:to-purple-600">No image on this listing</div>';
-      });
-    }
+  const img = card.querySelector(".carousel-image");
+  if (img) {
+    img.addEventListener("error", function () {
+      this.parentElement.outerHTML =
+        '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
+    });
   }
 
   return card;
@@ -233,9 +220,9 @@ export function renderCarousel(listings, carouselContainer) {
 
   carouselContainer.innerHTML = "";
 
-  // Update carousel container classes for proper scrolling
+  // Update carousel container classes for smoother scrolling with enhanced snap
   carouselContainer.className =
-    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth max-w-full px-2";
+    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth-enhanced max-w-full px-2";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);
@@ -261,25 +248,41 @@ export function setupCarouselScrollButtons(
     scrollRightBtn.setAttribute("aria-label", "Scroll carousel right");
 
     const getScrollDistance = () => {
-      // Responsive scroll distance based on viewport width
+      // Responsive scroll distance based on viewport width for smooth scrolling
       return window.innerWidth < 640
-        ? 280
+        ? 320 // One card width for mobile
         : window.innerWidth < 768
-          ? 350
-          : 400;
+          ? 340 // Slightly larger for tablets
+          : 360; // Larger for desktop
+    };
+
+    // Add smooth scrolling with easing
+    const smoothScrollTo = (carousel, targetPosition) => {
+      carousel.scrollTo({
+        left: targetPosition,
+        behavior: "smooth",
+      });
     };
 
     scrollLeftBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: -getScrollDistance(), behavior: "smooth" });
+        const currentScroll = carousel.scrollLeft;
+        const targetScroll = Math.max(0, currentScroll - getScrollDistance());
+        smoothScrollTo(carousel, targetScroll);
       }
     });
 
     scrollRightBtn.addEventListener("click", () => {
       const carousel = document.querySelector(carouselSelector);
       if (carousel) {
-        carousel.scrollBy({ left: getScrollDistance(), behavior: "smooth" });
+        const currentScroll = carousel.scrollLeft;
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        const targetScroll = Math.min(
+          maxScroll,
+          currentScroll + getScrollDistance(),
+        );
+        smoothScrollTo(carousel, targetScroll);
       }
     });
   }
@@ -287,7 +290,7 @@ export function setupCarouselScrollButtons(
 
 /**
  * Advanced Carousel Component class
- * Creates an interactive carousel with navigation buttons and thumbnails
+ * Creates an interactive carousel with navigation buttons and progress bar
  */
 export class CarouselComponent {
   constructor(listings) {
@@ -296,6 +299,7 @@ export class CarouselComponent {
     this.cardsPerView = ResponsiveUtils.getCardsPerView();
     this.total = listings.length;
     this.resizeTimeout = null;
+    this.isTransitioning = false;
 
     // DOM element references
     this.elements = {
@@ -304,6 +308,8 @@ export class CarouselComponent {
       rightBtn: null,
       cardArea: null,
       scrollBar: null,
+      progressFill: null,
+      carouselTrack: null,
     };
   }
 
@@ -322,35 +328,46 @@ export class CarouselComponent {
   }
 
   /**
-   * Creates the main carousel HTML structure
+   * Creates the main carousel HTML structure with fixed dimensions
    * @param {HTMLElement} container - Parent container element
    */
   createCarouselStructure(container) {
-    // Main carousel wrapper with improved mobile handling
+    // Main carousel wrapper with improved mobile handling and fixed height
     const carouselWrapper = DOMUtils.createElement(
       "div",
-      "flex flex-col items-center w-full max-w-full overflow-hidden",
+      "flex flex-col items-center w-full max-w-full overflow-hidden carousel-container",
     );
 
-    // Carousel container with responsive padding
+    // Carousel container with responsive padding and fixed dimensions
     const carouselContainer = DOMUtils.createElement(
       "div",
-      "w-full max-w-7xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8",
+      "w-full max-w-7xl mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 carousel-card-area",
     );
 
-    // Main area with navigation and cards - adjust gap for mobile
+    // Main area with navigation and cards - fixed height and overflow handling
     const mainArea = DOMUtils.createElement(
       "div",
-      "flex items-center justify-between gap-2 xs:gap-3 sm:gap-4 w-full",
+      "flex items-center justify-between gap-2 xs:gap-3 sm:gap-4 w-full h-full",
     );
 
-    // Create navigation buttons and card area
+    // Create navigation buttons
     this.elements.leftBtn = this.createNavigationButton("left");
     this.elements.rightBtn = this.createNavigationButton("right");
+
+    // Create card area container with overflow hidden
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "grid gap-4 flex-1 min-w-0 overflow-hidden px-2",
+      "flex-1 min-w-0 overflow-hidden px-2 carousel-card-area",
     );
+
+    // Create the carousel track that will slide smoothly
+    this.elements.carouselTrack = DOMUtils.createElement(
+      "div",
+      "carousel-track flex gap-2",
+    );
+
+    // Add track to card area
+    this.elements.cardArea.appendChild(this.elements.carouselTrack);
 
     mainArea.append(
       this.elements.leftBtn,
@@ -359,15 +376,35 @@ export class CarouselComponent {
     );
     carouselContainer.appendChild(mainArea);
 
-    // Thumbnail scroll bar
+    // Progress scroll bar
     const scrollBarContainer = DOMUtils.createElement(
       "div",
-      "hidden md:block w-full max-w-4xl mx-auto mt-6 px-4",
+      "w-full max-w-4xl mx-auto mt-6 px-4",
     );
     this.elements.scrollBar = DOMUtils.createElement(
       "div",
-      "flex justify-center gap-2 pb-2 scrollbar-hide",
+      "relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer",
     );
+
+    // Create progress bar fill
+    this.elements.progressFill = DOMUtils.createElement(
+      "div",
+      "h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500 ease-out",
+    );
+    this.elements.scrollBar.appendChild(this.elements.progressFill);
+
+    // Add click functionality to progress bar
+    this.elements.scrollBar.addEventListener("click", (e) => {
+      if (this.isTransitioning) return; // Prevent clicks during transition
+
+      const rect = this.elements.scrollBar.getBoundingClientRect();
+      const clickPosition = (e.clientX - rect.left) / rect.width;
+      const maxIndex = Math.max(0, this.total - this.cardsPerView);
+      const targetIndex = Math.round(clickPosition * maxIndex);
+
+      this.smoothTransitionTo(targetIndex);
+    });
+
     scrollBarContainer.appendChild(this.elements.scrollBar);
 
     carouselWrapper.append(carouselContainer, scrollBarContainer);
@@ -393,22 +430,38 @@ export class CarouselComponent {
 
     const button = DOMUtils.createElement(
       "button",
-      "p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10",
+      "carousel-nav-button p-3 bg-pink-500 hover:bg-pink-600 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0 transform hover:scale-105 z-10",
       `<span class="sr-only">${accessibleLabel}</span><span aria-hidden="true"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg></span>`,
     );
     button.setAttribute("aria-label", accessibleLabel);
     button.title = visibleText;
 
     button.addEventListener("click", () => {
+      // Prevent navigation during transitions
+      if (this.isTransitioning) return;
+
+      // Don't navigate if we have fewer items than cards per view
+      if (this.total <= this.cardsPerView) return;
+
+      let targetIndex;
       if (isLeft) {
-        this.currentIndex = Math.max(0, this.currentIndex - 1);
+        // Loop to end when going left from beginning
+        if (this.currentIndex <= 0) {
+          targetIndex = Math.max(0, this.total - this.cardsPerView);
+        } else {
+          targetIndex = this.currentIndex - 1;
+        }
       } else {
-        this.currentIndex = Math.min(
-          this.total - this.cardsPerView,
-          this.currentIndex + 1,
-        );
+        // Loop to beginning when going right from end
+        const maxIndex = Math.max(0, this.total - this.cardsPerView);
+        if (this.currentIndex >= maxIndex) {
+          targetIndex = 0;
+        } else {
+          targetIndex = this.currentIndex + 1;
+        }
       }
-      this.updateCarousel();
+
+      this.smoothTransitionTo(targetIndex);
     });
 
     return button;
@@ -422,55 +475,71 @@ export class CarouselComponent {
     // Handle responsive resize
     window.addEventListener("resize", () => {
       clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(
-        () => this.updateCarousel(),
-        CAROUSEL_UPDATE_DELAY,
-      );
+      this.resizeTimeout = setTimeout(() => {
+        // Temporarily disable transitions during resize
+        this.elements.carouselTrack.classList.add("no-transition");
+        this.updateCarousel();
+
+        // Re-enable transitions after layout update
+        setTimeout(() => {
+          this.elements.carouselTrack.classList.remove("no-transition");
+        }, 50);
+      }, CAROUSEL_UPDATE_DELAY);
     });
   }
 
   updateCarousel() {
     this.cardsPerView = ResponsiveUtils.getCardsPerView();
-    this.updateCardArea();
+    this.populateAllCards(); // Create all cards first
+    this.updateCardAreaPosition(); // Then position the track
     this.updateNavigationButtons();
-    this.updateThumbnails();
+    this.updateProgressBar();
   }
 
   /**
-   * Updates the main card display area
-   * Shows current batch of listing cards
+   * Smoothly transitions to a target index
+   * @param {number} targetIndex - Index to transition to
    */
-  updateCardArea() {
-    // Use integer for grid template columns
-    const columnCount = Math.floor(this.cardsPerView);
-    this.elements.cardArea.style.gridTemplateColumns = `repeat(${columnCount}, 1fr)`;
-    this.elements.cardArea.innerHTML = "";
+  smoothTransitionTo(targetIndex) {
+    if (this.isTransitioning || targetIndex === this.currentIndex) return;
 
-    // Check if we're on a small screen and force only 1 card per view
-    const isMobileView = window.innerWidth < 768;
-    const cardsToShow = isMobileView
-      ? 1
-      : Math.min(this.cardsPerView, this.total - this.currentIndex);
+    this.isTransitioning = true;
+    this.currentIndex = targetIndex;
 
-    for (let i = 0; i < cardsToShow; i++) {
-      const idx = this.currentIndex + i;
-      // If a createListingCard function is available from listings.js, use that
-      // otherwise use the createCarouselCard function from this file
+    // Add transition class and update position
+    this.elements.carouselTrack.classList.add("transitioning");
+    this.updateCardAreaPosition();
+    this.updateProgressBar();
+
+    // Reset transition flag after animation completes
+    // Use different timing for mobile vs desktop
+    const transitionDuration = window.innerWidth < 768 ? 300 : 400;
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, transitionDuration);
+  }
+
+  /**
+   * Populates the carousel track with all listing cards
+   * Creates all cards once for smooth sliding
+   */
+  populateAllCards() {
+    // Clear existing cards
+    this.elements.carouselTrack.innerHTML = "";
+
+    // Create all cards and add them to the track
+    this.listings.forEach((listing, index) => {
       const card =
         typeof createListingCard !== "undefined"
-          ? createListingCard(this.listings[idx])
-          : createCarouselCard(this.listings[idx]);
+          ? createListingCard(listing)
+          : createCarouselCard(listing);
 
-      // Reset card sizing for carousel
-      card.style.width = "auto";
-      card.style.minWidth = "auto";
-      card.style.maxWidth = "none";
-
-      // Create wrapper to contain hover effects
+      // Create wrapper for consistent sizing
       const cardWrapper = document.createElement("div");
-      cardWrapper.className = "relative overflow-hidden";
-      cardWrapper.style.cssText =
-        "transform-style: preserve-3d; contain: layout style paint;";
+      cardWrapper.className = "carousel-card-wrapper fade-in";
+
+      // Apply carousel card styling
+      card.className += " carousel-card";
 
       // Remove original hover animations for carousel context
       card.className = card.className
@@ -481,20 +550,46 @@ export class CarouselComponent {
 
       cardWrapper.appendChild(card);
       ImageHandler.optimizeCardImages(card);
-      this.elements.cardArea.appendChild(cardWrapper);
-    }
+      this.elements.carouselTrack.appendChild(cardWrapper);
+    });
+  }
+
+  /**
+   * Updates the carousel track position using CSS transforms
+   * Creates smooth sliding animation between cards
+   */
+  updateCardAreaPosition() {
+    if (!this.elements.carouselTrack) return;
+
+    const cardWidth = 320; // Fixed card width including wrapper
+    const gapWidth = 8; // Gap between cards (gap-2 = 0.5rem = 8px)
+    const cardPlusGap = cardWidth + gapWidth;
+
+    // Calculate transform offset
+    const translateX = -(this.currentIndex * cardPlusGap);
+
+    // Apply smooth transform
+    this.elements.carouselTrack.style.transform = `translateX(${translateX}px)`;
+
+    // Update container width to fit visible cards
+    const isMobileView = window.innerWidth < 768;
+    const finalCardsToShow = isMobileView ? 1 : this.cardsPerView;
+    const containerWidth =
+      cardWidth * finalCardsToShow +
+      gapWidth * Math.max(0, finalCardsToShow - 1);
+
+    this.elements.cardArea.style.width = `${containerWidth}px`;
   }
 
   /**
    * Updates navigation button states
-   * Disables buttons when at start/end of carousel
+   * Keeps buttons always enabled for endless looping (unless fewer items than cards per view)
    */
   updateNavigationButtons() {
-    this.updateButtonState(this.elements.leftBtn, this.currentIndex === 0);
-    this.updateButtonState(
-      this.elements.rightBtn,
-      this.currentIndex >= this.total - this.cardsPerView,
-    );
+    // Only disable buttons if we have fewer items than cards per view
+    const shouldDisable = this.total <= this.cardsPerView;
+    this.updateButtonState(this.elements.leftBtn, shouldDisable);
+    this.updateButtonState(this.elements.rightBtn, shouldDisable);
   }
 
   /**
@@ -527,63 +622,25 @@ export class CarouselComponent {
   }
 
   /**
-   * Updates thumbnail scroll bar
-   * Shows indicators for current position in carousel
+   * Updates progress scroll bar
+   * Shows current position progress in the carousel with smooth transitions
    */
-  updateThumbnails() {
-    this.elements.scrollBar.innerHTML = "";
+  updateProgressBar() {
+    if (!this.elements.progressFill) return;
 
-    for (let i = 0; i < this.total; i++) {
-      const thumbnail = this.createThumbnail(i);
-      this.elements.scrollBar.appendChild(thumbnail);
-    }
-  }
+    // Calculate progress percentage
+    const maxIndex = Math.max(0, this.total - this.cardsPerView);
+    const progress = maxIndex > 0 ? (this.currentIndex / maxIndex) * 100 : 0;
 
-  /**
-   * Creates individual thumbnail indicator
-   * @param {number} index - Page index for thumbnail
-   * @returns {HTMLElement} Thumbnail element
-   */
-  createThumbnail(index) {
-    const listing = this.listings[index];
-    const thumb = DOMUtils.createElement("img");
+    // Update progress bar width with smooth transition
+    this.elements.progressFill.style.width = `${progress}%`;
 
-    thumb.src = ImageHandler.getImageUrl(listing);
-    thumb.alt = `Thumbnail for ${listing.title || "listing"}`;
-    thumb.loading = "lazy";
-
-    const middleIndex = Math.floor(this.cardsPerView / 2);
-    const centerCardIndex = this.currentIndex + middleIndex;
-    const isActive = index === centerCardIndex;
-
-    thumb.className = `
-        w-8 h-8 rounded-full object-cover border-2 cursor-pointer
-        transition-all duration-200 flex-shrink-0
-        ${
-          isActive
-            ? "border-pink-500 ring-2 ring-pink-400 opacity-100 scale-110"
-            : "border-gray-300 dark:border-gray-600 opacity-60 hover:opacity-100 hover:scale-105"
-        }
-      `
-      .replace(/\s+/g, " ")
-      .trim();
-
-    thumb.addEventListener("error", () => {
-      thumb.src = DEFAULT_IMAGE;
-    });
-
-    thumb.addEventListener("click", () => {
-      const middleIndex = Math.floor(this.cardsPerView / 2);
-      let targetIndex = index - middleIndex;
-      targetIndex = Math.max(
-        0,
-        Math.min(targetIndex, this.total - this.cardsPerView),
-      );
-      this.currentIndex = targetIndex;
-      this.updateCarousel();
-    });
-
-    return thumb;
+    // Add some visual feedback for the current position
+    const progressText = `${this.currentIndex + 1}-${Math.min(this.currentIndex + this.cardsPerView, this.total)} of ${this.total}`;
+    this.elements.scrollBar.setAttribute(
+      "title",
+      `Showing items ${progressText}`,
+    );
   }
 }
 

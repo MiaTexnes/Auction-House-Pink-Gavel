@@ -114,7 +114,7 @@ function initializePageSpecific() {
   const config = pageConfig[currentPage];
 
   if (!config) {
-    console.log(`No specific initialization for ${currentPage}`);
+    // ...existing code...
     return;
   }
 
