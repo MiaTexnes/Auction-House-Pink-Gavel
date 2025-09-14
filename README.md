@@ -235,8 +235,8 @@ View coverage reports by opening `coverage/index.html` in your browser.
 
 A .env file is required. Add the following variables:
 
-VITE_NOROFF_API_KEY=your-api-key-here
-VITE_API_BASE_URL=your-api-url-here
+`VITE_NOROFF_API_KEY=your-api-key-here`
+`VITE_API_BASE_URL=your-api-url-here`
 
 ### Tailwind CSS
 
