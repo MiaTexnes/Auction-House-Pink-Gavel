@@ -6,7 +6,7 @@
 
 ## 🎯 About the Project
 
-Auction House - Pink Gavel is a full-featured front-end application for an online auction platform. Users can list items for auction, place bids, and manage their credits in a sleek, modern interface. This project demonstrates advanced front-end development skills including API integration, responsive design, and comprehensive testing.
+Auction House - Pink Gavel is a full-featured front-end application for an online auction platform. Users can list items for auction, place bids, and manage their bids and profile in a sleek, modern interface. This project demonstrates advanced front-end development skills including API integration, responsive design, and comprehensive testing.
 
 **🔗 [Live Demo](https://pinkgavel.netlify.app)** | **📚 [API Documentation](https://docs.noroff.dev/docs/v2)**
 
@@ -25,8 +25,8 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 
 - **Secure Registration** - Only users with `stud.noroff.no` email domains
 - **Login/Logout** - Persistent authentication with JWT tokens
-- **Profile Management** - Update avatar and view account details
-- **Credit System** - Track and manage bidding credits
+- **Profile Management** - Update avatar, Bio and view account details
+- **Credit System** - Track and se bidding credits
 
 ### 🏷️ Auction Listings
 
@@ -37,7 +37,7 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 
 ### 👤 User Roles
 
-- **Registered Users**: Full access to bidding, listing creation, and profile management
+- **Registered Users**: Full access to bidding, listing creation, item management and profile management
 - **Guest Users**: Browse and search listings without registration
 
 ### 🎨 UI/UX Features
