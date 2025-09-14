@@ -36,8 +36,6 @@ const pageConfig = {
   "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
 };
 
-// ...existing code...
-
 // Get current page name from URL
 const getCurrentPage = () => {
   const path = window.location.pathname;
@@ -114,7 +112,6 @@ function initializePageSpecific() {
   const config = pageConfig[currentPage];
 
   if (!config) {
-    // ...existing code...
     return;
   }
 

@@ -29,7 +29,6 @@ import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
-// ...existing code...
 import { TimeUtils } from "../utils/timeUtils.js";
 import { safeFetch, createCachedFetch } from "../utils/requestManager.js";
 
@@ -683,7 +682,6 @@ class UIManager {
       state.setShowingAll(true);
     } else {
       // More listings available - show "Load More" and optional "View Less"
-      // ...existing code...
 
       const showViewLess = currentCount > CONSTANTS.LISTINGS_PER_PAGE;
 

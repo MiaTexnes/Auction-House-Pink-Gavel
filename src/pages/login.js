@@ -268,8 +268,5 @@ class LoginController {
   }
 }
 
-// Move this from main.js to login.js
-// ...existing code...
-
 // Export the main controller class
 export { LoginController, ValidationManager, ErrorHandler };

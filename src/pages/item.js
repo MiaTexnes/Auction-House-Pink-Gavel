@@ -20,7 +20,6 @@ import {
   getCurrentUser,
   getAuthHeader,
 } from "../library/auth.js";
-// ...existing code...
 import {
   placeBid,
   canUserBid,

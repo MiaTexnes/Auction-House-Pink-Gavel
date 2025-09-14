@@ -150,7 +150,7 @@ class UIManager {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-green-500">🎯</span>
+              <span class="text-green-500"></span>
               Your Active Listings
             </h3>
             <button
@@ -182,7 +182,7 @@ class UIManager {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-red-500">🔚</span>
+              <span class="text-red-500"></span>
               Your Ended Listings
             </h3>
             <button

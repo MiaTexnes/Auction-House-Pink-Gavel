@@ -397,7 +397,6 @@ class UIManager {
       </div>
     `;
   }
-  // ...existing code...
 
   // Removed duplicate setupEndedListingsToggle
 
