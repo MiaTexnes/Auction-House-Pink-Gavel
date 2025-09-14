@@ -4,8 +4,7 @@
 
 **A modern, responsive auction platform built with vanilla JavaScript and Tailwind CSS**
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://app.netlify.com/sites/your-site/deploys)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+\*\*[Live Demo](https://pinkgavel.netlify.app)
 
 ## 🎯 About the Project
 
@@ -105,7 +104,7 @@ npm prepare          # Install Husky hooks
 
 ## 🧪 Testing
 
-This project includes comprehensive testing with **Vitest**:
+This project includes testing with **Vitest**:
 
 - **Unit Tests** - Components and utility functions
 - **Integration Tests** - API services and user flows
@@ -238,7 +237,7 @@ The project uses the Noroff Auction API. No additional environment variables are
 
 ### Tailwind CSS
 
-Tailwind is configured with custom colors and components. See `tailwind.config.js` for customization options.
+See `tailwind.config.js`.
 
 ### Netlify Deployment
 
@@ -277,13 +276,6 @@ Contributions are welcome! Please follow these steps:
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Development Guidelines
-
-- Follow the existing code style
-- Write tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -301,17 +293,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Tailwind CSS** - For the excellent utility-first CSS framework
 - **Vite** - For the blazing fast development experience
 - **Netlify** - For seamless deployment and hosting
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [FAQ page](faq.html) for common questions
-2. Search existing [GitHub Issues](https://github.com/MiaTexnes/Auction-House-Pink-Gavel/issues)
-3. Create a new issue with detailed information
-4. Contact through the [contact page](contact.html)
-
----
 
 <div align="center">
   Made with ❤️ for Noroff Semester Project 2
