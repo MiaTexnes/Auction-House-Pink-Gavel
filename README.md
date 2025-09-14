@@ -31,7 +31,8 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 
 ### 🏷️ Auction Listings
 
-- **Create Listings** - Add items with title, description, images, and deadline -**Edit and delete Listings** - Edit and delete listings
+- **Create Listings** - Add items with title, description, images, and deadline
+- **Edit and Delete Listings** - Edit and delete listings
 - **Media Gallery** - Multiple image support for listings
 - **Search & Filter** - Advanced search functionality for all users
 - **Bidding System** - Place bids and view bidding history
