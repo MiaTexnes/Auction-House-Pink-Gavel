@@ -12,12 +12,13 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 
 ### Built With
 
-- **JavaScript (ES6+)** - Modern vanilla JavaScript
-- **Tailwind CSS v3.4.17** - Utility-first CSS framework
-- **Vite** - Fast build tool and dev server
-- **Vitest** - Unit testing framework
-- **Husky** - Git hooks for code quality
-- **Noroff Auction API** - Backend services
+**JavaScript (ES6+)** - Modern vanilla JavaScript
+**Tailwind CSS v3.4.17** - Utility-first CSS framework
+**Vite** - Fast build tool and dev server
+**Vitest** - Unit testing framework
+**ESLint** - Linting and code quality
+**Husky** - Git hooks for code quality
+**Noroff Auction API** - Backend services
 
 ## ✨ Features
 
@@ -30,7 +31,7 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 
 ### 🏷️ Auction Listings
 
-- **Create Listings** - Add items with title, description, images, and deadline
+- **Create Listings** - Add items with title, description, images, and deadline -**Edit and delete Listings** - Edit and delete listings
 - **Media Gallery** - Multiple image support for listings
 - **Search & Filter** - Advanced search functionality for all users
 - **Bidding System** - Place bids and view bidding history
@@ -231,7 +232,8 @@ View coverage reports by opening `coverage/index.html` in your browser.
 
 ### Environment Setup
 
-The project uses the Noroff Auction API. No additional environment variables are required for basic functionality.
+The project uses the Noroff Auction API. A `.env` file is supported for environment variables (e.g., API keys, custom endpoints).
+Check out the `.env.example`
 
 ### Tailwind CSS
 
@@ -239,7 +241,7 @@ See `tailwind.config.js`.
 
 ### Netlify Deployment
 
-The project is optimized for Netlify deployment with:
+The project is optimized for Netlify deployment and has environment variables in netlify (see the Environment Setup section for details).
 
 - **Build command**: `npm run build`
 - **Publish directory**: `dist`

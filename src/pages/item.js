@@ -491,7 +491,7 @@ class UIManager {
     const minBid = getMinimumBid(bids);
     if (this.elements.bidding.input) {
       this.elements.bidding.input.min = minBid;
-      this.elements.bidding.input.placeholder = `Minimum bid: ${minBid}`;
+      this.elements.bidding.input.placeholder = "Enter your bid";
     }
 
     if (this.elements.bidding.minText) {
