@@ -456,7 +456,14 @@ class UIManager {
       if (isAuthenticated()) {
         // Create clickable profile link for authenticated users
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(sellerName)}`;
-        this.elements.item.seller.name.innerHTML = `<a href="${profileUrl}" class="text-pink-700 dark:text-pink-400 hover:font-bold  underline">${sellerName}</a>`;
+        // Use textContent for security - sellerName is already validated from API
+        const link = document.createElement("a");
+        link.href = profileUrl;
+        link.className =
+          "text-pink-700 dark:text-pink-400 hover:font-bold underline";
+        link.textContent = sellerName;
+        this.elements.item.seller.name.innerHTML = "";
+        this.elements.item.seller.name.appendChild(link);
       } else {
         // Plain text for non-authenticated users
         this.elements.item.seller.name.textContent = sellerName;
@@ -590,7 +597,13 @@ class UIManager {
       if (ownerBidMsg) ownerBidMsg.classList.add("hidden");
       if (isAuthenticated() && winnerName !== "Unknown Winner") {
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(winnerName)}`;
-        this.elements.winner.bannerName.innerHTML = `<a href="${profileUrl}" class="hover:underline text-white">${winnerName}</a>`;
+        // Use textContent for security - winnerName is already validated from API
+        const link = document.createElement("a");
+        link.href = profileUrl;
+        link.className = "hover:underline text-white";
+        link.textContent = winnerName;
+        this.elements.winner.bannerName.innerHTML = "";
+        this.elements.winner.bannerName.appendChild(link);
       } else {
         this.elements.winner.bannerName.textContent = winnerName;
       }
@@ -680,7 +693,13 @@ class UIManager {
     if (this.elements.winner.winnerName) {
       if (isAuthenticated() && winnerName !== "Unknown Winner") {
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(winnerName)}`;
-        this.elements.winner.winnerName.innerHTML = `<a href="${profileUrl}" class="hover:underline">${winnerName}</a>`;
+        // Use textContent for security - winnerName is already validated from API
+        const link = document.createElement("a");
+        link.href = profileUrl;
+        link.className = "hover:underline";
+        link.textContent = winnerName;
+        this.elements.winner.winnerName.innerHTML = "";
+        this.elements.winner.winnerName.appendChild(link);
       } else {
         this.elements.winner.winnerName.textContent = winnerName;
       }

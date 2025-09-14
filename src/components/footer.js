@@ -1,4 +1,11 @@
 /**
+ * @fileoverview Website footer component
+ * Provides navigation, social media links, and legal information
+ * @author Pink Gavel Auctions Team
+ * @version 1.0.0
+ */
+
+/**
  * Initializes and appends the website footer to the page.
  * The footer includes navigation links, social media buttons, a wave design,
  * and legal/copyright information. It automatically sticks to the bottom of the page

@@ -30,7 +30,7 @@ import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
 import { TimeUtils } from "../utils/timeUtils.js";
-import { safeFetch, createCachedFetch } from "../utils/requestManager.js";
+import { createCachedFetch } from "../utils/requestManager.js";
 
 /**
  * APPLICATION CONSTANTS
@@ -76,7 +76,6 @@ const Utils = {
    */
   setMinimumDateTime(element) {
     if (!element) {
-      console.warn("setMinimumDateTime: Element not found");
       return;
     }
 
@@ -90,8 +89,8 @@ const Utils = {
         .slice(0, 16);
 
       element.min = localDateTime;
-    } catch (error) {
-      console.error("Error setting minimum datetime:", error);
+    } catch {
+      // Silently handle datetime setting errors
     }
   },
 };
@@ -167,7 +166,7 @@ class DOMElementManager {
   setFormElements() {
     const formElements = {
       listingTitle: "listingTitle", // Title input field
-      listingDesc: "listingDesc", // Description textarea
+      listingDesc: "listingDesc", // Description textarea (matches HTML)
       listingEndDate: "listingEndDate", // End date/time picker
       listingTags: "listingTags", // Tags input field
     };
@@ -854,7 +853,7 @@ class APIService {
   async fetchListings() {
     const headers = this.buildHeaders();
     const url = `${this.baseURL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`;
-    const response = await safeFetch(url, { headers });
+    const response = await this.cachedFetch(url, { headers });
     if (!response.ok) {
       await this.handleErrorResponse(response);
     }
@@ -989,7 +988,7 @@ class EventHandler {
       this.handleSearchResults(event),
     );
 
-    // Global function for clearing search results
+    // Global function for clearing search results (required for HTML onclick)
     window.clearSearchResults = () => {
       Utils.clearSearchResults();
       this.ui.removeSearchIndicator();
@@ -1392,7 +1391,6 @@ class ListingsPageController {
   async init() {
     // Prevent duplicate initialization
     if (this.isInitialized) {
-      console.warn("ListingsPageController already initialized");
       return;
     }
 
@@ -1538,7 +1536,6 @@ let controllerInstance = null;
 // Initialize the controller when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   if (controllerInstance) {
-    console.warn("Controller already exists, skipping initialization");
     return;
   }
 

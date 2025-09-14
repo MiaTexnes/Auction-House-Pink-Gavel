@@ -70,12 +70,9 @@ class ListingsManager {
   }
 
   handleViewMore() {
-    const nextItems = this.listings.slice(
-      this.currentIndex,
-      this.currentIndex + ITEMS_PER_PAGE,
-    );
+    const nextItems = this.listings.slice(this.currentIndex);
     this.renderItems(nextItems);
-    this.currentIndex += ITEMS_PER_PAGE;
+    this.currentIndex = this.listings.length;
 
     this.toggleButtons(false);
   }
@@ -342,7 +339,7 @@ class UIManager {
   generateEndedListingsSection(profile) {
     const endedListings =
       profile.listings?.filter(
-        (listing) => new Date(listing.endsAt) <= new Date(),
+        (listing) => new Date(listing.endsAt) < new Date(),
       ) || [];
 
     return `
@@ -403,7 +400,7 @@ class UIManager {
   renderEndedListings(profile) {
     const endedListings =
       profile.listings?.filter(
-        (listing) => new Date(listing.endsAt) <= new Date(),
+        (listing) => new Date(listing.endsAt) < new Date(),
       ) || [];
 
     if (!endedListings.length) return;
@@ -529,7 +526,7 @@ class UIManager {
 
     const endedListings =
       profile.listings?.filter(
-        (listing) => new Date(listing.endsAt) <= new Date(),
+        (listing) => new Date(listing.endsAt) < new Date(),
       ) || [];
 
     if (endedListings.length === 0) {

@@ -5,6 +5,7 @@ import {
   getUserProfile,
 } from "../library/auth.js";
 import { searchAndSortComponent } from "./searchAndSort.js";
+import { updateBackgroundColor } from "../services/themeService.js";
 import logoImage from "/assets/images/logo.png";
 
 /**
@@ -35,8 +36,9 @@ async function updateCreditsDisplay() {
             element.classList.remove("hidden");
           });
         }
-      } catch (error) {
-        console.error("Failed to fetch user credits:", error);
+        // eslint-disable-next-line no-unused-vars
+      } catch (_error) {
+        // Silently handle credit fetch errors to avoid disrupting user experience
         creditsElements.forEach((element) => {
           element.classList.add("hidden");
         });
@@ -144,7 +146,7 @@ function renderHeader() {
 
             <!-- Dark Mode Toggle Button -->
             <button
-              onclick="window.toggleDarkMode()"
+              id="desktop-dark-mode-toggle"
               class="p-2 rounded-full bg-gray-300 dark:bg-gray-700 text-black dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
               aria-label="Toggle dark mode"
             >
@@ -208,7 +210,7 @@ function renderHeader() {
 
               <!-- Mobile Dark Mode Toggle -->
               <button
-                onclick="window.toggleDarkMode()"
+                id="mobile-dark-mode-toggle"
                 class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 aria-label="Toggle dark mode"
               >
@@ -346,11 +348,56 @@ function setupEventListeners() {
     });
   }
 
+  // Dark mode toggle buttons
+  const desktopDarkToggle = document.getElementById("desktop-dark-mode-toggle");
+  const mobileDarkToggle = document.getElementById("mobile-dark-mode-toggle");
+
+  if (desktopDarkToggle) {
+    desktopDarkToggle.addEventListener("click", () => {
+      if (window.toggleDarkMode) {
+        window.toggleDarkMode();
+      } else {
+        // Fallback if theme service hasn't initialized yet
+        import("./darkLight.js").then(({ toggleDarkMode }) => {
+          toggleDarkMode();
+          updateBackgroundColor();
+        });
+      }
+    });
+  }
+
+  if (mobileDarkToggle) {
+    mobileDarkToggle.addEventListener("click", () => {
+      if (window.toggleDarkMode) {
+        window.toggleDarkMode();
+      } else {
+        // Fallback if theme service hasn't initialized yet
+        import("./darkLight.js").then(({ toggleDarkMode }) => {
+          toggleDarkMode();
+          updateBackgroundColor();
+        });
+      }
+    });
+  }
+
   // Initialize search and sort component if available
   try {
     searchAndSortComponent.init();
   } catch (error) {
-    console.warn("Search and sort component not available:", error);
+    // Search and sort component not available - continue without it
+    console.warn("Search and sort component initialization failed:", error);
+  }
+}
+
+/**
+ * Cleanup function to remove event listeners
+ */
+function cleanupEventListeners() {
+  // Remove all event listeners by cloning the elements
+  const headerElement = document.querySelector("header");
+  if (headerElement) {
+    const newHeader = headerElement.cloneNode(true);
+    headerElement.parentNode.replaceChild(newHeader, headerElement);
   }
 }
 
@@ -361,12 +408,18 @@ function setupEventListeners() {
 export function initializeHeader() {
   const headerElement = document.querySelector("header");
   if (headerElement) {
-    headerElement.innerHTML = renderHeader();
-    setupEventListeners();
-    clearSearchFields();
-    // Update credits display for authenticated users
-    if (isAuthenticated()) {
-      updateCreditsDisplay();
+    // Clean up existing listeners before reinitializing
+    cleanupEventListeners();
+
+    const newHeaderElement = document.querySelector("header");
+    if (newHeaderElement) {
+      newHeaderElement.innerHTML = renderHeader();
+      setupEventListeners();
+      clearSearchFields();
+      // Update credits display for authenticated users
+      if (isAuthenticated()) {
+        updateCreditsDisplay();
+      }
     }
   }
 }

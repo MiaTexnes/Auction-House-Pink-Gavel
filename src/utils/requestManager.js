@@ -96,7 +96,7 @@ class RequestManager {
         if (retryCount < maxRetryCount429) {
           const delay =
             this.retryDelays[Math.min(retryCount, this.retryDelays.length - 1)];
-          console.warn(`Rate limited (429). Retrying in ${delay}ms...`);
+          // Rate limited - retrying with delay
 
           await new Promise((resolve) => setTimeout(resolve, delay));
           return this.fetch(url, options, retryCount + 1);
@@ -114,7 +114,7 @@ class RequestManager {
       ) {
         const delay =
           this.retryDelays[Math.min(retryCount, this.retryDelays.length - 1)];
-        console.warn(`Network error. Retrying in ${delay}ms...`);
+        // Network error - retrying with delay
 
         await new Promise((resolve) => setTimeout(resolve, delay));
         return this.fetch(url, options, retryCount + 1);
