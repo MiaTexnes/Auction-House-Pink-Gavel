@@ -4,7 +4,7 @@
 
 **A modern, responsive auction platform built with vanilla JavaScript and Tailwind CSS**
 
-\*\*[Live Demo](https://pinkgavel.netlify.app)
+##[Live Demo](https://pinkgavel.netlify.app)
 
 ## 🎯 About the Project
 
