@@ -98,7 +98,7 @@
               <img
                 id="main-image"
                 src="hidden"
-                alt="id=item-title"
+                alt=""
                 class="w-full h-96 object-contain rounded-lg shadow-lg"
               />
               <div
@@ -118,10 +118,10 @@
             <!-- Title and Category -->
             <div>
               <h1 id="item-title" class="text-3xl font-bold mb-2"></h1>
-              <p
+              <h2
                 id="item-description"
                 class="text-gray-600 dark:text-gray-300 text-lg"
-              ></p>
+              ></h2>
             </div>
 
             <!-- Seller Information -->
@@ -148,11 +148,11 @@
             <div class="grid grid-cols-2 gap-4">
               <div
                 id="current-bid-container"
-                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center transition-all duration-300"
+                class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center transition-all duration-300"
               >
                 <p
                   id="current-bid-label"
-                  class="text-sm text-gray-600 dark:text-gray-400 mb-1"
+                  class="text-sm text-gray-600 dark:text-gray-200 mb-1"
                 >
                   Current Bid
                 </p>
@@ -162,7 +162,7 @@
                 ></p>
                 <p
                   id="bid-count"
-                  class="text-sm text-gray-500 dark:text-gray-400"
+                  class="text-sm text-gray-500 dark:text-gray-200"
                 ></p>
                 <!-- Winner info - shown when auction ends -->
                 <div
@@ -189,15 +189,15 @@
                 </div>
               </div>
               <div
-                class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-center"
+                class="bg-gray-50  dark:bg-gray-700 p-4 rounded-lg text-center"
               >
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-sm text-gray-600  dark:text-gray-200 mb-1">
                   Time Remaining
                 </p>
                 <p id="time-remaining" class="text-xl font-bold"></p>
                 <p
                   id="end-date"
-                  class="text-sm text-gray-500 dark:text-gray-400"
+                  class="text-sm text-gray-500  dark:text-gray-200"
                 ></p>
               </div>
             </div>
@@ -221,7 +221,7 @@
                   />
                   <p
                     id="min-bid-text"
-                    class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+                    class="text-sm text-gray-500 dark:text-gray-200 mt-1"
                   ></p>
                 </div>
                 <button
@@ -235,7 +235,7 @@
 
             <!-- Owner Actions -->
             <div id="owner-actions" class="hidden space-y-3">
-              <p class="text-sm text-gray-600 dark:text-gray-400">
+              <p class="text-sm text-gray-600 dark:text-gray-200">
                 This is your listing
               </p>
               <button
@@ -260,7 +260,7 @@
               <button
                 type="button"
                 onclick="window.location.href='/login.html'"
-                class="inline-block bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                class="inline-block bg-pink-600 hover:bg-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Login to Bid
               </button>
@@ -286,7 +286,7 @@
           </div>
           <div
             id="no-bids"
-            class="hidden text-center py-8 text-gray-500 dark:text-gray-400"
+            class="hidden text-center py-8 text-gray-500 dark:text-gray-200"
           >
             No bids placed yet. Be the first to bid!
           </div>
@@ -392,7 +392,7 @@
               placeholder="e.g., electronics, vintage, collectible"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white"
             />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p class="text-xs text-gray-500 dark:text-gray-200 mt-1">
               Add up to 10 tags separated by commas
             </p>
           </div>

@@ -118,7 +118,7 @@ class UIManager {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-yellow-500">🏆</span>
+
               Your Wins
             </h3>
             <button
@@ -461,7 +461,7 @@ class ListingsManager {
     if (!this.buttonsContainer) return;
 
     const viewMoreBtn = createViewMoreButton(
-      "View More",
+      "View All",
       () => this.handleViewMore(),
       `viewMoreBtn-${this.buttonsContainerId}`,
     );
@@ -652,7 +652,7 @@ class EditProfileModalManager {
     const DEFAULT_AVATAR = "https://placehold.co/48x48?text=S";
     return `
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
-        <button id="closeEditProfileModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white">&times;</button>
+        <button id="closeEditProfileModal" class="absolute top-6 right-6 text-gray-800 hover:text-gray-800 dark:hover:text-white">&times;</button>
         <h2 class="text-2xl font-bold mb-4">Edit Profile</h2>
         <form id="profile-form" class="space-y-4">
           <div class="flex flex-col items-center">

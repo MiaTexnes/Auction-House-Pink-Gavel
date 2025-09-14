@@ -54,7 +54,7 @@ class ListingsManager {
     buttonsContainer.innerHTML = ""; // Clear existing buttons
 
     const viewMoreBtn = createViewMoreButton(
-      "View More",
+      "View All",
       () => this.handleViewMore(),
       `viewMore${this.getPrefix()}Btn`,
     );

@@ -441,65 +441,73 @@ export class NewListingModalManager {
 
           <!-- Listing Creation Form -->
           <form id="addListingForm" class="space-y-4">
-            <!-- Title Input -->
-            <div>
-              <input
-                type="text"
-                id="listingTitle"
-                name="title"
-                placeholder="Title"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-                required
-              />
-            </div>
+  <!-- Title Input -->
+  <div>
+    <label for="listingTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title</label>
+    <input
+      type="text"
+      id="listingTitle"
+      name="title"
+      placeholder="Title"
+      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+      required
+    />
+  </div>
 
-            <!-- Description Textarea -->
-            <div>
-              <textarea
-                id="listingDescription"
-                name="description"
-                placeholder="Description"
-                rows="4"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-                required
-              ></textarea>
-            </div>
+  <!-- Description Textarea -->
+  <div>
+    <label for="listingDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+    <textarea
+      id="listingDescription"
+      name="description"
+      placeholder="Description"
+      rows="4"
+      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+      required
+    ></textarea>
+  </div>
 
             <!-- End Date Input -->
-            <div>
-              <input
-                type="datetime-local"
-                id="listingEndDate"
-                name="endsAt"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
-                required
-              />
-            </div>
+           <div>
+  <label for="listingEndDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">End Date</label>
+  <input
+    type="datetime-local"
+    id="listingEndDate"
+    name="endsAt"
+    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
+    required
+  />
+</div>
 
             <!-- Tags Input -->
             <div>
-              <input
-                type="text"
-                id="listingTags"
-                name="tags"
-                placeholder="Tags (comma separated)"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-              />
-            </div>
+  <label for="listingTags" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Tags</label>
+  <input
+    type="text"
+    id="listingTags"
+    name="tags"
+    placeholder="Tags (comma separated)"
+    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+  />
+</div>
 
             <!-- Media Section -->
             <div class="flex items-center justify-between">
-              <button
-                type="button"
-                id="openMediaModalBtn"
-                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Add Media
-              </button>
-              <span id="mediaCount" class="text-sm text-gray-600 dark:text-gray-200">
-                No media selected
-              </span>
-            </div>
+  <label for="openMediaModalBtn" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+    Media
+  </label>
+  <button
+    type="button"
+    id="openMediaModalBtn"
+    class="bg-blue-500 hover:bg-blue-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
+    aria-labelledby="openMediaModalBtn"
+  >
+    Add Media
+  </button>
+  <span id="mediaCount" class="text-sm text-gray-600 dark:text-gray-200">
+    No media selected
+  </span>
+</div>
 
             <!-- Form Action Buttons -->
             <div class="flex justify-end space-x-3">
@@ -512,7 +520,7 @@ export class NewListingModalManager {
               </button>
               <button
                 type="submit"
-                class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                class="bg-pink-500 hover:bg-pink-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
               >
                 Create Listing
               </button>
@@ -537,19 +545,24 @@ export class NewListingModalManager {
           <form id="addMediaForm" class="space-y-4">
             <!-- Initial Media URL Inputs -->
             <div id="mediaUrlInputs">
-              <input
-                type="url"
-                name="mediaUrl"
-                placeholder="Media URL"
-                class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-              />
-              <input
-                type="url"
-                name="mediaUrl"
-                placeholder="Media URL"
-                class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
-              />
-            </div>
+              <div id="mediaUrlInputs">
+  <label for="mediaUrl1" class="sr-only">Media URL 1</label>
+  <input
+    type="url"
+    id="mediaUrl1"
+    name="mediaUrl"
+    placeholder="Media URL"
+    class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+  />
+  <label for="mediaUrl2" class="sr-only">Media URL 2</label>
+  <input
+    type="url"
+    id="mediaUrl2"
+    name="mediaUrl"
+    placeholder="Media URL"
+    class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+  />
+</div>
 
             <!-- Add More URLs Button -->
             <button
