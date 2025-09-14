@@ -150,7 +150,7 @@ class UIManager {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-green-500">🎯</span>
+              <span class="text-green-500"></span>
               Your Active Listings
             </h3>
             <button
@@ -182,7 +182,7 @@ class UIManager {
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-red-500">🔚</span>
+              <span class="text-red-500"></span>
               Your Ended Listings
             </h3>
             <button
@@ -430,11 +430,11 @@ class ListingsManager {
   }
 
   async renderListings(listings) {
-    for (const listing of listings) {
-      let listingWithBids = listing;
+    for (const item of listings) {
+      let listingWithBids = item;
       try {
         const response = await fetch(
-          `${API_BASE_URL}/auction/listings/${listing.id}?_bids=true`,
+          `${API_BASE_URL}/auction/listings/${item.id}?_bids=true`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -444,9 +444,11 @@ class ListingsManager {
         );
         if (response.ok) {
           const data = await response.json();
-          listingWithBids = { ...listing, ...data.data };
+          listingWithBids = { ...item, ...data.data };
         }
-      } catch (e) {}
+      } catch {
+        // Ignore fetch errors for individual listings
+      }
       const normalizedListing = normalizeListing(listingWithBids, this.profile);
       this.container.appendChild(createListingCard(normalizedListing));
     }
@@ -609,7 +611,7 @@ class ProfileNewListingHandler {
 
   initModalManager() {
     this.modalManager = new NewListingModalManager({
-      onSuccess: async (listing) => {
+      onSuccess: async () => {
         this.uiManager.showMessage("success", "Listing created successfully!");
         const refreshedProfile = await APIService.fetchProfile(
           this.profile.name,
@@ -647,6 +649,7 @@ class EditProfileModalManager {
   }
 
   generateModalHTML() {
+    const DEFAULT_AVATAR = "https://placehold.co/48x48?text=S";
     return `
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <button id="closeEditProfileModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white">&times;</button>
@@ -679,6 +682,7 @@ class EditProfileModalManager {
   setupAvatarPreview() {
     const avatarInput = document.getElementById("avatar");
     const avatarPreview = document.getElementById("avatar-preview");
+    const DEFAULT_AVATAR = "https://placehold.co/48x48?text=S";
     if (avatarInput && avatarPreview) {
       avatarInput.addEventListener("input", () => {
         avatarPreview.src = avatarInput.value || DEFAULT_AVATAR;

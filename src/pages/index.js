@@ -4,7 +4,6 @@
  */
 
 import { isAuthenticated } from "../library/auth.js";
-import { createListingCard } from "./listings.js";
 import { CarouselController } from "../components/carousel.js";
 
 // DOM element references for homepage components

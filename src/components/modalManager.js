@@ -2,33 +2,42 @@ import { createListing } from "../library/newListing.js";
 import { setMinimumDateTime } from "../utils/dateUtils.js";
 
 /**
- * NEW LISTING MODAL MANAGER
- * =========================
- *
- * Shared modal component for creating new auction listings.
- * Handles modal display, form validation, media management,
- * and listing creation across different pages.
+ * Manages the creation and display of auction listing modals.
+ * Provides a reusable component for new listing creation with media uploads.
+ * Handles modal display, form validation, media URL management, and callbacks.
+ * @class NewListingModalManager
  */
 export class NewListingModalManager {
+  /**
+   * @constructor
+   * @param {Object} [options={}] - Optional configuration object
+   * @param {Function} [options.onSuccess] - Callback for successful listing creation
+   * @param {Function} [options.onError] - Callback for error during listing creation
+   */
   constructor(options = {}) {
+    // Store media URLs for the listing
     this.mediaUrls = [];
-    this.onSuccess = options.onSuccess || null; // Callback for successful listing creation
-    this.onError = options.onError || null; // Callback for errors
 
-    // Add modals to DOM if they don't exist yet
+    /**
+     * @type {?Function}
+     */
+    this.onSuccess = options.onSuccess || null;
+    /**
+     * @type {?Function}
+     */
+    this.onError = options.onError || null;
+
+    // Initialize modal HTML and event listeners
     this.ensureModalsExist();
-
-    // Setup all event listeners
     this.setupEventListeners();
   }
 
   /**
-   * Ensures the modal HTML exists in the DOM
+   * Injects modal HTML into DOM if not already present.
+   * Prevents duplicate modals when multiple instances are created.
    */
   ensureModalsExist() {
-    // Check if modals already exist
     if (!document.getElementById("addListingModal")) {
-      // Create and append the modal HTML
       const modalContainer = document.createElement("div");
       modalContainer.innerHTML = NewListingModalManager.generateModalHTML();
       document.body.appendChild(modalContainer);
@@ -36,7 +45,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Opens the new listing modal
+   * Opens the new listing modal and prepares form for user input.
    */
   openModal() {
     const modal = document.getElementById("addListingModal");
@@ -44,18 +53,19 @@ export class NewListingModalManager {
       modal.classList.remove("hidden");
       modal.classList.add("flex");
       this.setupFormDefaults();
-      this.hideError(); // Clear any previous error messages
+      this.hideError();
     }
   }
 
   /**
-   * Closes the modal and resets form state
+   * Closes the modal and resets all form data and state.
    */
   closeModal() {
     const modal = document.getElementById("addListingModal");
     const form = document.getElementById("addListingForm");
     const mediaModal = document.getElementById("addMediaModal");
 
+    // Hide both modals
     if (modal) {
       modal.classList.add("hidden");
       modal.classList.remove("flex");
@@ -64,17 +74,19 @@ export class NewListingModalManager {
       mediaModal.classList.add("hidden");
       mediaModal.classList.remove("flex");
     }
+
+    // Reset all form data and state
     if (form) {
       form.reset();
       this.clearMediaUrls();
       this.updateMediaCountDisplay(0);
       this.resetMediaForm();
-      this.hideError(); // Clear any error messages when closing
+      this.hideError();
     }
   }
 
   /**
-   * Sets up all event listeners for the modal
+   * Sets up all event listeners for modal functionality.
    */
   setupEventListeners() {
     this.setupOpenModalListener();
@@ -84,10 +96,9 @@ export class NewListingModalManager {
   }
 
   /**
-   * Sets up the open modal button listeners
+   * Attaches click handlers to buttons that open the modal.
    */
   setupOpenModalListener() {
-    // Handle both "New Listing" button (profile) and "Add Listing" button (listings)
     const newListingBtn = document.getElementById("newListingBtn");
     const addListingBtn = document.getElementById("addListingBtn");
 
@@ -100,7 +111,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Sets up the close modal button listeners
+   * Attaches close handlers for various modal close triggers.
    */
   setupCloseModalListeners() {
     const closeModalBtn = document.getElementById("closeAddListingModal");
@@ -115,7 +126,7 @@ export class NewListingModalManager {
       cancelBtn.addEventListener("click", () => this.closeModal());
     }
 
-    // Close modal when clicking outside of it
+    // Close modal when clicking outside the content area
     if (modal) {
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
@@ -126,12 +137,12 @@ export class NewListingModalManager {
   }
 
   /**
-   * Sets up the form submission listener
+   * Sets up form submission handling for listing creation.
    */
   setupFormSubmissionListener() {
     const form = document.getElementById("addListingForm");
     if (form) {
-      // Mark so listings page doesn't attach a second listener
+      // Mark form as managed to prevent duplicate listeners
       form.dataset.managed = "newListingModalManager";
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -141,7 +152,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Sets up media modal events
+   * Sets up all media modal related event handlers for media modal navigation and submission.
    */
   setupMediaModalEvents() {
     // Open media modal button
@@ -160,7 +171,7 @@ export class NewListingModalManager {
       });
     }
 
-    // Add more media URLs button
+    // Add more media URL input fields
     const addMoreUrlBtn = document.getElementById("addMoreUrlBtn");
     if (addMoreUrlBtn) {
       addMoreUrlBtn.addEventListener("click", () => {
@@ -177,7 +188,7 @@ export class NewListingModalManager {
       });
     }
 
-    // Close media modal when clicking on backdrop
+    // Close media modal on backdrop click
     const mediaModal = document.getElementById("addMediaModal");
     if (mediaModal) {
       mediaModal.addEventListener("click", (event) => {
@@ -189,7 +200,8 @@ export class NewListingModalManager {
   }
 
   /**
-   * Sets up form defaults and constraints
+   * Prepares the form with default values and constraints.
+   * Sets minimum date/time and resets media state.
    */
   setupFormDefaults() {
     setMinimumDateTime(document.getElementById("listingEndDate"));
@@ -199,7 +211,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Opens the media upload modal
+   * Opens the media upload modal.
    */
   openMediaModal() {
     const mediaModal = document.getElementById("addMediaModal");
@@ -210,7 +222,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Closes the media upload modal
+   * Closes the media upload modal.
    */
   closeMediaModal() {
     const mediaModal = document.getElementById("addMediaModal");
@@ -221,7 +233,8 @@ export class NewListingModalManager {
   }
 
   /**
-   * Adds another media URL input field
+   * Dynamically adds another URL input field to the media form.
+   * Allows users to add multiple media items to their listing.
    */
   addMoreMediaUrlInput() {
     const mediaUrlInputs = document.getElementById("mediaUrlInputs");
@@ -237,12 +250,14 @@ export class NewListingModalManager {
   }
 
   /**
-   * Handles media form submission
+   * Processes media form submission and stores URL data.
+   * Collects all valid URLs and updates the media count display.
    */
   handleMediaFormSubmission() {
     const mediaInputs = document.querySelectorAll('input[name="mediaUrl"]');
     const urls = [];
 
+    // Collect all valid URLs from input fields
     mediaInputs.forEach((input) => {
       const url = input.value.trim();
       if (url) {
@@ -250,18 +265,16 @@ export class NewListingModalManager {
       }
     });
 
-    // Store the media URLs
+    // Store URLs and update UI
     this.mediaUrls = urls;
-
-    // Update the media count display
     this.updateMediaCountDisplay(urls.length);
-
-    // Close the media modal
     this.closeMediaModal();
   }
 
   /**
-   * Updates the media count display
+   * Updates the media count display text based on number of items.
+   * Provides user feedback on how many media items are selected.
+   * @param {number} count - Number of media items selected
    */
   updateMediaCountDisplay(count) {
     const mediaCount = document.getElementById("mediaCount");
@@ -277,7 +290,8 @@ export class NewListingModalManager {
   }
 
   /**
-   * Resets the media form to initial state
+   * Resets the media form to its initial state.
+   * Removes extra input fields and clears existing values.
    */
   resetMediaForm() {
     const mediaForm = document.getElementById("addMediaForm");
@@ -285,14 +299,16 @@ export class NewListingModalManager {
       mediaForm.reset();
     }
 
-    // Reset media URL inputs to initial state (2 inputs)
+    // Reset to initial 2 input fields and clear their values
     const mediaUrlInputs = document.getElementById("mediaUrlInputs");
     if (mediaUrlInputs) {
       const inputs = mediaUrlInputs.querySelectorAll('input[name="mediaUrl"]');
+
       // Remove any additional inputs beyond the first 2
       for (let i = 2; i < inputs.length; i++) {
         inputs[i].parentNode.removeChild(inputs[i]);
       }
+
       // Clear values of the first 2 inputs
       if (inputs[0]) inputs[0].value = "";
       if (inputs[1]) inputs[1].value = "";
@@ -300,14 +316,15 @@ export class NewListingModalManager {
   }
 
   /**
-   * Clears stored media URLs
+   * Clears the stored media URLs array.
    */
   clearMediaUrls() {
     this.mediaUrls = [];
   }
 
   /**
-   * Shows an error message within the modal
+   * Displays an error message within the modal.
+   * @param {string} message - Error message to display
    */
   showError(message) {
     const errorContainer = document.getElementById("listingErrorContainer");
@@ -320,7 +337,7 @@ export class NewListingModalManager {
   }
 
   /**
-   * Hides the error message in the modal
+   * Hides any displayed error messages.
    */
   hideError() {
     const errorContainer = document.getElementById("listingErrorContainer");
@@ -330,10 +347,11 @@ export class NewListingModalManager {
   }
 
   /**
-   * Handles form submission for creating new listing
+   * Handles the main form submission for creating a new listing.
+   * Validates data, calls API, and handles success/error responses.
+   * @returns {Promise<void>}
    */
   async handleFormSubmission() {
-    // Hide any existing error messages
     this.hideError();
 
     const formData = this.getFormData();
@@ -349,19 +367,15 @@ export class NewListingModalManager {
 
       this.closeModal();
 
-      // Call success callback if provided
+      // Success callback or default behavior
       if (this.onSuccess) {
         this.onSuccess(result);
       } else {
-        // Default success behavior
         alert("Listing created successfully!");
         window.location.reload();
       }
     } catch (err) {
-      // Show error within the modal
       this.showError(err.message || "Failed to create listing.");
-
-      // Also call error callback if provided
       if (this.onError) {
         this.onError(err.message || "Failed to create listing.");
       }
@@ -369,7 +383,9 @@ export class NewListingModalManager {
   }
 
   /**
-   * Collects form data
+   * Extracts and formats form data for API submission.
+   * Handles data validation and transformation.
+   * @returns {Object} Form data object
    */
   getFormData() {
     const title = document.getElementById("listingTitle")?.value.trim();
@@ -379,7 +395,6 @@ export class NewListingModalManager {
     const endsAt = document.getElementById("listingEndDate")?.value;
     const tagsRaw = document.getElementById("listingTags")?.value.trim() || "";
 
-    // Pass tags as the original string; processTags (in createListing) will handle splitting & sanitizing
     return {
       title,
       description,
@@ -389,28 +404,32 @@ export class NewListingModalManager {
   }
 
   /**
-   * Static method to generate modal HTML
+   * Generates the complete HTML structure for both modals.
+   * @returns {string} Static HTML string for injection into DOM
    */
   static generateModalHTML() {
     return `
-      <!-- Create New Listing Modal -->
+      <!-- Main New Listing Modal -->
       <div
         id="addListingModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto relative"
         >
+          <!-- Close Button -->
           <button
             id="closeAddListingModal"
-            class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 dark:hover:text-white text-2xl leading-none"
           >
             &times;
           </button>
+
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
             Create New Listing
           </h2>
-          <!-- Error message container -->
+
+          <!-- Error Message Container -->
           <div id="listingErrorContainer" class="hidden mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg dark:bg-red-900/20 dark:border-red-700 dark:text-red-400">
             <div class="flex items-center">
               <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -419,7 +438,10 @@ export class NewListingModalManager {
               <span id="listingErrorText"></span>
             </div>
           </div>
+
+          <!-- Listing Creation Form -->
           <form id="addListingForm" class="space-y-4">
+            <!-- Title Input -->
             <div>
               <input
                 type="text"
@@ -430,6 +452,8 @@ export class NewListingModalManager {
                 required
               />
             </div>
+
+            <!-- Description Textarea -->
             <div>
               <textarea
                 id="listingDescription"
@@ -440,15 +464,19 @@ export class NewListingModalManager {
                 required
               ></textarea>
             </div>
+
+            <!-- End Date Input -->
             <div>
               <input
                 type="datetime-local"
                 id="listingEndDate"
                 name="endsAt"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-500 dark:border-gray-700 dark:text-white"
                 required
               />
             </div>
+
+            <!-- Tags Input -->
             <div>
               <input
                 type="text"
@@ -458,6 +486,8 @@ export class NewListingModalManager {
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
               />
             </div>
+
+            <!-- Media Section -->
             <div class="flex items-center justify-between">
               <button
                 type="button"
@@ -470,6 +500,8 @@ export class NewListingModalManager {
                 No media selected
               </span>
             </div>
+
+            <!-- Form Action Buttons -->
             <div class="flex justify-end space-x-3">
               <button
                 type="button"
@@ -500,7 +532,10 @@ export class NewListingModalManager {
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">
             Add Media
           </h2>
+
+          <!-- Media URL Form -->
           <form id="addMediaForm" class="space-y-4">
+            <!-- Initial Media URL Inputs -->
             <div id="mediaUrlInputs">
               <input
                 type="url"
@@ -515,13 +550,17 @@ export class NewListingModalManager {
                 class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white"
               />
             </div>
+
+            <!-- Add More URLs Button -->
             <button
               type="button"
               id="addMoreUrlBtn"
-              class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+              class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
             >
               Add Another URL
             </button>
+
+            <!-- Media Modal Action Buttons -->
             <div class="flex justify-end space-x-3">
               <button
                 type="button"

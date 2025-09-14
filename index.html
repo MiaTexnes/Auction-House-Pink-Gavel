@@ -9,20 +9,24 @@
     <header></header>
 
     <!-- Hero Section - Full Width -->
-    <div
-      class="bg-gradient-to-br from-purple-300 to-pink-300 md:from-purple-400 md:to-pink-400 text-center p-4 md:p-12 mb-6 md:mb-8 w-full"
-    >
-      <h1 class="text-xl md:text-3xl font-bold mb-3 md:mb-4 text-black">
-        Welcome to Pink Gavel Auctions
-      </h1>
-      <p class="mb-4 md:mb-6 text-black max-w-2xl mx-auto text-sm md:text-base">
-        Discover amazing deals and rare finds! Bid on treasures or sell your
-        items to collectors worldwide. Your next great find awaits!
-      </p>
-      <div id="home-auth-buttons" class="flex flex-col items-center gap-4">
-        <!-- Auth buttons will be populated by JavaScript -->
+    <section aria-label="Hero" class="w-full">
+      <div
+        class="bg-gradient-to-br from-purple-300 to-pink-300 md:from-purple-400 md:to-pink-400 text-center p-4 md:p-12 mb-6 md:mb-8 w-full"
+      >
+        <h1 class="text-xl md:text-3xl font-bold mb-3 md:mb-4 text-black">
+          Welcome to Pink Gavel Auctions
+        </h1>
+        <p
+          class="mb-4 md:mb-6 text-black max-w-2xl mx-auto text-sm md:text-base"
+        >
+          Discover amazing deals and rare finds! Bid on treasures or sell your
+          items to collectors worldwide. Your next great find awaits!
+        </p>
+        <div id="home-auth-buttons" class="flex flex-col items-center gap-4">
+          <!-- Auth buttons will be populated by JavaScript -->
+        </div>
       </div>
-    </div>
+    </section>
 
     <main id="main-content" class="mx-auto">
       <!-- Newest Listings Section -->
@@ -61,10 +65,14 @@
               <button
                 id="scroll-left"
                 class="pointer-events-auto hidden sm:inline-block"
+                aria-label="Scroll carousel left"
+                type="button"
               ></button>
               <button
                 id="scroll-right"
                 class="pointer-events-auto hidden sm:inline-block"
+                aria-label="Scroll carousel right"
+                type="button"
               ></button>
             </div>
 

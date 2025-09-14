@@ -29,7 +29,6 @@ import { searchAndSortComponent } from "../components/searchAndSort.js";
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import { createPaginationButtons } from "../components/buttons.js";
-import { processTags } from "../utils/tagUtils.js";
 import { TimeUtils } from "../utils/timeUtils.js";
 import { safeFetch, createCachedFetch } from "../utils/requestManager.js";
 
@@ -643,8 +642,8 @@ class UIManager {
 
     // Add new listings using document fragment for performance
     const fragment = document.createDocumentFragment();
-    nextBatch.forEach((listing) => {
-      fragment.appendChild(this.cardBuilder.build(normalizeListing(listing)));
+    nextBatch.forEach((item) => {
+      fragment.appendChild(this.cardBuilder.build(normalizeListing(item)));
     });
 
     listingsContainer.appendChild(fragment);
@@ -683,11 +682,6 @@ class UIManager {
       state.setShowingAll(true);
     } else {
       // More listings available - show "Load More" and optional "View Less"
-      const remainingCount = totalListings - currentCount;
-      const nextBatchSize = Math.min(
-        remainingCount,
-        CONSTANTS.LISTINGS_PER_PAGE,
-      );
 
       const showViewLess = currentCount > CONSTANTS.LISTINGS_PER_PAGE;
 
@@ -716,7 +710,6 @@ class UIManager {
    */
   handleLoadMore(state) {
     const currentSearch = state.getCurrentSearch();
-
     if (currentSearch && currentSearch.trim() !== "") {
       // Load more from filtered search results
       const filteredListings = state.getFilteredListings();
@@ -735,7 +728,6 @@ class UIManager {
    */
   handleViewLess(state) {
     const currentSearch = state.getCurrentSearch();
-
     if (currentSearch && currentSearch.trim() !== "") {
       // Reset to first page of search results
       const filteredListings = state.getFilteredListings();
@@ -860,22 +852,14 @@ class APIService {
    * @throws {Error} If API request fails
    */
   async fetchListings() {
-    try {
-      const headers = this.buildHeaders();
-      const url = `${this.baseURL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`;
-
-      const response = await safeFetch(url, { headers });
-
-      if (!response.ok) {
-        await this.handleErrorResponse(response);
-      }
-
-      const responseData = await response.json();
-
-      return responseData.data || [];
-    } catch (error) {
-      throw error;
+    const headers = this.buildHeaders();
+    const url = `${this.baseURL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`;
+    const response = await safeFetch(url, { headers });
+    if (!response.ok) {
+      await this.handleErrorResponse(response);
     }
+    const responseData = await response.json();
+    return responseData.data || [];
   }
 
   /**
@@ -927,7 +911,7 @@ class ModalManager {
 
   initNewListingModal() {
     this.listingModal = new NewListingModalManager({
-      onSuccess: async (listing) => {
+      onSuccess: async () => {
         // Handle successful listing creation
         await this.reloadListings();
       },
@@ -1205,24 +1189,20 @@ class EventHandler {
    */
   handleSearchResults(event) {
     const { query, results, error, sortBy } = event.detail;
-
     if (error) {
       this.ui.showError(`Search error: ${error}`);
       return;
     }
-
     if (results.length === 0) {
       const message = this.getEmptyResultsMessage(query, sortBy);
       this.ui.showMessage(message, "info");
       this.ui.hideLoadMoreButton();
       return;
     }
-
     // Update state with search results
     this.state.setCurrentSearch(query);
     this.state.setFilteredListings(results);
     this.state.resetDisplayedCount();
-
     if (query.trim() === "") {
       // Show all results without search indicator
       this.ui.removeSearchIndicator();

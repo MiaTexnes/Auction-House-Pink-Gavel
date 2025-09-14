@@ -7,10 +7,10 @@ import { initializeTheme } from "./services/themeService.js";
 import { addFavicons } from "./services/faviconService.js";
 
 // Page-specific imports
-import { CarouselComponent } from "./components/carousel.js";
+// import { CarouselComponent } from "./components/carousel.js"; // Removed: unused
 import { LoginController } from "./pages/login.js";
 import { RegistrationController } from "./pages/register.js";
-import { FAQController } from "./pages/faq.js";
+import { FAQController, FAQEnhancements } from "./pages/faq.js";
 import { initializeContactPage } from "./pages/contact.js";
 import { ProfileController } from "./pages/profile.js";
 import { ListingsPageController } from "./pages/listings.js";
@@ -35,8 +35,6 @@ const pageConfig = {
   "contact.html": { handler: initializeContactPage },
   "faq.html": { controller: FAQController, enhancer: enhanceFAQPage },
 };
-
-// ...existing code...
 
 // Get current page name from URL
 const getCurrentPage = () => {
@@ -114,7 +112,6 @@ function initializePageSpecific() {
   const config = pageConfig[currentPage];
 
   if (!config) {
-    // ...existing code...
     return;
   }
 

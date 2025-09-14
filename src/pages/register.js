@@ -449,7 +449,7 @@ class RegistrationController {
           setTimeout(() => {
             window.location.href = "/profile.html";
           }, REDIRECT_DELAY);
-        } catch (loginError) {
+        } catch {
           this.ui.showSuccess(
             "Registration successful, but automatic login failed. Please log in manually.",
           );
@@ -460,7 +460,7 @@ class RegistrationController {
       } else {
         this.ui.showError(result.error);
       }
-    } catch (error) {
+    } catch {
       this.ui.showError("An unexpected error occurred. Please try again.");
     } finally {
       this.ui.toggleLoadingState(false);
