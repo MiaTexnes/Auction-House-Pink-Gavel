@@ -20,7 +20,7 @@ import {
   getCurrentUser,
   getAuthHeader,
 } from "../library/auth.js";
-import { updateUserCredits } from "../components/header.js";
+// ...existing code...
 import {
   placeBid,
   canUserBid,
@@ -1050,7 +1050,6 @@ class APIService {
   static async placeBidOnListing(amount, listing) {
     try {
       const result = await placeBid(listing.id, amount);
-
       if (result.success) {
         return {
           success: true,
@@ -1059,7 +1058,7 @@ class APIService {
       } else {
         return { success: false, error: result.error || "Failed to place bid" };
       }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: "An unexpected error occurred while placing the bid",
@@ -1118,8 +1117,8 @@ class ItemPageController {
       this.state.setListing(listing);
       this.renderListing(listing);
       this.ui.showContent();
-    } catch (error) {
-      this.ui.showError(error.message);
+    } catch (err) {
+      this.ui.showError(err.message);
     }
   }
 

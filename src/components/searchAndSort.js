@@ -257,7 +257,7 @@ export class SearchAndSortComponent {
       const sortedResults = this.sortListings(results, this.currentSort);
       const limitedResults = sortedResults.slice(0, 3);
       this.showDropdown(searchInput, query, limitedResults, results.length);
-    } catch (error) {
+    } catch {
       // Silently fail dropdown search
     }
   }
@@ -428,31 +428,26 @@ export class SearchAndSortComponent {
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
     }
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
-      };
-      // Add auth header if authenticated
-      if (window.isAuthenticated && window.isAuthenticated()) {
-        const authHeader = window.getAuthHeader ? window.getAuthHeader() : {};
-        if (authHeader.Authorization)
-          headers["Authorization"] = authHeader.Authorization;
-      }
-      const response = await safeFetch(
-        `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`,
-        { headers },
-      );
-      if (!response.ok)
-        throw new Error(`API request failed: ${response.status}`);
-      const responseData = await response.json();
-      const allListings = responseData.data || [];
-      const results = this.filterListings(allListings, query);
-      this.cache.set(cacheKey, { data: results, timestamp: Date.now() });
-      return results;
-    } catch (error) {
-      throw error;
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+    };
+    // Add auth header if authenticated
+    if (window.isAuthenticated && window.isAuthenticated()) {
+      const authHeader = window.getAuthHeader ? window.getAuthHeader() : {};
+      if (authHeader.Authorization)
+        headers["Authorization"] = authHeader.Authorization;
     }
+    const response = await safeFetch(
+      `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`,
+      { headers },
+    );
+    if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+    const responseData = await response.json();
+    const allListings = responseData.data || [];
+    const results = this.filterListings(allListings, query);
+    this.cache.set(cacheKey, { data: results, timestamp: Date.now() });
+    return results;
   }
 
   /**

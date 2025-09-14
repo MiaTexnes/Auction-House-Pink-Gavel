@@ -45,13 +45,12 @@ class FAQController {
         const isOpen = !answer.classList.contains("hidden");
 
         if (isOpen) {
-          // Close
-          answer.classList.add("hidden");
+          AnimationUtils.slideUp(answer, 300);
           icon.style.transform = "rotate(0deg)";
           item.classList.remove("ring-2", "ring-pink-500");
         } else {
-          // Open
           answer.classList.remove("hidden");
+          AnimationUtils.slideDown(answer, 300);
           icon.style.transform = "rotate(180deg)";
           item.classList.add("ring-2", "ring-pink-500");
         }
@@ -81,21 +80,22 @@ class FAQController {
 
   filterFAQs() {
     let visibleCount = 0;
+    let visibleItems = 0;
+    const searchInput = document.getElementById("faq-search");
+    const searchTerm = searchInput ? searchInput.value.trim() : "";
 
     this.faqItems.forEach((item) => {
       const category = item.dataset.category;
-
       const matchesCategory =
         this.currentCategory === "all" || category === this.currentCategory;
 
       if (matchesCategory) {
         item.style.display = "block";
         visibleCount++;
-
+        visibleItems++;
         // Add subtle animation
         item.style.opacity = "0";
         item.style.transform = "translateY(10px)";
-
         setTimeout(() => {
           item.style.opacity = "1";
           item.style.transform = "translateY(0)";
@@ -127,9 +127,10 @@ class AnimationUtils {
    * @param {HTMLElement} element - Element to animate
    * @param {number} duration - Animation duration in milliseconds
    */
-  static fadeIn(element, duration = 300) {
-    element.style.opacity = "0";
-    element.style.display = "block";
+  static slideUp(element, duration = 300) {
+    const startHeight = element.scrollHeight;
+    element.style.height = startHeight + "px";
+    element.style.overflow = "block";
 
     let start = performance.now();
 
@@ -137,10 +138,19 @@ class AnimationUtils {
       const elapsed = currentTime - start;
       const progress = Math.min(elapsed / duration, 1);
 
-      element.style.opacity = progress;
+      const easeInOut =
+        progress < 0.5
+          ? 2 * progress * progress
+          : -1 + (4 - 2 * progress) * progress;
+
+      element.style.height = startHeight - startHeight * easeInOut + "px";
 
       if (progress < 1) {
         requestAnimationFrame(animate);
+      } else {
+        element.style.height = "auto";
+        element.style.overflow = "visible";
+        element.classList.add("hidden");
       }
     }
 
@@ -255,7 +265,7 @@ class FAQEnhancements {
       question.addEventListener("contextmenu", (e) => {
         e.preventDefault();
 
-        const faqItem = question.closest(".faq-item");
+        // const faqItem = question.closest(".faq-item"); // Unused variable removed
         const questionText = question.querySelector("span").textContent;
         const url = `${window.location.href}#${encodeURIComponent(questionText)}`;
 

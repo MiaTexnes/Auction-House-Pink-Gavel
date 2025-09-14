@@ -2,47 +2,43 @@ import { AUTH_ENDPOINTS, API_BASE_URL } from "../services/baseApi.js"; // Add AP
 import { config } from "../services/config.js";
 
 export async function loginUser(userData) {
-  try {
-    const response = await fetch(AUTH_ENDPOINTS.login, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Noroff-API-Key": config.X_NOROFF_API_KEY, // Fixed: use config.X_NOROFF_API_KEY
-      },
-      body: JSON.stringify({
-        email: userData.email,
-        password: userData.password,
-      }),
-    });
+  const response = await fetch(AUTH_ENDPOINTS.login, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+    },
+    body: JSON.stringify({
+      email: userData.email,
+      password: userData.password,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error("Invalid email or password");
-      }
-      throw new Error(
-        data.errors?.[0]?.message || data.message || "Login failed",
-      );
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Invalid email or password");
     }
-
-    const profileData = data.data;
-
-    const userToStore = {
-      name: profileData.name,
-      email: profileData.email,
-      avatar: profileData.avatar,
-      credits: profileData.credits,
-      accessToken: profileData.accessToken,
-    };
-
-    localStorage.setItem("token", profileData.accessToken);
-    localStorage.setItem("user", JSON.stringify(userToStore));
-
-    return data;
-  } catch (error) {
-    throw error;
+    throw new Error(
+      data.errors?.[0]?.message || data.message || "Login failed",
+    );
   }
+
+  const profileData = data.data;
+
+  const userToStore = {
+    name: profileData.name,
+    email: profileData.email,
+    avatar: profileData.avatar,
+    credits: profileData.credits,
+    accessToken: profileData.accessToken,
+  };
+
+  localStorage.setItem("token", profileData.accessToken);
+  localStorage.setItem("user", JSON.stringify(userToStore));
+
+  return data;
 }
 
 export async function registerUser(userData) {
@@ -63,43 +59,39 @@ export async function registerUser(userData) {
     throw new Error("Password must be at least 8 characters long");
   }
 
-  try {
-    // Prepare the request body
-    const requestBody = {
-      name: userData.name,
-      email: userData.email,
-      password: userData.password,
+  // Prepare the request body
+  const requestBody = {
+    name: userData.name,
+    email: userData.email,
+    password: userData.password,
+  };
+
+  // Only include avatar if provided, and format it as an object
+  if (userData.avatar && userData.avatar.trim()) {
+    requestBody.avatar = {
+      url: userData.avatar,
+      alt: "User avatar",
     };
-
-    // Only include avatar if provided, and format it as an object
-    if (userData.avatar && userData.avatar.trim()) {
-      requestBody.avatar = {
-        url: userData.avatar,
-        alt: "User avatar",
-      };
-    }
-
-    const response = await fetch(`${AUTH_ENDPOINTS.register}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.errors?.[0]?.message || data.message || "Registration failed",
-      );
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
   }
+
+  const response = await fetch(`${AUTH_ENDPOINTS.register}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.errors?.[0]?.message || data.message || "Registration failed",
+    );
+  }
+
+  return data;
 }
 
 export function logoutUser() {
@@ -151,29 +143,24 @@ export function getAuthHeader() {
 export async function getUserProfile(name) {
   if (!isAuthenticated()) return null;
 
-  try {
-    const authHeader = getAuthHeader();
-    const response = await fetch(
-      `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true`, // Use API_BASE_URL instead of API_BASE
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Noroff-API-Key": config.X_NOROFF_API_KEY, // Fixed: use config.X_NOROFF_API_KEY
-          Authorization: authHeader.Authorization,
-        },
+  const authHeader = getAuthHeader();
+  const response = await fetch(
+    `${API_BASE_URL}/auction/profiles/${name}?_listings=true&_wins=true`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+        Authorization: authHeader.Authorization,
       },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch user profile: ${response.status} ${response.statusText}`,
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Failed to fetch user profile: ${response.status} ${response.statusText}`,
-      );
-    }
-
-    const data = await response.json();
-    return data.data || data;
-  } catch (error) {
-    return null;
   }
+
+  const data = await response.json();
+  return data.data || data;
 }

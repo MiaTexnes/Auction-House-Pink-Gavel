@@ -599,7 +599,7 @@ export class CarouselComponent {
   populateAllCards() {
     this.elements.carouselTrack.innerHTML = "";
 
-    this.listings.forEach((listing, index) => {
+    this.listings.forEach((listing) => {
       const card =
         typeof createListingCard !== "undefined"
           ? createListingCard(listing)
@@ -786,6 +786,7 @@ export const CarouselController = {
       carousel.render();
       DOMUtils.show(elements.listingsCarousel);
     } catch (error) {
+      console.error("Error loading carousel:", error);
       this.showError(elements);
     }
   },

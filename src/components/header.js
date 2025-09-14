@@ -11,7 +11,7 @@ import logoImage from "/assets/images/logo.png";
  * Stores the current user's credits to avoid repeated API calls.
  * @type {number|null}
  */
-let userCredits = null;
+export let userCredits = null;
 
 /**
  * Updates the credits display in both desktop and mobile navigation.
@@ -36,6 +36,7 @@ async function updateCreditsDisplay() {
           });
         }
       } catch (error) {
+        console.error("Failed to fetch user credits:", error);
         creditsElements.forEach((element) => {
           element.classList.add("hidden");
         });
@@ -349,7 +350,7 @@ function setupEventListeners() {
   try {
     searchAndSortComponent.init();
   } catch (error) {
-    // Fail silently if searchAndSortComponent is not available
+    console.warn("Search and sort component not available:", error);
   }
 }
 

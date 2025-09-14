@@ -399,47 +399,7 @@ class UIManager {
   }
   // ...existing code...
 
-  setupEndedListingsToggle(profile) {
-    const toggleBtn = document.getElementById("toggleSellerEndedListingsBtn");
-    const endedSection = document.getElementById(
-      "seller-ended-listings-section",
-    );
-
-    if (!toggleBtn || !endedSection) return;
-
-    const endedListings =
-      profile.listings?.filter(
-        (listing) => new Date(listing.endsAt) <= new Date(),
-      ) || [];
-
-    if (endedListings.length === 0) {
-      toggleBtn.disabled = true;
-      toggleBtn.classList.add("opacity-50", "cursor-not-allowed");
-      return;
-    }
-
-    let isExpanded = false;
-    let isInitialized = false;
-
-    toggleBtn.addEventListener("click", () => {
-      if (isExpanded) {
-        endedSection.classList.add("hidden");
-        toggleBtn.textContent = `Show Ended (${endedListings.length})`;
-        isExpanded = false;
-      } else {
-        endedSection.classList.remove("hidden");
-        toggleBtn.textContent = `Hide Ended (${endedListings.length})`;
-
-        // Only render if not yet initialized
-        if (!isInitialized) {
-          this.renderEndedListings(profile);
-          isInitialized = true;
-        }
-
-        isExpanded = true;
-      }
-    });
-  }
+  // Removed duplicate setupEndedListingsToggle
 
   renderEndedListings(profile) {
     const endedListings =

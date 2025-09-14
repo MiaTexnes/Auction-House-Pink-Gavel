@@ -6,7 +6,7 @@ import {
 import { updateUserCredits } from "../components/header.js";
 import { config } from "../services/config.js"; // Import the config object
 import { API_BASE_URL } from "./baseApi.js"; // Add this import
-import { safeFetch } from "../utils/requestManager.js";
+// import { safeFetch } from "../utils/requestManager.js";
 
 /**
  * Bidding Service - Handles all bidding operations
@@ -25,34 +25,30 @@ export class BiddingService {
       throw new Error("User must be logged in to check credits");
     }
 
-    try {
-      const currentUser = getCurrentUser();
-      if (!currentUser) {
-        throw new Error("No user data found");
-      }
-
-      const authHeader = getAuthHeader();
-      const response = await fetch(
-        `${API_BASE_URL}/auction/profiles/${currentUser.name}`, // Use API_BASE_URL instead of API_BASE
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
-            Authorization: authHeader.Authorization,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch user profile");
-      }
-
-      const data = await response.json();
-      this.currentUserCredits = data.data.credits;
-      return this.currentUserCredits;
-    } catch (error) {
-      throw error;
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      throw new Error("No user data found");
     }
+
+    const authHeader = getAuthHeader();
+    const response = await fetch(
+      `${API_BASE_URL}/auction/profiles/${currentUser.name}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
+          Authorization: authHeader.Authorization,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user profile");
+    }
+
+    const data = await response.json();
+    this.currentUserCredits = data.data.credits;
+    return this.currentUserCredits;
   }
 
   /**
@@ -182,7 +178,7 @@ export class BiddingService {
       let updatedCredits = null;
       try {
         updatedCredits = await this.getCurrentUserCredits();
-      } catch (e) {
+      } catch {
         // If unable to fetch, leave as null
       }
 
@@ -270,7 +266,7 @@ export class BiddingService {
           reason: `You need at least ${minBid} credits to bid on this item`,
         };
       }
-    } catch (error) {
+    } catch {
       return {
         canBid: false,
         reason: "Unable to verify your account balance",
@@ -347,7 +343,7 @@ export class BiddingService {
     try {
       const authHeader = getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/auction/profiles/${userName}/credits`, // Use API_BASE_URL instead of API_BASE
+        `${API_BASE_URL}/auction/profiles/${userName}/credits`,
         {
           method: "PATCH",
           headers: {
@@ -370,10 +366,10 @@ export class BiddingService {
       return {
         success: true,
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
-        error: error.message || "An unexpected error occurred",
+        error: "An unexpected error occurred",
       };
     }
   }
@@ -392,26 +388,4 @@ export const getCurrentUserCredits = () =>
   biddingService.getCurrentUserCredits();
 
 // Example auction end logic
-async function handleAuctionEnd(listingId, bids, sellerName) {
-  try {
-    // Find the highest bid
-    const highestBid = bids.reduce(
-      (max, bid) => (bid.amount > max.amount ? bid : max),
-      { amount: 0 },
-    );
-
-    // Update seller's credits with the highest bid amount
-    if (highestBid && highestBid.amount > 0) {
-      await biddingService.addCreditsToSeller(sellerName, highestBid.amount);
-    }
-
-    // Refund all other bidders
-    for (const bid of bids) {
-      if (bid.userName !== highestBid.userName) {
-        await biddingService.refundCreditsToUser(bid.userName, bid.amount);
-      }
-    }
-  } catch (error) {
-    // Error handling without console.log
-  }
-}
+// Removed unused handleAuctionEnd function
