@@ -27,7 +27,7 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 - **Secure Registration** - Only users with `stud.noroff.no` email domains
 - **Login/Logout** - Persistent authentication with JWT tokens
 - **Profile Management** - Update avatar, Bio and view account details
-- **Credit System** - Track and se bidding credits
+- **Credit System** - Track and see bidding credits
 
 ### 🏷️ Auction Listings
 
@@ -233,8 +233,10 @@ View coverage reports by opening `coverage/index.html` in your browser.
 
 ### Environment Setup
 
-The project uses the Noroff Auction API. A `.env` file is supported for environment variables (e.g., API keys, custom endpoints).
-Check out the `.env.example`
+A .env file is required. Add the following variables:
+
+VITE_NOROFF_API_KEY=your-api-key-here
+VITE_API_BASE_URL=your-api-url-here
 
 ### Tailwind CSS
 
