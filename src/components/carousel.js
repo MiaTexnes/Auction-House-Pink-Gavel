@@ -1,7 +1,12 @@
-// carousel.js - Photo carousel for showing auction items that you can scroll through
+/**
+ * @fileoverview Photo carousel for displaying auction items with smooth scrolling
+ * Provides both basic and advanced carousel components with responsive design
+ * @author Pink Gavel Auctions Team
+ * @version 1.0.0
+ */
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
-import { safeFetch } from "../utils/requestManager.js";
+import { safeFetch, createCachedFetch } from "../utils/requestManager.js";
 import { createListingCard } from "../pages/listings.js";
 
 const DEFAULT_LISTINGS_LIMIT = 15;
@@ -145,34 +150,40 @@ const ImageHandler = {
  * @returns {HTMLAnchorElement} The card element for the carousel.
  */
 export function createCarouselCard(listing) {
-  const endDate = new Date(listing.endsAt);
-  const now = new Date();
-  const timeLeftMs = endDate.getTime() - now.getTime();
+  try {
+    // Validate listing data
+    if (!listing || typeof listing !== "object") {
+      throw new Error("Invalid listing data provided");
+    }
 
-  // Figure out how much time is left in the auction
-  const timeInfo = { text: "Ended" };
+    const endDate = new Date(listing.endsAt);
+    const now = new Date();
+    const timeLeftMs = endDate.getTime() - now.getTime();
 
-  if (timeLeftMs < 0) {
-    timeInfo.text = "Ended";
-  } else {
-    const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    );
-    const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
-    timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
-  }
+    // Figure out how much time is left in the auction
+    const timeInfo = { text: "Ended" };
 
-  const imageUrl = ImageHandler.getImageUrl(listing);
-  const sellerAvatar = listing.seller?.avatar?.url || DEFAULT_SELLER_AVATAR;
-  const sellerName = listing.seller?.name || "Unknown";
+    if (timeLeftMs < 0) {
+      timeInfo.text = "Ended";
+    } else {
+      const days = Math.floor(timeLeftMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (timeLeftMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
+      const minutes = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+      timeInfo.text = `Ends: ${days}d ${hours}h ${minutes}m`;
+    }
 
-  const card = document.createElement("a");
-  card.href = `/item.html?id=${listing.id}`;
-  card.className =
-    "flex-none w-72 sm:w-80 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
+    const imageUrl = ImageHandler.getImageUrl(listing);
+    const sellerAvatar = listing.seller?.avatar?.url || DEFAULT_SELLER_AVATAR;
+    const sellerName = listing.seller?.name || "Unknown";
 
-  card.innerHTML = `
+    const card = document.createElement("a");
+    card.href = `/item.html?id=${listing.id}`;
+    card.className =
+      "flex-none w-72 sm:w-80 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-[400px] flex flex-col cursor-pointer border border-gray-100 dark:border-gray-700";
+
+    card.innerHTML = `
     <div class="w-full h-40 flex-shrink-0 bg-gray-100 dark:bg-gray-700 overflow-hidden">
       ${imageUrl ? `<img src="${imageUrl}" alt="${listing.title}" loading="lazy" class="w-full h-full object-cover carousel-image transition-transform duration-300 hover:scale-110">` : '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>'}
     </div>
@@ -192,16 +203,29 @@ export function createCarouselCard(listing) {
     </div>
   `;
 
-  // If the image doesn't load, show a nice placeholder instead
-  const img = card.querySelector(".carousel-image");
-  if (img) {
-    img.addEventListener("error", function () {
-      this.parentElement.innerHTML =
-        '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
-    });
-  }
+    // If the image doesn't load, show a nice placeholder instead
+    const img = card.querySelector(".carousel-image");
+    if (img) {
+      img.addEventListener("error", function () {
+        this.parentElement.innerHTML =
+          '<div class="w-full h-40 flex items-center justify-center bg-gradient-to-br from-pink-400 to-purple-500 text-white text-center font-semibold text-lg italic flex-shrink-0">No image on this listing</div>';
+      });
+    }
 
-  return card;
+    return card;
+  } catch {
+    // Return a fallback card if creation fails
+    const fallbackCard = document.createElement("div");
+    fallbackCard.className =
+      "flex-none w-72 sm:w-80 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg h-[400px] flex flex-col items-center justify-center p-4 border border-gray-100 dark:border-gray-700";
+    fallbackCard.innerHTML = `
+      <div class="text-center text-gray-500 dark:text-gray-400">
+        <p class="text-lg font-semibold mb-2">Unable to load item</p>
+        <p class="text-sm">Please try again later</p>
+      </div>
+    `;
+    return fallbackCard;
+  }
 }
 
 /**
@@ -730,7 +754,8 @@ export const CarouselAPIService = {
    * @returns {Promise<Object[]>} Array of active auction listings.
    */
   async fetchLatestListings(limit = DEFAULT_LISTINGS_LIMIT) {
-    const response = await safeFetch(
+    const cachedFetch = createCachedFetch(300000); // 5 minute cache
+    const response = await cachedFetch(
       `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&sort=created&sortOrder=desc&limit=${limit}`,
       {
         headers: {
@@ -785,8 +810,8 @@ export const CarouselController = {
       const carousel = new CarouselComponent(listings);
       carousel.render();
       DOMUtils.show(elements.listingsCarousel);
-    } catch (error) {
-      console.error("Error loading carousel:", error);
+    } catch {
+      // Handle carousel loading error gracefully
       this.showError(elements);
     }
   },

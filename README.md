@@ -47,7 +47,7 @@ Auction House - Pink Gavel is a full-featured front-end application for an onlin
 - **Responsive Design** - Mobile-first approach with Tailwind CSS
 - **Dark/Light Mode** - Toggle between themes
 - **Interactive Components** - Modals, carousels, and dynamic forms
-- **Accessibility** - WCAG compliant interface
+- **Accessibility** - WCAG compliant interface tested with WAVE
 
 ## 🚀 Getting Started
 
@@ -194,16 +194,24 @@ View coverage reports by opening `coverage/index.html` in your browser.
 │   │   ├── config.js
 │   │   ├── faviconService.js
 │   │   ├── inactivityService.js
-│   │   ├── themeService.js
-│   │   └── tests/
-│   │       ├── auth.test.js
-│   │       ├── baseApi.test.js
-│   │       ├── biddingService.test.js
-│   │       ├── buttons.test.js
-│   │       ├── carousel.test.js
-│   │       └── ...
+│   │   └── themeService.js
+│   ├── tests/
+│   │   ├── auth.test.js
+│   │   ├── baseApi.test.js
+│   │   ├── biddingService.test.js
+│   │   ├── buttons.test.js
+│   │   ├── carousel.test.js
+│   │   ├── example.test.js
+│   │   ├── requestManager.test.js
+│   │   ├── searchAndSort.test.js
+│   │   ├── timeUtils.test.js
+│   │   └── utils.test.js
 │   └── utils/
-│       └── ...
+│       ├── dateUtils.js
+│       ├── profileUtils.js
+│       ├── requestManager.js
+│       ├── tagUtils.js
+│       └── timeUtils.js
 ├── contact.html
 ├── cookies.html
 ├── faq.html
@@ -259,7 +267,7 @@ The project follows a cohesive design system:
 - **Components**: Consistent button styles, modals, and form elements
 - **Layout**: Mobile-first responsive grid system
 
-Design files are available in [Figma](https://www.figma.com/).
+Design files are available in [Figma](https://www.figma.com/design/3v4qxEUA5xGW2cc85RB03f/Pink-Gavel-Auctions?node-id=0-1&t=Fv91dtswe4VxmP1L-1).
 
 ## 📊 Project Management
 

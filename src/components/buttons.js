@@ -1,5 +1,9 @@
-// Button components for Pink Gavel Auctions
-// Button components for Pink Gavel Auctions
+/**
+ * @fileoverview Button components for Pink Gavel Auctions
+ * Provides reusable button creation functions with consistent styling
+ * @author Pink Gavel Auctions Team
+ * @version 1.0.0
+ */
 
 /**
  * Creates a gradient-styled anchor button.

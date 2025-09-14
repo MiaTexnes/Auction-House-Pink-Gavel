@@ -3,6 +3,11 @@ import { API_BASE_URL } from "../services/baseApi.js";
 import { processTags } from "../utils/tagUtils.js";
 
 // Helper function to validate URL format
+/**
+ * Validates if a string is a valid URL
+ * @param {string} string - String to validate as URL
+ * @returns {boolean} True if string is a valid URL, false otherwise
+ */
 function isValidUrl(string) {
   try {
     new URL(string);

@@ -12,53 +12,75 @@ export const TimeUtils = {
    * @returns {Object} Object with text, isEnded, and optionally class properties
    */
   formatTimeRemaining(endDate, options = {}) {
-    const { includeSeconds = false, includeClass = false } = options;
+    try {
+      const { includeSeconds = false, includeClass = false } = options;
 
-    const now = new Date();
-    const end = new Date(endDate);
-    const timeLeft = end.getTime() - now.getTime();
+      if (!endDate) {
+        throw new Error("End date is required");
+      }
 
-    if (timeLeft <= 0) {
+      const now = new Date();
+      const end = new Date(endDate);
+
+      // Validate the date
+      if (isNaN(end.getTime())) {
+        throw new Error("Invalid end date provided");
+      }
+
+      const timeLeft = end.getTime() - now.getTime();
+
+      if (timeLeft <= 0) {
+        const result = {
+          text: "Auction Ended",
+          isEnded: true,
+        };
+
+        if (includeClass) {
+          result.class = "text-red-700 dark:text-red-400 font-semibold";
+        }
+
+        return result;
+      }
+
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      let text;
+      if (days > 0) {
+        text = `${days}d ${hours}h ${minutes}m`;
+      } else if (hours > 0) {
+        text = includeSeconds
+          ? `${hours}h ${minutes}m ${seconds}s`
+          : `${hours}h ${minutes}m`;
+      } else {
+        text = includeSeconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
+      }
+
       const result = {
-        text: "Auction Ended",
-        isEnded: true,
+        text,
+        isEnded: false,
       };
 
       if (includeClass) {
-        result.class = "text-red-700 dark:text-red-400 font-semibold";
+        result.class =
+          "text-green-800 dark:text-green-400 text-sm font-semibold";
       }
 
       return result;
+    } catch (error) {
+      // Return a fallback result if date processing fails
+      return {
+        text: "Invalid Date",
+        isEnded: true,
+        class: includeClass
+          ? "text-red-700 dark:text-red-400 font-semibold"
+          : undefined,
+      };
     }
-
-    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    );
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-    let text;
-    if (days > 0) {
-      text = `${days}d ${hours}h ${minutes}m`;
-    } else if (hours > 0) {
-      text = includeSeconds
-        ? `${hours}h ${minutes}m ${seconds}s`
-        : `${hours}h ${minutes}m`;
-    } else {
-      text = includeSeconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
-    }
-
-    const result = {
-      text,
-      isEnded: false,
-    };
-
-    if (includeClass) {
-      result.class = "text-green-800 dark:text-green-400 text-sm font-semibold";
-    }
-
-    return result;
   },
 
   /**
@@ -67,15 +89,22 @@ export const TimeUtils = {
    * @returns {Object} Object with text and class properties
    */
   formatTimeRemainingForListings(endDate) {
-    const result = this.formatTimeRemaining(endDate, { includeClass: true });
+    try {
+      const result = this.formatTimeRemaining(endDate, { includeClass: true });
 
-    if (!result.isEnded) {
-      result.text = `Ends: ${result.text}`;
-    } else {
-      result.text = "Ended";
+      if (!result.isEnded) {
+        result.text = `Ends: ${result.text}`;
+      } else {
+        result.text = "Ended";
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        text: "Invalid Date",
+        class: "text-red-700 dark:text-red-400 font-semibold",
+      };
     }
-
-    return result;
   },
 
   /**
@@ -84,6 +113,13 @@ export const TimeUtils = {
    * @returns {Object} Object with text and isEnded properties
    */
   formatTimeRemainingForItem(endDate) {
-    return this.formatTimeRemaining(endDate, { includeSeconds: true });
+    try {
+      return this.formatTimeRemaining(endDate, { includeSeconds: true });
+    } catch (error) {
+      return {
+        text: "Invalid Date",
+        isEnded: true,
+      };
+    }
   },
 };

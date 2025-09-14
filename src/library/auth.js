@@ -1,6 +1,14 @@
 import { AUTH_ENDPOINTS, API_BASE_URL } from "../services/baseApi.js"; // Add API_BASE_URL import
 import { config } from "../services/config.js";
 
+/**
+ * Authenticates a user with email and password
+ * @param {Object} userData - User credentials
+ * @param {string} userData.email - User's email address
+ * @param {string} userData.password - User's password
+ * @returns {Promise<Object>} Authentication response data
+ * @throws {Error} If authentication fails or credentials are invalid
+ */
 export async function loginUser(userData) {
   const response = await fetch(AUTH_ENDPOINTS.login, {
     method: "POST",
@@ -41,6 +49,15 @@ export async function loginUser(userData) {
   return data;
 }
 
+/**
+ * Registers a new user account
+ * @param {Object} userData - User registration data
+ * @param {string} userData.name - User's full name
+ * @param {string} userData.email - User's email address
+ * @param {string} userData.password - User's password
+ * @returns {Promise<Object>} Registration response data
+ * @throws {Error} If registration fails or required fields are missing
+ */
 export async function registerUser(userData) {
   if (!userData.name || !userData.email || !userData.password) {
     throw new Error("Name, email, and password are required");
@@ -118,8 +135,7 @@ export function getCurrentUser() {
   try {
     return JSON.parse(userData);
   } catch (error) {
-    console.error("Invalid user data in localStorage:", error);
-    // Clear invalid data
+    // Clear invalid data and return null
     localStorage.removeItem("user");
     return null;
   }

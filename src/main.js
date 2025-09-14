@@ -19,7 +19,6 @@ import { SellerProfileController } from "./pages/sellerProfile.js";
 
 // Initialize core functionality
 initDarkMode();
-initializeTheme();
 initializeInactivityTracking();
 
 // Page configuration mapping
@@ -54,7 +53,10 @@ const getCurrentPage = () => {
   return filename;
 };
 
-// FAQ page enhancements
+/**
+ * FAQ page enhancements
+ * Adds interactive features and animations to the FAQ page
+ */
 function enhanceFAQPage() {
   if (typeof FAQEnhancements !== "undefined") {
     FAQEnhancements.addKeyboardNavigation();
@@ -78,7 +80,10 @@ function enhanceFAQPage() {
   });
 }
 
-// Homepage initialization
+/**
+ * Homepage initialization
+ * Sets up homepage-specific functionality and UI elements
+ */
 async function initializeHomepage() {
   const elements = {
     homeAuthButtons: document.getElementById("home-auth-buttons"),
@@ -96,7 +101,7 @@ async function initializeHomepage() {
     const { PageInitializer } = await import("./pages/index.js");
     PageInitializer.init();
   } catch (error) {
-    console.error("Failed to initialize homepage:", error);
+    // Handle homepage initialization error gracefully
     if (elements.homeError) {
       elements.homeError.classList.remove("hidden");
     }
@@ -106,7 +111,10 @@ async function initializeHomepage() {
   }
 }
 
-// Page initialization
+/**
+ * Page-specific initialization
+ * Initializes controllers or handlers based on the current page
+ */
 function initializePageSpecific() {
   const currentPage = getCurrentPage();
   const config = pageConfig[currentPage];
@@ -126,13 +134,19 @@ function initializePageSpecific() {
     // Run any page enhancers
     config.enhancer?.();
   } catch (error) {
-    console.error(`Failed to initialize ${currentPage}:`, error);
+    // Handle page initialization error gracefully
+    // Error is silently handled to prevent breaking the user experience
   }
 }
 
-// Main initialization
+/**
+ * Main page initialization
+ * Orchestrates the complete page setup process
+ */
 function initializePage() {
   addFavicons();
+  // Ensure theme service is initialized before header
+  initializeTheme();
   initializeHeader();
   initializeFooter();
   initializePageSpecific();

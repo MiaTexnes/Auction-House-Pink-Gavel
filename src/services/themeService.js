@@ -26,6 +26,7 @@ function enhancedToggleDarkMode() {
 
 function initializeTheme() {
   updateBackgroundColor();
+  // Global assignment required for HTML onclick handlers in header component
   window.toggleDarkMode = enhancedToggleDarkMode;
 }
 

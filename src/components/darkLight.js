@@ -1,10 +1,18 @@
 /**
+ * @fileoverview Dark mode management utilities
+ * Handles theme switching and persistence for the application
+ * @author Pink Gavel Auctions Team
+ * @version 1.0.0
+ */
+
+/**
  * Enables or disables dark mode and persists the user's choice in localStorage.
  * When enabled, adds the 'dark' class to the root HTML element and saves 'dark' in localStorage.
  * When disabled, removes the 'dark' class and saves 'light' in localStorage.
  * Throws an error if DOM manipulation fails.
  *
  * @param {boolean} enabled - If true, enables dark mode; if false, disables it.
+ * @throws {Error} If DOM manipulation fails
  */
 export function setDarkMode(enabled) {
   const html = document.documentElement;
@@ -16,8 +24,8 @@ export function setDarkMode(enabled) {
       html.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
-  } catch (err) {
-    console.error("setDarkMode caught error:", err);
+  } catch {
+    // Handle DOM manipulation errors gracefully
     throw new Error("DOM error");
   }
 }

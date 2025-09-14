@@ -6,7 +6,6 @@
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
 import {
-  safeFetch,
   createDebouncedSearch,
   createCachedFetch,
 } from "../utils/requestManager.js";
@@ -285,8 +284,7 @@ export class SearchAndSortComponent {
           </div>
           <div class="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
             <button
-              onclick="window.searchAndSortComponent.clearSearch();"
-              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium"
+              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium clear-search-btn"
             >
               Clear search
             </button>
@@ -302,8 +300,8 @@ export class SearchAndSortComponent {
           ${results.map((listing) => this.createDropdownItem(listing)).join("")}
           <div class="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
             <button
-              onclick="window.location.href='/listings.html?search=${encodeURIComponent(query)}'"
-              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium"
+              class="w-full text-left px-2 py-2 text-sm text-pink-600 dark:text-pink-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-center font-medium view-all-results-btn"
+              data-query="${encodeURIComponent(query)}"
             >
               View all ${totalCount} results →
             </button>
@@ -313,6 +311,41 @@ export class SearchAndSortComponent {
     }
     dropdown.classList.remove("hidden");
     this.dropdownVisible = true;
+
+    // Add event listeners for dropdown buttons
+    this.setupDropdownEventListeners(dropdown);
+  }
+
+  /**
+   * Sets up event listeners for dropdown buttons.
+   * @param {HTMLElement} dropdown - The dropdown element
+   */
+  setupDropdownEventListeners(dropdown) {
+    // Clear search button
+    const clearBtn = dropdown.querySelector(".clear-search-btn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        this.clearSearch();
+      });
+    }
+
+    // View all results button
+    const viewAllBtn = dropdown.querySelector(".view-all-results-btn");
+    if (viewAllBtn) {
+      viewAllBtn.addEventListener("click", () => {
+        const query = viewAllBtn.getAttribute("data-query");
+        window.location.href = `/listings.html?search=${query}`;
+      });
+    }
+
+    // Dropdown items
+    const items = dropdown.querySelectorAll(".dropdown-item");
+    items.forEach((item) => {
+      item.addEventListener("click", () => {
+        const listingId = item.getAttribute("data-listing-id");
+        window.location.href = `/item.html?id=${listingId}`;
+      });
+    });
   }
 
   /**
@@ -331,8 +364,8 @@ export class SearchAndSortComponent {
     const isEnded = timeLeftMs <= 0;
     return `
       <div
-        onclick="window.location.href='/item.html?id=${listing.id}'"
-        class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+        class="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 dropdown-item"
+        data-listing-id="${listing.id}"
       >
         <div class="flex-shrink-0 w-12 h-12 mr-3">
           ${
@@ -438,7 +471,7 @@ export class SearchAndSortComponent {
       if (authHeader.Authorization)
         headers["Authorization"] = authHeader.Authorization;
     }
-    const response = await safeFetch(
+    const response = await this.cachedFetch(
       `${API_BASE_URL}/auction/listings?_seller=true&_bids=true&limit=100&sort=created&sortOrder=desc`,
       { headers },
     );
@@ -561,4 +594,3 @@ export class SearchAndSortComponent {
 }
 
 export const searchAndSortComponent = new SearchAndSortComponent();
-window.searchAndSortComponent = searchAndSortComponent;
