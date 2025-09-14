@@ -1,5 +1,12 @@
-// Reusable button components for Pink Gavel Auctions
+// Button components for Pink Gavel Auctions
+// Button components for Pink Gavel Auctions
 
+/**
+ * Creates a gradient-styled anchor button.
+ * @param {string} text - Button label text.
+ * @param {string} [href="#"] - Link URL for the button.
+ * @returns {HTMLAnchorElement} The styled anchor button element.
+ */
 export function createGradientButton(text, href = "#") {
   const btn = document.createElement("a");
   btn.href = href;
@@ -9,7 +16,14 @@ export function createGradientButton(text, href = "#") {
   return btn;
 }
 
-// Load More Button Component
+/**
+ * Creates a 'Load More' button with a click handler.
+ * @param {string} [text="Load More"] - Button label text.
+ * @param {Function} onClick - Click event handler.
+ * @param {string|null} [id=null] - Optional button id.
+ * @param {string} [additionalClasses=""] - Additional CSS classes.
+ * @returns {HTMLButtonElement} The styled button element.
+ */
 export function createLoadMoreButton(
   text = "Load More",
   onClick,
@@ -24,7 +38,14 @@ export function createLoadMoreButton(
   return btn;
 }
 
-// View Less Button Component
+/**
+ * Creates a 'View Less' button with a click handler.
+ * @param {string} [text="View Less"] - Button label text.
+ * @param {Function} onClick - Click event handler.
+ * @param {string|null} [id=null] - Optional button id.
+ * @param {string} [additionalClasses=""] - Additional CSS classes.
+ * @returns {HTMLButtonElement} The styled button element.
+ */
 export function createViewLessButton(
   text = "View Less",
   onClick,
@@ -39,7 +60,14 @@ export function createViewLessButton(
   return btn;
 }
 
-// View More Button Component (for profile sections)
+/**
+ * Creates a 'View More' button, useful for profile sections.
+ * @param {string} [text="View More"] - Button label text.
+ * @param {Function} onClick - Click event handler.
+ * @param {string|null} [id=null] - Optional button id.
+ * @param {string} [additionalClasses=""] - Additional CSS classes.
+ * @returns {HTMLButtonElement} The styled button element.
+ */
 export function createViewMoreButton(
   text = "View More",
   onClick,
@@ -54,7 +82,12 @@ export function createViewMoreButton(
   return btn;
 }
 
-// Button Container Component
+/**
+ * Wraps an array of buttons in a flex container.
+ * @param {HTMLElement[]} buttons - Array of button elements to wrap.
+ * @param {string} [additionalClasses] - Additional CSS classes for the container.
+ * @returns {HTMLDivElement} The container div with buttons.
+ */
 export function createButtonContainer(
   buttons,
   additionalClasses = "flex justify-center space-x-4 mt-8 mb-4",
@@ -71,7 +104,20 @@ export function createButtonContainer(
   return container;
 }
 
-// Pagination Buttons Helper
+/**
+ * Creates a container with pagination buttons ('Load More' and 'View Less').
+ * @param {Object} options - Pagination options.
+ * @param {boolean} [options.showLoadMore=false] - Show 'Load More' button.
+ * @param {boolean} [options.showViewLess=false] - Show 'View Less' button.
+ * @param {string} [options.loadMoreText="Load More"] - 'Load More' button text.
+ * @param {string} [options.viewLessText="View Less"] - 'View Less' button text.
+ * @param {Function} [options.onLoadMore] - 'Load More' click handler.
+ * @param {Function} [options.onViewLess] - 'View Less' click handler.
+ * @param {string|null} [options.loadMoreId=null] - 'Load More' button id.
+ * @param {string|null} [options.viewLessId=null] - 'View Less' button id.
+ * @param {string} [options.containerClasses] - CSS classes for the container.
+ * @returns {HTMLDivElement|null} The container div with pagination buttons, or null if none.
+ */
 export function createPaginationButtons(options = {}) {
   const {
     showLoadMore = false,

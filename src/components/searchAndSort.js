@@ -1,6 +1,7 @@
 /**
- * Search and Sort Component
- * Handles search functionality and sorting for listings
+ * SearchAndSortComponent
+ * Handles search and sorting for auction listings, including dropdown UI, debounced search, and sorting logic.
+ * @module SearchAndSortComponent
  */
 import { config } from "../services/config.js";
 import { API_BASE_URL } from "../services/baseApi.js";
@@ -11,20 +12,56 @@ import {
 } from "../utils/requestManager.js";
 
 export class SearchAndSortComponent {
+  /**
+   * Initializes the SearchAndSortComponent instance.
+   */
   constructor() {
+    /**
+     * Cache for search results
+     * @type {Map<string, {data: Array, timestamp: number}>}
+     */
     this.cache = new Map();
+    /**
+     * Cache timeout in ms
+     * @type {number}
+     */
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    /**
+     * Timeout for dropdown search
+     * @type {?number}
+     */
     this.searchTimeout = null;
+    /**
+     * Indicates if a search is in progress
+     * @type {boolean}
+     */
     this.isSearching = false;
+    /**
+     * Current sort type
+     * @type {string}
+     */
     this.currentSort = "relevance";
+    /**
+     * Dropdown visibility state
+     * @type {boolean}
+     */
     this.dropdownVisible = false;
+    /**
+     * Cached fetch utility
+     */
     this.cachedFetch = createCachedFetch(300000);
 
+    /**
+     * Debounced search function
+     */
     this.debouncedSearch = createDebouncedSearch((query) => {
       this.performSearch(query);
     }, 500);
   }
 
+  /**
+   * Initializes event listeners and dropdown containers.
+   */
   init() {
     this.setupSearchListeners();
     this.setupSortListeners();
@@ -32,6 +69,9 @@ export class SearchAndSortComponent {
     this.setupDocumentClickListener();
   }
 
+  /**
+   * Creates dropdown containers for header and mobile search inputs.
+   */
   createDropdownContainers() {
     const headerSearch = document.getElementById("header-search");
     if (headerSearch)
@@ -41,6 +81,11 @@ export class SearchAndSortComponent {
       this.createDropdown(mobileSearch, "mobile-search-dropdown");
   }
 
+  /**
+   * Creates a dropdown element for a given search input.
+   * @param {HTMLElement} searchInput - The input element
+   * @param {string} dropdownId - The id for the dropdown
+   */
   createDropdown(searchInput, dropdownId) {
     if (document.getElementById(dropdownId)) return;
     const dropdown = document.createElement("div");
@@ -53,6 +98,9 @@ export class SearchAndSortComponent {
     searchContainer.appendChild(dropdown);
   }
 
+  /**
+   * Sets up click listener to hide dropdowns when clicking outside.
+   */
   setupDocumentClickListener() {
     document.addEventListener("click", (e) => {
       const headerContainer =
@@ -66,6 +114,9 @@ export class SearchAndSortComponent {
     });
   }
 
+  /**
+   * Sets up listeners for search inputs and clear button.
+   */
   setupSearchListeners() {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
@@ -80,6 +131,9 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Sets up listeners for sort buttons and select dropdown.
+   */
   setupSortListeners() {
     const sortButtons = document.querySelectorAll(".sort-btn");
     sortButtons.forEach((button) => {
@@ -100,6 +154,10 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Sets the current sort type.
+   * @param {string} sortType
+   */
   setSortType(sortType) {
     const sortMapping = {
       newest: "newest",
@@ -109,11 +167,20 @@ export class SearchAndSortComponent {
     this.currentSort = sortMapping[sortType] || sortType;
   }
 
+  /**
+   * Filters listings to only active auctions.
+   * @param {Array} listings
+   * @returns {Array}
+   */
   filterActiveAuctions(listings) {
     const now = new Date();
     return listings.filter((listing) => new Date(listing.endsAt) > now);
   }
 
+  /**
+   * Updates the styles of sort buttons to reflect the active selection.
+   * @param {HTMLElement} activeButton
+   */
   updateSortButtonStyles(activeButton) {
     const sortButtons = document.querySelectorAll(".sort-btn");
     sortButtons.forEach((btn) => {
@@ -134,9 +201,15 @@ export class SearchAndSortComponent {
     activeButton.classList.add("bg-pink-400", "text-black");
   }
 
+  /**
+   * Sets up listeners for a search input and optional clear button.
+   * @param {HTMLInputElement} searchInput
+   * @param {?HTMLElement} clearButton
+   */
   setupSearchInput(searchInput, clearButton) {
     searchInput.addEventListener("input", (e) => {
       const query = e.target.value.trim();
+      // Show/hide clear button for header search
       if (clearButton && searchInput.id === "header-search") {
         if (query.length > 0) clearButton.classList.remove("hidden");
         else clearButton.classList.add("hidden");
@@ -164,6 +237,7 @@ export class SearchAndSortComponent {
         }
       }
     });
+    // Focus header search on click
     if (searchInput.id === "header-search") {
       searchInput.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -172,15 +246,29 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Performs a dropdown search and displays results in the dropdown.
+   * @param {string} query
+   * @param {HTMLInputElement} searchInput
+   */
   async performDropdownSearch(query, searchInput) {
     try {
       const results = await this.searchAPI(query);
       const sortedResults = this.sortListings(results, this.currentSort);
       const limitedResults = sortedResults.slice(0, 3);
       this.showDropdown(searchInput, query, limitedResults, results.length);
-    } catch (error) {}
+    } catch (error) {
+      // Silently fail dropdown search
+    }
   }
 
+  /**
+   * Renders the dropdown with search results.
+   * @param {HTMLInputElement} searchInput
+   * @param {string} query
+   * @param {Array} results
+   * @param {number} totalCount
+   */
   showDropdown(searchInput, query, results, totalCount) {
     const dropdownId =
       searchInput.id === "header-search"
@@ -227,6 +315,11 @@ export class SearchAndSortComponent {
     this.dropdownVisible = true;
   }
 
+  /**
+   * Creates a dropdown item HTML for a listing.
+   * @param {Object} listing
+   * @returns {string}
+   */
   createDropdownItem(listing) {
     const imageUrl =
       listing.media && listing.media.length > 0 && listing.media[0].url
@@ -260,17 +353,29 @@ export class SearchAndSortComponent {
     `;
   }
 
+  /**
+   * Hides a dropdown by id.
+   * @param {string} dropdownId
+   */
   hideDropdown(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     if (dropdown) dropdown.classList.add("hidden");
     this.dropdownVisible = false;
   }
 
+  /**
+   * Hides all dropdowns.
+   */
   hideAllDropdowns() {
     this.hideDropdown("header-search-dropdown");
     this.hideDropdown("mobile-search-dropdown");
   }
 
+  /**
+   * Syncs the value of both search inputs (header and mobile).
+   * @param {string} query
+   * @param {HTMLInputElement} excludeInput
+   */
   syncSearchInputs(query, excludeInput) {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
@@ -288,6 +393,10 @@ export class SearchAndSortComponent {
       mobileSearch.value = query;
   }
 
+  /**
+   * Performs a search and dispatches a search event.
+   * @param {string} query
+   */
   async performSearch(query) {
     if (this.isSearching) return;
     this.isSearching = true;
@@ -307,6 +416,12 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Calls the API to fetch listings and filters them by query.
+   * Uses cache if available and valid.
+   * @param {string} query
+   * @returns {Promise<Array>}
+   */
   async searchAPI(query) {
     const cacheKey = `search_${query.toLowerCase()}`;
     const cached = this.cache.get(cacheKey);
@@ -318,6 +433,7 @@ export class SearchAndSortComponent {
         "Content-Type": "application/json",
         "X-Noroff-API-Key": config.X_NOROFF_API_KEY,
       };
+      // Add auth header if authenticated
       if (window.isAuthenticated && window.isAuthenticated()) {
         const authHeader = window.getAuthHeader ? window.getAuthHeader() : {};
         if (authHeader.Authorization)
@@ -339,6 +455,12 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Filters listings by search query.
+   * @param {Array} listings
+   * @param {string} query
+   * @returns {Array}
+   */
   filterListings(listings, query) {
     if (!query || query.trim().length === 0) return listings;
     const searchTerm = query.toLowerCase().trim();
@@ -356,11 +478,18 @@ export class SearchAndSortComponent {
     });
   }
 
+  /**
+   * Sorts listings by the selected sort type.
+   * @param {Array} listings
+   * @param {string} sortBy
+   * @returns {Array}
+   */
   sortListings(listings, sortBy) {
     let sorted = [...listings];
     const now = new Date();
     switch (sortBy) {
       case "newest": {
+        // Active auctions first, then ended, both sorted by created date desc
         const active = sorted.filter((l) => new Date(l.endsAt) > now);
         const ended = sorted.filter((l) => new Date(l.endsAt) <= now);
         const sortedActive = active.sort(
@@ -374,6 +503,7 @@ export class SearchAndSortComponent {
       case "oldest":
         return sorted.sort((a, b) => new Date(a.created) - new Date(b.created));
       case "won-auctions": {
+        // Only ended auctions with bids
         const won = sorted.filter(
           (l) => new Date(l.endsAt) <= now && (l._count?.bids || 0) > 0,
         );
@@ -385,12 +515,21 @@ export class SearchAndSortComponent {
     }
   }
 
+  /**
+   * Applies sorting to current search results.
+   */
   applySorting() {
     const headerSearch = document.getElementById("header-search");
     const currentQuery = headerSearch ? headerSearch.value.trim() : "";
     this.performSearch(currentQuery);
   }
 
+  /**
+   * Dispatches a custom event with search results.
+   * @param {string} query
+   * @param {Array} results
+   * @param {?string} error
+   */
   dispatchSearchEvent(query, results, error = null) {
     const searchEvent = new CustomEvent("searchPerformed", {
       detail: {
@@ -404,6 +543,9 @@ export class SearchAndSortComponent {
     window.dispatchEvent(searchEvent);
   }
 
+  /**
+   * Clears the search input and results.
+   */
   clearSearch() {
     const headerSearch = document.getElementById("header-search");
     const mobileSearch = document.getElementById("mobile-search");
@@ -415,6 +557,9 @@ export class SearchAndSortComponent {
     this.performSearch("");
   }
 
+  /**
+   * Clears the search results cache.
+   */
   clearCache() {
     this.cache.clear();
   }

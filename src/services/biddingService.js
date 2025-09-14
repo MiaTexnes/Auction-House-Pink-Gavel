@@ -166,10 +166,32 @@ export class BiddingService {
       // Update credits in header
       await updateUserCredits();
 
+      // Fun celebratory messages
+      const successMessages = [
+        "🎉 Bid placed successfully! You're in the game!",
+        "🚀 Awesome! Your bid is flying high!",
+        "👏 Well done! You just placed a winning bid!",
+        "💎 Your bid shines bright!",
+        "🔥 Hot bid! You're leading the auction!",
+      ];
+      // Pick a random message
+      const message =
+        successMessages[Math.floor(Math.random() * successMessages.length)];
+
+      // Get updated credits
+      let updatedCredits = null;
+      try {
+        updatedCredits = await this.getCurrentUserCredits();
+      } catch (e) {
+        // If unable to fetch, leave as null
+      }
+
       return {
         success: true,
         data: responseData.data,
-        message: "Bid placed successfully!",
+        message,
+        emoji: "🎊",
+        updatedCredits,
       };
     } catch (error) {
       return {

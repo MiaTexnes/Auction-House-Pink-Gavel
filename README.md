@@ -1,289 +1,318 @@
-# 🔨 Pink Gavel Auctions
+# Auction House - Pink Gavel 🔨
 
-> A modern, fully-featured online auction platform built with vanilla JavaScript and Tailwind CSS
+![Project Banner](assets/images/logo.png)
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
-![Coverage](https://img.shields.io/badge/coverage-85%25-yellow.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+**A modern, responsive auction platform built with vanilla JavaScript and Tailwind CSS**
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://app.netlify.com/sites/your-site/deploys)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## 🎯 About the Project
+
+Auction House - Pink Gavel is a full-featured front-end application for an online auction platform. Users can list items for auction, place bids, and manage their credits in a sleek, modern interface. This project demonstrates advanced front-end development skills including API integration, responsive design, and comprehensive testing.
+
+**🔗 [Live Demo](https://your-site-name.netlify.app)** | **📚 [API Documentation](https://docs.noroff.dev/docs/v2)**
+
+### Built With
+
+- **JavaScript (ES6+)** - Modern vanilla JavaScript
+- **Tailwind CSS v3.4.17** - Utility-first CSS framework
+- **Vite** - Fast build tool and dev server
+- **Vitest** - Unit testing framework
+- **Husky** - Git hooks for code quality
+- **Noroff Auction API** - Backend services
 
 ## ✨ Features
 
-### 🎯 Core Functionality
+### 🔐 Authentication & User Management
 
-- **Live Auction System** - Real-time bidding with automatic updates
-- **User Management** - Complete registration, authentication, and profile system
-- **Listing Management** - Create, edit, and manage auction listings with rich media
-- **Advanced Search** - Powerful filtering and sorting capabilities
-- **Credit System** - Secure bidding credits and transaction management
+- **Secure Registration** - Only users with `stud.noroff.no` email domains
+- **Login/Logout** - Persistent authentication with JWT tokens
+- **Profile Management** - Update avatar and view account details
+- **Credit System** - Track and manage bidding credits
 
-### 🎨 User Experience
+### 🏷️ Auction Listings
 
-- **Responsive Design** - Mobile-first approach with seamless cross-device experience
-- **Dark/Light Themes** - User preference with system detection
-- **Accessibility** - WCAG compliant with keyboard navigation support
-- **Performance** - Optimized loading and smooth animations
+- **Create Listings** - Add items with title, description, images, and deadline
+- **Media Gallery** - Multiple image support for listings
+- **Search & Filter** - Advanced search functionality for all users
+- **Bidding System** - Place bids and view bidding history
 
-### 🛡️ Security & Reliability
+### 👤 User Roles
 
-- **Secure Authentication** - JWT-based user sessions
-- **Input Validation** - Comprehensive client and server-side validation
-- **Session Management** - Automatic timeout and security features
-- **Testing Coverage** - 85%+ code coverage with unit and integration tests
+- **Registered Users**: Full access to bidding, listing creation, and profile management
+- **Guest Users**: Browse and search listings without registration
 
-## 🚀 Quick Start
+### 🎨 UI/UX Features
+
+- **Responsive Design** - Mobile-first approach with Tailwind CSS
+- **Dark/Light Mode** - Toggle between themes
+- **Interactive Components** - Modals, carousels, and dynamic forms
+- **Accessibility** - WCAG compliant interface
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 16+ and npm
-- Modern web browser with ES6+ support
+Make sure you have the following installed:
+
+- **Node.js** (v16 or higher)
+- **npm** or **yarn**
+- **Git**
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/pink-gavel-auctions.git
-cd pink-gavel-auctions
+1. **Clone the repository**
 
-# Install dependencies
-npm install
+   ```bash
+   git clone https://github.com/MiaTexnes/Auction-House-Pink-Gavel.git
+   cd Auction-House-Pink-Gavel
+   ```
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
+2. **Install dependencies**
 
-# Start development server
-npm run dev
-```
+   ```bash
+   npm install
+   ```
 
-Visit `http://localhost:5173` to see your local instance.
+3. **Start development server**
 
-### Build for Production
+   ```bash
+   npm run dev
+   ```
 
-```bash
-# Create optimized build
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-## 📁 Project Structure
-
-```
-Pink Gavel Auctions/
-├── 📄 Core Files
-│   ├── package.json          # Dependencies and scripts
-│   ├── vite.config.js        # Build configuration
-│   ├── tailwind.config.js    # Styling configuration
-│   └── TESTING.md           # Testing documentation
-│
-├── 🌐 HTML Pages
-│   ├── index.html           # Landing page
-│   ├── listings.html        # Browse auctions
-│   ├── item.html           # Item details & bidding
-│   ├── profile.html        # User dashboard
-│   └── [other pages]       # Authentication, legal, etc.
-│
-├── 💻 Source Code
-│   ├── main.js             # Application entry point
-│   ├── components/         # Reusable UI components
-│   ├── pages/             # Page-specific controllers
-│   ├── services/          # API and external services
-│   ├── library/           # Core business logic
-│   ├── utils/             # Helper functions
-│   └── tests/             # Test suites
-│
-└── 🎨 Assets
-    ├── assets/images/      # Static images
-    ├── assets/favicon/     # App icons
-    └── src/css/           # Stylesheets
-```
-
-## 🛠️ Development
+4. **Open your browser**
+   Navigate to `http://localhost:5173`
 
 ### Available Scripts
 
-| Command                 | Description                              |
-| ----------------------- | ---------------------------------------- |
-| `npm run dev`           | Start development server with hot reload |
-| `npm run build`         | Create production build                  |
-| `npm run preview`       | Preview production build locally         |
-| `npm run test`          | Run test suite                           |
-| `npm run test:coverage` | Run tests with coverage report           |
-| `npm run format`        | Format code with Prettier                |
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
 
-### Architecture Overview
+# Testing
+npm run test         # Run unit tests
+npm run test:watch   # Run tests in watch mode
+npm run test:coverage # Generate coverage report
 
-**Frontend**: Vanilla JavaScript with ES6+ modules
-
-- **Component System**: Modular, reusable UI components
-- **State Management**: Event-driven architecture with custom state handling
-- **Routing**: Client-side routing for SPA experience
-
-**Styling**: Tailwind CSS with custom components
-
-- **Responsive**: Mobile-first design approach
-- **Theming**: CSS custom properties for dynamic themes
-- **Accessibility**: Focus management and ARIA support
-
-**Build System**: Vite for fast development and optimized builds
-
-- **Hot Reload**: Instant updates during development
-- **Code Splitting**: Automatic optimization for production
-- **Asset Pipeline**: Optimized image and resource handling
+# Code Quality
+npm run lint         # Run ESLint
+npm run format       # Format code with Prettier
+npm prepare          # Install Husky hooks
+```
 
 ## 🧪 Testing
 
-We maintain high code quality with comprehensive testing:
+This project includes comprehensive testing with **Vitest**:
+
+- **Unit Tests** - Components and utility functions
+- **Integration Tests** - API services and user flows
+- **Coverage Reports** - Generated in `/coverage` directory
+
+Run tests with:
 
 ```bash
-# Run all tests
-npm run test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Generate coverage report
 npm run test:coverage
 ```
 
-**Testing Stack:**
+View coverage reports by opening `coverage/index.html` in your browser.
 
-- **Vitest**: Fast unit testing framework
-- **JSDOM**: DOM testing environment
-- **Coverage**: Detailed reporting with threshold enforcement
+## 📁 Project File Structure
 
-See [TESTING.md](TESTING.md) for detailed testing documentation.
+<details>
+  <summary>Click to expand</summary>
 
-## 🎨 UI/UX Features
+```text
+├── assets/
+│   ├── favicon/
+│   │   ├── favicon-96x96.png
+│   │   ├── favicon.ico
+│   │   ├── favicon.svg
+│   │   ├── site.webmanifest
+│   │   ├── web-app-manifest-192x192.png
+│   │   └── web-app-manifest-512x512.png
+│   └── images/
+│       └── logo.png
+├── coverage/
+│   ├── base.css
+│   ├── block-navigation.js
+│   ├── clover.xml
+│   ├── coverage-final.json
+│   ├── favicon.png
+│   ├── index.html
+│   ├── prettify.css
+│   ├── prettify.js
+│   ├── sort-arrow-sprite.png
+│   └── sorter.js
+├── netlify/
+│   └── functions/
+│       └── api-proxy.js
+├── public/
+│   ├── site.webmanifest
+│   ├── vite.svg
+│   ├── assets/
+│   │   ├── favicon/
+│   │   └── images/
+│   └── favicon/
+│       ├── favicon-96x96.png
+│       ├── favicon.ico
+│       ├── favicon.svg
+│       ├── site.webmanifest
+│       ├── web-app-manifest-192x192.png
+│       └── web-app-manifest-512x512.png
+├── src/
+│   ├── main.js
+│   ├── components/
+│   │   ├── buttons.js
+│   │   ├── carousel.js
+│   │   ├── darkLight.js
+│   │   ├── footer.js
+│   │   ├── header.js
+│   │   ├── modalManager.js
+│   │   └── searchAndSort.js
+│   ├── config/
+│   │   └── faviconConfig.js
+│   ├── css/
+│   │   └── style.css
+│   ├── library/
+│   │   ├── auth.js
+│   │   └── newListing.js
+│   ├── pages/
+│   │   ├── contact.js
+│   │   ├── faq.js
+│   │   ├── index.js
+│   │   ├── item.js
+│   │   ├── listings.js
+│   │   ├── login.js
+│   │   ├── profile.js
+│   │   ├── register.js
+│   │   └── sellerProfile.js
+│   ├── services/
+│   │   ├── baseApi.js
+│   │   ├── biddingService.js
+│   │   ├── config.js
+│   │   ├── faviconService.js
+│   │   ├── inactivityService.js
+│   │   ├── themeService.js
+│   │   └── tests/
+│   │       ├── auth.test.js
+│   │       ├── baseApi.test.js
+│   │       ├── biddingService.test.js
+│   │       ├── buttons.test.js
+│   │       ├── carousel.test.js
+│   │       └── ...
+│   └── utils/
+│       └── ...
+├── contact.html
+├── cookies.html
+├── faq.html
+├── index.html
+├── item.html
+├── listings.html
+├── login.html
+├── netlify.toml
+├── package.json
+├── postcss.config.js
+├── prettier.config.json
+├── privacy.html
+├── profile.html
+├── README.md
+├── register.html
+├── sellerProfile.html
+├── tailwind.config.js
+├── terms.html
+├── TESTING.md
+├── vite.config.js
+└── ...
+```
 
-### Design System
+</details>
 
-- **Color Palette**: Carefully chosen colors with proper contrast ratios
-- **Typography**: Readable font hierarchy with responsive scaling
-- **Spacing**: Consistent spacing system using Tailwind's scale
-- **Components**: Reusable button, modal, and form components
+## 🔧 Configuration
 
-### Responsive Breakpoints
+### Environment Setup
 
-| Breakpoint | Size    | Target        |
-| ---------- | ------- | ------------- |
-| `sm`       | 640px+  | Large phones  |
-| `md`       | 768px+  | Tablets       |
-| `lg`       | 1024px+ | Desktop       |
-| `xl`       | 1280px+ | Large screens |
+The project uses the Noroff Auction API. No additional environment variables are required for basic functionality.
 
-### Accessibility
+### Tailwind CSS
 
-- Keyboard navigation support
-- Screen reader compatible
-- High contrast mode support
-- Focus indicators and skip links
+Tailwind is configured with custom colors and components. See `tailwind.config.js` for customization options.
 
-## 📱 Key Pages & Features
+### Netlify Deployment
 
-### 🏠 Homepage (`index.html`)
+The project is optimized for Netlify deployment with:
 
-- Featured auction carousel
-- Quick category navigation
-- Recent activity feed
+- **Build command**: `npm run build`
+- **Publish directory**: `dist`
+- **Functions**: Located in `netlify/functions/`
 
-### 📋 Listings (`listings.html`)
+## 🎨 Design System
 
-- Advanced search and filtering
-- Grid/list view toggle
-- Real-time bid updates
+The project follows a cohesive design system:
 
-### 🔍 Item Details (`item.html`)
+- **Color Palette**: Pink-themed with support for dark/light modes
+- **Typography**: Responsive text scaling
+- **Components**: Consistent button styles, modals, and form elements
+- **Layout**: Mobile-first responsive grid system
 
-- High-resolution image gallery
-- Live bidding interface
-- Bid history and analytics
+Design files are available in [Figma](https://www.figma.com/).
 
-### 👤 User Profile (`profile.html`)
+## 📊 Project Management
 
-- Personal dashboard
-- Listing management
-- Bid tracking and wins
+Development is tracked using GitHub Projects with:
 
-### 🛡️ Authentication
-
-- Secure login/registration
-- Password reset functionality
-- Profile customization
-
-## 🚀 Performance
-
-### Optimization Features
-
-- **Lazy Loading**: Images and components loaded on demand
-- **Code Splitting**: Automatic bundle optimization
-- **Caching Strategy**: Efficient asset and API caching
-- **Minification**: Production builds are fully optimized
-
-### Lighthouse Scores
-
-- **Performance**: 95+
-- **Accessibility**: 100
-- **Best Practices**: 100
-- **SEO**: 95+
+- **📋 [Kanban Board](https://github.com/MiaTexnes/Auction-House-Pink-Gavel/projects)** - Task management
+- **📈 Gantt Charts** - Timeline tracking
+- **🐛 Issues** - Bug tracking and feature requests
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our contributing guidelines:
+Contributions are welcome! Please follow these steps:
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Code Style
+### Development Guidelines
 
 - Follow the existing code style
-- Run `npm run format` before committing
-- Ensure all tests pass
-- Add tests for new features
+- Write tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submitting
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙋‍♂️ Support
+## 👨‍💻 Author
 
-Need help? We're here for you:
+**Mia Texnes**
 
-- 📧 **Email**: support@pinkgavelauctions.com
-- 💬 **Discord**: [Join our community](https://discord.gg/pinkgavel)
-- 📖 **Documentation**: [Full docs](https://docs.pinkgavelauctions.com)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-username/pink-gavel-auctions/issues)
+- GitHub: [@MiaTexnes](https://github.com/MiaTexnes)
+- Project Link: [Auction House - Pink Gavel](https://github.com/MiaTexnes/Auction-House-Pink-Gavel)
 
-## 🎯 Roadmap
+## 🙏 Acknowledgments
 
-### Upcoming Features
+- **Noroff Education** - For providing the auction API and project requirements
+- **Tailwind CSS** - For the excellent utility-first CSS framework
+- **Vite** - For the blazing fast development experience
+- **Netlify** - For seamless deployment and hosting
 
-- [ ] Mobile app (React Native)
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] Payment gateway integration
-- [ ] Automated bidding (proxy bids)
-- [ ] Social features and user ratings
+## 📞 Support
 
-### Recent Updates
+If you encounter any issues or have questions:
 
-- [x] Dark mode implementation
-- [x] Responsive design overhaul
-- [x] Performance optimizations
-- [x] Accessibility improvements
-- [x] Comprehensive testing suite
+1. Check the [FAQ page](faq.html) for common questions
+2. Search existing [GitHub Issues](https://github.com/MiaTexnes/Auction-House-Pink-Gavel/issues)
+3. Create a new issue with detailed information
+4. Contact through the [contact page](contact.html)
 
 ---
 
 <div align="center">
-
-**Made with ❤️ by the Pink Gavel Auctions Team**
-
-[Website](https://pinkgavel.netlify.app) •
-
+  Made with ❤️ for Noroff Semester Project 2
 </div>

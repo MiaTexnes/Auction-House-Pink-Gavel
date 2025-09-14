@@ -380,6 +380,7 @@ class UIManager {
       if (media && media.length > 0 && media[0].url) {
         mainImg.src = media[0].url;
         mainImg.alt = title;
+        mainImg.classList.add("object-contain");
 
         // Create thumbnail gallery if multiple images
         if (media.length > 1) {
@@ -389,6 +390,7 @@ class UIManager {
         // Use fallback image
         mainImg.src = DEFAULT_IMAGE;
         mainImg.alt = "No image available";
+        mainImg.classList.add("object-contain");
       }
     }
   }
@@ -410,7 +412,7 @@ class UIManager {
       thumbnail.alt = item.alt || `Image ${index + 1}`;
       thumbnail.loading = "lazy";
       thumbnail.className =
-        "w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity";
+        "w-full h-20 object-contain rounded cursor-pointer hover:opacity-80 transition-opacity";
 
       // Highlight first thumbnail as selected
       if (index === 0) {
@@ -510,32 +512,56 @@ class UIManager {
     const isOwner =
       authenticated && currentUser && currentUser.name === listing.seller?.name;
 
+    let ownerBidMsg = document.getElementById("owner-bid-message");
     if (isOwner) {
       // Show owner controls (edit/delete)
       this.elements.bidding.section?.classList.add("hidden");
       this.elements.actions.authRequired?.classList.add("hidden");
       this.elements.actions.owner?.classList.remove("hidden");
 
+      // Show message: You can't bid on your own items
+      if (!ownerBidMsg) {
+        ownerBidMsg = document.createElement("div");
+        ownerBidMsg.id = "owner-bid-message";
+        ownerBidMsg.className = "text-center text-pink-700 font-semibold my-4";
+        ownerBidMsg.textContent = "You can't bid on your own items.";
+        if (
+          this.elements.bidding.section &&
+          this.elements.bidding.section.parentNode
+        ) {
+          this.elements.bidding.section.parentNode.insertBefore(
+            ownerBidMsg,
+            this.elements.bidding.section.nextSibling,
+          );
+        }
+      } else {
+        ownerBidMsg.classList.remove("hidden");
+      }
+
       // Update delete button state based on bids
       this.updateDeleteButtonState(listing);
 
       // Update edit button state based on auction end status and bids
       this.updateEditButtonState(listing, isEnded);
-    } else if (isEnded) {
-      // Hide all actions for ended auctions
-      this.elements.bidding.section?.classList.add("hidden");
-      this.elements.actions.owner?.classList.add("hidden");
-      this.elements.actions.authRequired?.classList.add("hidden");
-    } else if (authenticated) {
-      // Show bidding interface for authenticated non-owners
-      this.elements.actions.authRequired?.classList.add("hidden");
-      this.elements.actions.owner?.classList.add("hidden");
-      this.elements.bidding.section?.classList.remove("hidden");
     } else {
-      // Show login prompt for non-authenticated users
-      this.elements.bidding.section?.classList.add("hidden");
-      this.elements.actions.owner?.classList.add("hidden");
-      this.elements.actions.authRequired?.classList.remove("hidden");
+      // Hide the owner-only bid message for all non-owners
+      if (ownerBidMsg) ownerBidMsg.classList.add("hidden");
+      if (isEnded) {
+        // Hide all actions for ended auctions
+        this.elements.bidding.section?.classList.add("hidden");
+        this.elements.actions.owner?.classList.add("hidden");
+        this.elements.actions.authRequired?.classList.add("hidden");
+      } else if (authenticated) {
+        // Show bidding interface for authenticated non-owners
+        this.elements.actions.authRequired?.classList.add("hidden");
+        this.elements.actions.owner?.classList.add("hidden");
+        this.elements.bidding.section?.classList.remove("hidden");
+      } else {
+        // Show login prompt for non-authenticated users
+        this.elements.bidding.section?.classList.add("hidden");
+        this.elements.actions.owner?.classList.add("hidden");
+        this.elements.actions.authRequired?.classList.remove("hidden");
+      }
     }
   }
 
@@ -548,16 +574,22 @@ class UIManager {
   showWinnerBanner(winner, isEnded) {
     if (!isEnded || !winner || !this.elements.winner.banner) return;
 
+    const ownerBidMsg = document.getElementById("owner-bid-message");
+    if (ownerBidMsg) ownerBidMsg.classList.add("hidden");
     const avatarUrl = winner.bidder?.avatar?.url || DEFAULT_BIDDER_AVATAR;
     const winnerName = winner.bidder?.name || "Unknown Winner";
 
     // Populate banner content
     if (this.elements.winner.bannerAvatar) {
+      const ownerBidMsg = document.getElementById("owner-bid-message");
+      if (ownerBidMsg) ownerBidMsg.classList.add("hidden");
       this.elements.winner.bannerAvatar.src = avatarUrl;
       this.elements.winner.bannerAvatar.alt = `${winnerName} avatar`;
     }
 
     if (this.elements.winner.bannerName) {
+      const ownerBidMsg = document.getElementById("owner-bid-message");
+      if (ownerBidMsg) ownerBidMsg.classList.add("hidden");
       if (isAuthenticated() && winnerName !== "Unknown Winner") {
         const profileUrl = `/sellerProfile.html?name=${encodeURIComponent(winnerName)}`;
         this.elements.winner.bannerName.innerHTML = `<a href="${profileUrl}" class="hover:underline text-white">${winnerName}</a>`;
