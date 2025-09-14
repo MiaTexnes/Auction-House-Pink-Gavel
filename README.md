@@ -266,7 +266,7 @@ Design files are available in [Figma](https://www.figma.com/).
 Development is tracked using GitHub Projects with:
 
 - **📋 [Kanban Board](https://github.com/MiaTexnes/Auction-House-Pink-Gavel/projects)** - Task management
-- **📈 Gantt Charts** - Timeline tracking
+- **📈 Gantt Charts** - [Timeline tracking](https://github.com/users/MiaTexnes/projects/7/views/1)
 - **🐛 Issues** - Bug tracking and feature requests
 
 ## 🤝 Contributing

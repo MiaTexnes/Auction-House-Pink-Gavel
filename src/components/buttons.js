@@ -77,7 +77,7 @@ export function createViewMoreButton(
   const btn = document.createElement("button");
   if (id) btn.id = id;
   btn.textContent = text;
-  btn.className = `bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-6 rounded-lg transition-all shadow-md ${additionalClasses}`;
+  btn.className = `bg-pink-400 hover:bg-pink-600 text-black font-semibold py-2 px-6 rounded-lg transition-all shadow-md ${additionalClasses}`;
   btn.addEventListener("click", onClick);
   return btn;
 }
