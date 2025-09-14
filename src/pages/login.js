@@ -96,7 +96,23 @@ class UIManager {
   addRegisterButton() {
     if (!this.elements.registerContainer) return;
 
+    // Ensure the container is visible and styled for mobile
+    this.elements.registerContainer.classList.add(
+      "w-full",
+      "flex",
+      "justify-center",
+      "mb-4",
+    );
+
     const registerButton = createGradientButton("Register", "register.html");
+    // Add mobile-friendly classes to the button itself
+    registerButton.classList.add(
+      "w-full",
+      "max-w-xs",
+      "text-base",
+      "py-2",
+      "rounded-md",
+    );
     this.elements.registerContainer.appendChild(registerButton);
   }
 }
