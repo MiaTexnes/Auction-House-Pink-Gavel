@@ -4,13 +4,11 @@
 
 **A modern, responsive auction platform built with vanilla JavaScript and Tailwind CSS**
 
-##[Live Demo](https://pinkgavel.netlify.app)
-
 ## 🎯 About the Project
 
 Auction House - Pink Gavel is a full-featured front-end application for an online auction platform. Users can list items for auction, place bids, and manage their credits in a sleek, modern interface. This project demonstrates advanced front-end development skills including API integration, responsive design, and comprehensive testing.
 
-**🔗 [Live Demo](https://your-site-name.netlify.app)** | **📚 [API Documentation](https://docs.noroff.dev/docs/v2)**
+**🔗 [Live Demo](https://pinkgavel.netlify.app)** | **📚 [API Documentation](https://docs.noroff.dev/docs/v2)**
 
 ### Built With
 
