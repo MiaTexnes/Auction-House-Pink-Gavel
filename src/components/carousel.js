@@ -420,7 +420,7 @@ export class CarouselComponent {
 
     this.elements.cardArea = DOMUtils.createElement(
       "div",
-      "flex-1 min-w-0 overflow-x-auto overflow-y-hidden px-1 sm:px-2 carousel-card-area h-[480px]",
+      "flex-1 min-w-0 overflow-x-auto overflow-y-hidden px-1 sm:px-2 carousel-card-area h-[480px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
     );
 
     // This is the strip that holds all the cards and slides around
