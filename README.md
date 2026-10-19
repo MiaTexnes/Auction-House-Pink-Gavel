@@ -92,14 +92,14 @@ npm run build        # Build for production
 npm run preview      # Preview production build
 
 # Testing
-npm run test         # Run unit tests
-npm run test:watch   # Run tests in watch mode
+npm run test         # Run Vitest
+npm run test:run     # Run the tests once
 npm run test:coverage # Generate coverage report
 
 # Code Quality
-npm run lint         # Run ESLint
 npm run format       # Format code with Prettier
-npm prepare          # Install Husky hooks
+npm run format:check # Check formatting
+npm run prepare      # Install Husky hooks
 ```
 
 ## 🧪 Testing
@@ -145,9 +145,6 @@ View coverage reports by opening `coverage/index.html` in your browser.
 │   ├── prettify.js
 │   ├── sort-arrow-sprite.png
 │   └── sorter.js
-├── netlify/
-│   └── functions/
-│       └── api-proxy.js
 ├── public/
 │   ├── site.webmanifest
 │   ├── vite.svg
@@ -252,11 +249,13 @@ See `tailwind.config.js`.
 
 ### Netlify Deployment
 
-The project is optimized for Netlify deployment and has environment variables in netlify (see the Environment Setup section for details).
+The project is deployed on Netlify from `main`.
 
 - **Build command**: `npm run build`
 - **Publish directory**: `dist`
-- **Functions**: Located in `netlify/functions/`
+- **Live site**: https://pinkgavel.netlify.app/
+
+The app calls the Noroff API through `VITE_API_BASE_URL`. There is no Netlify function.
 
 ## 🎨 Design System
 
