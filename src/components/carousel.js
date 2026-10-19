@@ -239,7 +239,7 @@ export function renderCarousel(listings, carouselContainer) {
   carouselContainer.innerHTML = "";
 
   carouselContainer.className =
-    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth-enhanced max-w-full px-2";
+    "flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto pb-4 scroll-smooth-enhanced max-w-full px-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
   listings.forEach((listing) => {
     const card = createCarouselCard(listing);

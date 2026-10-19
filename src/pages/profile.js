@@ -368,7 +368,7 @@ class UIManager {
   generateUserBio(profile) {
     return `
       <div class="mb-6 text-center px-4 md:px-8">
-        <h3 class="text-xl font-semibold mb-2">User Bio</h3>
+        <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">User Bio</h3>
         <p class="text-gray-700 dark:text-gray-300">${profile.bio || "No bio provided."}</p>
       </div>
     `;
@@ -401,10 +401,7 @@ class UIManager {
       <div class="mb-8 px-4 md:px-8">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold flex items-center gap-2">
-
-              Your Wins
-            </h3>
+            <h3 class="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">Your Wins</h3>
             <button
               id="toggleWinsBtn"
               class="bg-gradient-to-r from-yellow-200 to-yellow-300 hover:from-yellow-300 hover:to-yellow-400 dark:from-yellow-700 dark:to-yellow-800 dark:hover:from-yellow-600 dark:hover:to-yellow-700 text-yellow-800 dark:text-yellow-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
@@ -433,10 +430,7 @@ class UIManager {
       <div class="mb-8 px-4 md:px-8">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-green-500"></span>
-              Your Active Listings
-            </h3>
+            <h3 class="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">Your Active Listings</h3>
             <button
               id="toggleActiveListingsBtn"
               class="bg-gradient-to-r from-green-200 to-green-300 hover:from-green-300 hover:to-green-400 dark:from-green-700 dark:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700 text-green-800 dark:text-green-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
@@ -465,10 +459,7 @@ class UIManager {
       <div class="mb-8 px-4 md:px-8">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold flex items-center gap-2">
-              <span class="text-red-500"></span>
-              Your Ended Listings
-            </h3>
+            <h3 class="text-xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">Your Ended Listings</h3>
             <button
               id="toggleEndedListingsBtn"
               class="bg-gradient-to-r from-red-200 to-red-300 hover:from-red-300 hover:to-red-400 dark:from-red-700 dark:to-red-800 dark:hover:from-red-600 dark:hover:to-red-700 text-red-800 dark:text-red-100 px-4 py-2 rounded-lg transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
@@ -985,7 +976,7 @@ class EditProfileModalManager {
             <label for="avatar" class="block mb-1 font-semibold">Avatar URL</label>
             <input type="url" id="avatar" name="avatar" class="w-full border-gray-300 px-3 py-2 border rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Avatar URL" value="${this.profile.avatar?.url || ""}">
           </div>
-          <div>
+          <div> 
             <label for="bio" class="block mb-1 font-semibold">Bio</label>
             <textarea id="bio" name="bio" class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-700 dark:text-white" rows="4" placeholder="Write something about yourself...">${this.profile.bio || ""}</textarea>
           </div>

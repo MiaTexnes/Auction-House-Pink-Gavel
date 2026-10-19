@@ -177,7 +177,7 @@ function renderHeader() {
         </div>
 
         <!-- Mobile Menu Content (Hidden by default) -->
-        <div id="mobile-menu" class="hidden lg:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+        <div id="mobile-menu" class="hidden lg:hidden fixed inset-x-0 top-20 bottom-0 z-40 overflow-y-auto bg-white dark:bg-gray-900 px-4 py-4 border-t border-gray-200 dark:border-gray-700">
           <div class="flex flex-col space-y-3">
             <!-- Mobile Search -->
             <div class="relative mb-3">
